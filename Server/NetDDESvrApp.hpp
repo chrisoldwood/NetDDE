@@ -24,8 +24,6 @@ class CNetDDESvrApp : public CApp, public CDefDDEClientListener
 public:
 	// Template shorthands.
 	typedef TPtrArray<CNetDDESvrPipe> CPipes;
-	typedef TMap<CString, CLinkValue*> CLinksData;
-	typedef TMapIter<CString, CLinkValue*> CLinksDataIter;
 
 	//
 	// Constructors/Destructor.
@@ -43,7 +41,7 @@ public:
 	CString			m_strPipeName;		// The server pipe name.
 	CPipes			m_aoConnections;	// The client connections.
 	CNetDDESvrPipe*	m_pConnection;		// The waiting server connection.
-	CLinksData		m_oLinksData;		// Cache of links' data.
+	CLinkCache		m_oLinkCache;		// Cache of links values.
 
 	uint			m_nTimerID;			// The background timer ID.
 

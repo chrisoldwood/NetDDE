@@ -33,9 +33,9 @@ CNetDDESvrApp App;
 */
 
 #ifdef _DEBUG
-const char* CNetDDESvrApp::VERSION      = "v1.1 [Debug]";
+const char* CNetDDESvrApp::VERSION      = "v1.2 [Debug]";
 #else
-const char* CNetDDESvrApp::VERSION      = "v1.1";
+const char* CNetDDESvrApp::VERSION      = "v1.2";
 #endif
 
 const char* CNetDDESvrApp::INI_FILE_VER  = "1.0";
@@ -88,8 +88,6 @@ CNetDDESvrApp::CNetDDESvrApp()
 	, m_nPktsRecv(0)
 	, m_dwTickCount(::GetTickCount())
 {
-	// Expect around 1000 links.
-	m_oLinksData.Reserve(1000);
 }
 
 /******************************************************************************
@@ -240,13 +238,8 @@ bool CNetDDESvrApp::OnClose()
 	m_pDDEClient->RemoveListener(this);
 	m_pDDEClient->Uninitialise();
 
-	CString			strLink;
-	CLinkValue*		pLinkValue = NULL;
-	CLinksDataIter	oIter(App.m_oLinksData);
-
-	// Empty the link value cache.
-	while (oIter.Next(strLink, pLinkValue))
-		delete pLinkValue;
+	// Empty the link cache.
+	m_oLinkCache.Clear();
 
 	// Save settings.
 	SaveConfig();
@@ -466,7 +459,6 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 
 void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 {
-//	ASSERT(pLink != NULL);
 	ASSERT(pData != NULL);
 
 	// Ignore Advise, if during an Advise Start.
@@ -489,24 +481,17 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 
 	CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
 
-	CString     strLink;
-	CLinkValue* pLinkValue = NULL;
-
-	strLink.Format("%s%s%s%u", pConv->Service(), pConv->Topic(), pLink->Item(), pLink->Format());
+	CLinkValue* pValue = NULL;
 
 	// Find the links' value cache.
-	if (!m_oLinksData.Find(strLink, pLinkValue))
-	{
-		// Allocate an item in the cache for it.
-		pLinkValue = new CLinkValue(strLink);
+	if ((pValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
+		pValue = m_oLinkCache.Create(pConv, pLink);
 
-		m_oLinksData.Add(strLink, pLinkValue);
-	}
+	ASSERT(pValue != NULL);
 
-	ASSERT(pLinkValue != NULL);
-
-	// Cache links' value.
-	pLinkValue->m_oLastValue = pData->GetBuffer();
+	// Update links' value.
+	pValue->m_oLastValue  = pData->GetBuffer();
+	pValue->m_tLastUpdate = CDateTime::Current();
 
 	// Notify all NetDDEClients...
 	for (int i = 0; i < m_aoConnections.Size(); ++i)
@@ -1076,6 +1061,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	HCONV	 hConv;
 	CString  strItem;
 	uint32   nFormat;
+	bool	 bReqVal;
 
 	// Decode message.
 	CMemStream oStream(oReqPacket.Buffer());
@@ -1086,6 +1072,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	oStream.Read(&hConv, sizeof(hConv));
 	oStream >> strItem;
 	oStream >> nFormat;
+	oStream >> bReqVal;
 
 	oStream.Close();
 
@@ -1137,48 +1124,69 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 		++m_nPktsSent;
 	}
 
+	CLinkValue* pLinkValue = NULL;
+
+	// Link established AND 1st link AND need to request value?
+	if ( (bResult) && (pLink->RefCount() == 1) && (bReqVal) )
+	{
+		try
+		{
+			// Request links current value.
+			CDDEData oData = pConv->Request(strItem, nFormat);
+
+			// Find the links' value cache.
+			if ((pLinkValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
+				pLinkValue = m_oLinkCache.Create(pConv, pLink);
+
+			ASSERT(pLinkValue != NULL);
+
+			// Update links' value cache.
+			pLinkValue->m_oLastValue  = oData.GetBuffer();;
+			pLinkValue->m_tLastUpdate = CDateTime::Current();
+		}
+		catch (CDDEException& /*e*/)
+		{ }
+	}
 	// Link established AND not 1st real link?
 	if ( (bResult) && (pLink->RefCount() > 1) )
 	{
-		CString     strLink;
-		CLinkValue* pLinkValue = NULL;
+		// Find last advise value.
+		pLinkValue = m_oLinkCache.Find(pConv, pLink);
+	}
 
-		strLink.Format("%s%s%s%u", pConv->Service(), pConv->Topic(), pLink->Item(), pLink->Format());
+	// Send initial advise?
+	if (pLinkValue != NULL)
+	{
+		CBuffer    oBuffer;
+		CMemStream oStream(oBuffer);
 
-		// Is links' last value already cached?
-		if (m_oLinksData.Find(strLink, pLinkValue))
+		oStream.Create();
+
+		oStream.Write(&hConv, sizeof(hConv));
+		oStream << strItem;
+		oStream << nFormat;
+		oStream << pLinkValue->m_oLastValue;
+
+		oStream.Close();
+
+		CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
+
+		// Send links' last advise data.
+		oConnection.SendPacket(oPacket);
+
+		// Update stats.
+		++m_nPktsSent;
+
+		if (App.m_bTraceUpdates)
 		{
-			CBuffer    oBuffer;
-			CMemStream oStream(oBuffer);
+			CString strData;
 
-			oStream.Create();
+			if (nFormat == CF_TEXT)
+				strData = pLinkValue->m_oLastValue.ToString();
+			else
+				strData = CClipboard::FormatName(nFormat);
 
-			oStream.Write(&hConv, sizeof(hConv));
-			oStream << strItem;
-			oStream << nFormat;
-			oStream << pLinkValue->m_oLastValue;
-
-			oStream.Close();
-
-			CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
-
-			// Send links' last advise data.
-			oConnection.SendPacket(oPacket);
-
-			// Update stats.
-			++m_nPktsSent;
-
-			if (App.m_bTraceUpdates)
-			{
-				CString strData;
-
-				if (nFormat == CF_TEXT)
-					strData = pLinkValue->m_oLastValue.ToString();
-				else
-					strData = CClipboard::FormatName(nFormat);
-
-				App.Trace("DDE_ADVISE: %s %u", strItem, nFormat);
-			}
+			App.Trace("DDE_ADVISE: %s %u", strItem, nFormat);
 		}
 	}
 }
