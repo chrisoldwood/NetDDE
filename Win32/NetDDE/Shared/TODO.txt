@@ -2,12 +2,4 @@
 
 - Make conv handle for topic, not service.
 
-- Change WaitForPacket() to not use polling.
-
-- Add config options for server connections.
-
 - Support sockets.
-
-- Multiplex server connections.
-
-- Clear trace.
