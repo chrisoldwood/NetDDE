@@ -31,26 +31,34 @@ public:
 	// Members.
 	//
 	CString	m_strService;
+	bool	m_bTextOnly;
 	CString	m_strServer;
 	CString	m_strPipe;
-	bool	m_bAsync;
-	bool	m_bTextOnly;
+	CString	m_strDefaultVal;
+	bool	m_bReqInitVal;
+	bool	m_bAsyncAdvises;
+	CString	m_strFailedVal;
 	
 protected:
 	//
 	// Controls.
 	//
 	CEditBox	m_ebService;
+	CCheckBox	m_ckTextOnly;
 	CEditBox	m_ebServer;
 	CEditBox	m_ebPipe;
+	CEditBox	m_ebDefaultVal;
+	CCheckBox	m_ckReqVal;
 	CCheckBox	m_ckAsync;
-	CCheckBox	m_ckTextOnly;
+	CEditBox	m_ebFailedVal;
 
 	//
 	// Message handlers.
 	//
 	virtual void OnInitDialog();
 	virtual bool OnOk();
+
+	void OnClickedAsync();
 };
 
 /******************************************************************************
