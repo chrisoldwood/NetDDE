@@ -393,6 +393,25 @@ void CNetDDECltApp::SaveConfig()
 	// Write the file version.
 	m_oIniFile.WriteString("Version", "Version", INI_FILE_VER);
 
+	// Write the service descriptions.
+	m_oIniFile.WriteInt("Services", "Count", m_aoServices.Size());
+
+	for (int i = 0; i < m_aoServices.Size(); ++i)
+	{
+		CNetDDEService* pService = m_aoServices[i];
+
+		CString strEntry;
+		CString strSection = pService->m_oCfg.m_strService;
+
+		strEntry.Format("Service[%d]", i);
+
+		m_oIniFile.WriteString("Services", strEntry,       strSection);
+		m_oIniFile.WriteString(strSection, "Service",      pService->m_oCfg.m_strService   );
+		m_oIniFile.WriteString(strSection, "Server",       pService->m_oCfg.m_strServer    );
+		m_oIniFile.WriteString(strSection, "Pipe",         pService->m_oCfg.m_strPipeName  );
+		m_oIniFile.WriteBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
+	}
+
 	// Write the trace settings.
 	m_oIniFile.WriteBool  ("Trace", "Conversations",  m_bTraceConvs   );
 	m_oIniFile.WriteBool  ("Trace", "Requests",       m_bTraceRequests);
@@ -517,7 +536,7 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 			pService->m_oConnection.SendPacket(oPacket);
 
 			// Wait for response.
-			pService->m_oConnection.WaitForPacket(oPacket, CNetDDEPacket::DDE_CREATE_CONVERSATION);
+			pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_CREATE_CONVERSATION);
 
 			HCONV hSvrConv;
 
@@ -693,7 +712,7 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 			pService->m_oConnection.SendPacket(oPacket);
 
 			// Wait for response.
-			pService->m_oConnection.WaitForPacket(oPacket, CNetDDEPacket::DDE_REQUEST);
+			pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_REQUEST);
 
 			CBuffer    oDDEData;
 			CMemStream oRspStream(oPacket.Buffer());
@@ -787,7 +806,7 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 			if (bSync)
 			{
 				// Wait for response.
-				pService->m_oConnection.WaitForPacket(oPacket, CNetDDEPacket::DDE_START_ADVISE);
+				pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_START_ADVISE);
 
 				CMemStream oRspStream(oPacket.Buffer());
 
@@ -842,6 +861,11 @@ void CNetDDECltApp::OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink)
 
 	// Add link to service links' list.
 	pService->m_aoLinks.Add(pLink);
+
+	// If using "Async Advises" ensure we process the incoming 
+	// DDE_ADVISE notifications to avoid write deadlock.
+	if (pService->m_oCfg.m_bAsyncAdvises)
+		OnTimer(m_nTimerID);
 }
 
 /******************************************************************************
@@ -1009,21 +1033,19 @@ void CNetDDECltApp::HandleNotifications()
 
 		try
 		{
-			CNetDDEPacket* pPacket = NULL; 
+			CNetDDEPacket oPacket; 
 
 			// For all notification packets...
-			while ((pPacket = pService->m_oConnection.ReadNotifyPacket()) != NULL)
+			while (pService->m_oConnection.ReadNotifyPacket(oPacket))
 			{
 				// Decode packet type.
-				switch (pPacket->DataType())
+				switch (oPacket.DataType())
 				{
-					case CNetDDEPacket::NETDDE_SERVER_DISCONNECT:	OnNetDDEServerDisconnect(*pService, *pPacket);	break;
-					case CNetDDEPacket::DDE_DISCONNECT:				OnDDEDisconnect(*pService, *pPacket);			break;
-					case CNetDDEPacket::DDE_ADVISE:					OnDDEAdvise(*pService, *pPacket);				break;
+					case CNetDDEPacket::NETDDE_SERVER_DISCONNECT:	OnNetDDEServerDisconnect(*pService, oPacket);	break;
+					case CNetDDEPacket::DDE_DISCONNECT:				OnDDEDisconnect(*pService, oPacket);			break;
+					case CNetDDEPacket::DDE_ADVISE:					OnDDEAdvise(*pService, oPacket);				break;
 					default:										ASSERT(false);									break;
 				}
-
-				delete pPacket;
 
 				// Update stats.
 				++m_nPktsRecv;
@@ -1341,7 +1363,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	pService->m_oConnection.SendPacket(oPacket);
 
 	// Wait for response.
-	pService->m_oConnection.WaitForPacket(oPacket, CNetDDEPacket::NETDDE_CLIENT_CONNECT);
+	pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::NETDDE_CLIENT_CONNECT);
 
 	CMemStream oRspStream(oPacket.Buffer());
 
