@@ -85,6 +85,10 @@ void CServerConnsDlg::OnInitDialog()
 			m_lvGrid.ItemText  (n, LINK_COUNT,    CStrCvt::FormatInt(nLinks));
 		}
 	}
+
+	// Select 1st by default.
+	if (m_lvGrid.ItemCount() > 0)
+		m_lvGrid.Select(0);
 }
 
 /******************************************************************************
