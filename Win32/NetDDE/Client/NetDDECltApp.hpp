@@ -24,6 +24,7 @@ class CNetDDECltApp : public CApp, public CDefDDEServerListener
 public:
 	// Template shorthands.
 	typedef TPtrArray<CNetDDEService> CServices;
+	typedef TMap<CDDELink*, CBuffer*> CLinksData;
 
 	//
 	// Constructors/Destructor.
@@ -39,6 +40,23 @@ public:
 
 	CDDEServer*	m_pDDEServer;		// The DDE Server.
 	CServices	m_aoServices;		// The DDE services to bridge.
+	CLinksData	m_oLinksData;		// Cache of links data.
+
+	uint		m_nTimerID;			// The background timer ID.
+
+	uint		m_nMaxTrace;		// Maximum lines of trace.
+
+	CRect		m_rcLastPos;		// Main window position.
+
+	CIniFile	m_oIniFile;			// .INI FIle
+
+	//
+	// Methods.
+	//
+	CNetDDEService* FindService(const char* pszService) const;
+	CNetDDEService* FindService(HCONV hSvrConv) const;
+
+	void Trace(const char* pszMsg, ...);
 
 	//
 	// Constants.
@@ -53,11 +71,6 @@ protected:
 	virtual	bool OnClose();
 
 	//
-	// Preferences.
-	//
-	CIniFile	m_oIniFile;		// .INI FIle
-
-	//
 	// Internal methods.
 	//
 	void LoadConfig();
@@ -67,6 +80,8 @@ protected:
 	// Constants.
 	//
 	static const char* INI_FILE_VER;
+	static const uint  BG_TIMER_FREQ;
+	static const uint  DEF_MAX_TRACE;
 
 	//
 	// IDDEClientListener methods.
@@ -74,10 +89,31 @@ protected:
 	virtual bool OnConnect(const char* pszService, const char* pszTopic);
 	virtual void OnConnectConfirm(CDDESvrConv* pConv);
 	virtual void OnDisconnect(CDDESvrConv* pConv);
-	virtual bool OnRequest(CDDEConv* pConv, const char* pszItem, uint nFormat, CDDEData& oData);
-	virtual bool OnAdviseStart(CDDEConv* pConv, const char* pszItem, uint nFormat);
-	virtual void OnAdviseConfirm(CDDEConv* pConv, CDDELink* pLink);
-	virtual void OnAdviseStop(CDDEConv* pConv, CDDELink* pLink);
+	virtual bool OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFormat, CDDEData& oData);
+	virtual bool OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint nFormat);
+	virtual void OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink);
+	virtual bool OnAdviseRequest(CDDESvrConv* pConv, CDDELink* pLink, CDDEData& oData);
+	virtual void OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink);
+
+	//
+	// The backgound timer methods.
+	//
+	virtual void OnTimer(uint nTimerID);
+
+	// Background processing re-entrancy flag.
+	static bool g_bInBgProcessing;
+
+	//
+	// Background processing methods.
+	//
+	void HandleNotifications();
+
+	//
+	// Packet handlers.
+	//
+	void OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
+	void OnDDEDisconnect(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
+	void OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
 };
 
 /******************************************************************************
