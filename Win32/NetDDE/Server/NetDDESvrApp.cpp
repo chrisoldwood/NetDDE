@@ -677,7 +677,7 @@ void CNetDDESvrApp::HandleRequests()
 					default:										ASSERT_FALSE();										break;
 				}
 
-				// If discconnect received, stop polling.
+				// If disconnect received, stop polling.
 				if (!pConnection->IsOpen())
 					break;
 			}
