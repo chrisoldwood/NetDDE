@@ -35,7 +35,7 @@
 #include "NetDDEShared.hpp"
 
 // App data classes.
-#include "NetDDECltPipe.hpp"
+#include "NetDDECltSocket.hpp"
 #include "NetDDESvcCfg.hpp"
 #include "NetDDEConv.hpp"
 #include "NetDDEService.hpp"

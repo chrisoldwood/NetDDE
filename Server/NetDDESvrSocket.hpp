@@ -1,39 +1,41 @@
 /******************************************************************************
 ** (C) Chris Oldwood
 **
-** MODULE:		NETDDESVRPIPE.HPP
+** MODULE:		NETDDESVRSOCKET.HPP
 ** COMPONENT:	The Application
-** DESCRIPTION:	The CNetDDESvrPipe class declaration.
+** DESCRIPTION:	The CNetDDESvrSocket class declaration.
 **
 *******************************************************************************
 */
 
 // Check for previous inclusion
-#ifndef NETDDESVRPIPE_HPP
-#define NETDDESVRPIPE_HPP
+#ifndef NETDDESVRSOCKET_HPP
+#define NETDDESVRSOCKET_HPP
 
 // Template shorthands.
 typedef TPtrArray<CNetDDEConv> CNetConvs;
 
 /******************************************************************************
 ** 
-** The server end of a NetDDE pipe.
+** The server end of a NetDDE connection.
 **
 *******************************************************************************
 */
 
-class CNetDDESvrPipe : public CServerPipe, public CNetDDEPipe
+class CNetDDESvrSocket : public CTCPCltSocket, public CNetDDESocket
 {
 public:
 	//
 	// Constructors/Destructor.
 	//
-	CNetDDESvrPipe();
-	~CNetDDESvrPipe();
+	CNetDDESvrSocket();
+	~CNetDDESvrSocket();
 
 	//
 	// Methods.
 	//
+	virtual void Close();
+
 	CNetDDEConv* FindNetConv(CDDECltConv* pConv, uint32 nConvID) const;
 
 	bool IsLinkUsed(CDDELink* pLink) const;
@@ -55,4 +57,4 @@ public:
 *******************************************************************************
 */
 
-#endif // NETDDESVRPIPE_HPP
+#endif // NETDDESVRSOCKET_HPP

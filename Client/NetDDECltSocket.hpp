@@ -1,38 +1,49 @@
 /******************************************************************************
 ** (C) Chris Oldwood
 **
-** MODULE:		NETDDECLTPIPE.HPP
+** MODULE:		NETDDECLTSOCKET.HPP
 ** COMPONENT:	The Application
-** DESCRIPTION:	The CNetDDECltPipe class declaration.
+** DESCRIPTION:	The CNetDDECltSocket class declaration.
 **
 *******************************************************************************
 */
 
 // Check for previous inclusion
-#ifndef NETDDECLTPIPE_HPP
-#define NETDDECLTPIPE_HPP
+#ifndef NETDDECLTSOCKET_HPP
+#define NETDDECLTSOCKET_HPP
+
+// Forward declarations;
+class CNetDDEService;
 
 /******************************************************************************
 ** 
-** The client end of a NetDDE pipe.
+** The client end of a NetDDE connection.
 **
 *******************************************************************************
 */
 
-class CNetDDECltPipe : public CClientPipe, public CNetDDEPipe
+class CNetDDECltSocket : public CTCPCltSocket, public CNetDDESocket
 {
 public:
 	//
 	// Constructors/Destructor.
 	//
-	CNetDDECltPipe();
-	~CNetDDECltPipe();
+	CNetDDECltSocket(CNetDDEService* pService);
+	~CNetDDECltSocket();
 	
+	//
+	// Properties.
+	//
+	CNetDDEService* Service() const;
+
 	//
 	// Methods.
 	//
+	virtual void Close();
+
 	void ReadResponsePacket(CNetDDEPacket& oPacket, uint nType);
-	bool ReadNotifyPacket(CNetDDEPacket& oPacket);
+
+	void QueueResponsePacket(CNetDDEPacket* pPacket);
 
 protected:
 	// Template shorthands.
@@ -41,7 +52,9 @@ protected:
 	//
 	// Members.
 	//
-	CPackets	m_aoPackets;	// The received packet queue.
+	CNetDDEService*	m_pService;		// The service details.
+	uint			m_nTimeOut;		// Socket wait time-out.
+	CPackets		m_aoPackets;	// The received packet queue.
 };
 
 /******************************************************************************
@@ -51,4 +64,14 @@ protected:
 *******************************************************************************
 */
 
-#endif // NETDDECLTPIPE_HPP
+inline CNetDDEService* CNetDDECltSocket::Service() const
+{
+	return m_pService;
+}
+
+inline void CNetDDECltSocket::QueueResponsePacket(CNetDDEPacket* pPacket)
+{
+	m_aoPackets.Add(pPacket);
+}
+
+#endif // NETDDECLTSOCKET_HPP

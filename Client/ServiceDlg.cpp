@@ -27,13 +27,14 @@ CServiceDlg::CServiceDlg()
 	: CDialog(IDD_SERVICE)
 	, m_bAsyncAdvises(false)
 	, m_bTextOnly(false)
+	, m_ebPort(false, 5)
 {
 	DEFINE_CTRL_TABLE
 		CTRL(IDC_REMOTE_NAME,    &m_ebRemName   )
 		CTRL(IDC_LOCAL_NAME,     &m_ebLocName   )
 		CTRL(IDC_TEXT_ONLY,      &m_ckTextOnly  )
 		CTRL(IDC_SERVER,         &m_ebServer    )
-		CTRL(IDC_PIPE,           &m_ebPipe      )
+		CTRL(IDC_PORT,           &m_ebPort      )
 		CTRL(IDC_DEF_ADVISE_VAL, &m_ebDefaultVal)
 		CTRL(IDC_REQ_VALUE,      &m_ckReqVal    )
 		CTRL(IDC_ASYNC,          &m_ckAsync     )
@@ -69,7 +70,7 @@ void CServiceDlg::OnInitDialog()
 	m_ebLocName.Text(m_strLocName);
 	m_ckTextOnly.Check(m_bTextOnly);
 	m_ebServer.Text(m_strServer);
-	m_ebPipe.Text(m_strPipe);
+	m_ebPort.IntValue(m_nPort);
 	m_ebDefaultVal.Text(m_strDefaultVal);
 	m_ckReqVal.Check(m_bReqInitVal);
 	m_ckAsync.Check(m_bAsyncAdvises);
@@ -109,10 +110,10 @@ bool CServiceDlg::OnOk()
 		return false;
 	}
 
-	if (m_ebPipe.TextLength() == 0)
+	if (m_ebPort.TextLength() == 0)
 	{
-		AlertMsg("Please provide the NetDDE Server Pipe name.");
-		m_ebPipe.Focus();
+		AlertMsg("Please provide the NetDDE Server Port Number.");
+		m_ebPort.Focus();
 		return false;
 	}
 
@@ -121,7 +122,7 @@ bool CServiceDlg::OnOk()
 	m_strLocName    = m_ebLocName.Text();
 	m_bTextOnly     = m_ckTextOnly.IsChecked();
 	m_strServer     = m_ebServer.Text();
-	m_strPipe       = m_ebPipe.Text();
+	m_nPort         = m_ebPort.IntValue();
 	m_strDefaultVal = m_ebDefaultVal.Text();
 	m_bReqInitVal   = m_ckReqVal.IsChecked();
 	m_bAsyncAdvises = m_ckAsync.IsChecked();

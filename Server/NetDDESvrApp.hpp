@@ -19,11 +19,12 @@
 *******************************************************************************
 */
 
-class CNetDDESvrApp : public CApp, public CDefDDEClientListener
+class CNetDDESvrApp : public CApp, public CDefDDEClientListener,
+						public IServerSocketListener, public IClientSocketListener
 {
 public:
 	// Template shorthands.
-	typedef TPtrArray<CNetDDESvrPipe> CPipes;
+	typedef TPtrArray<CNetDDESvrSocket> CSockets;
 
 	//
 	// Constructors/Destructor.
@@ -38,9 +39,9 @@ public:
 	CAppCmds		m_AppCmds;			// Command handler.
 
 	CDDEClient*		m_pDDEClient;		// The DDE Client.
-	CString			m_strPipeName;		// The server pipe name.
-	CPipes			m_aoConnections;	// The client connections.
-	CNetDDESvrPipe*	m_pConnection;		// The waiting server connection.
+	uint			m_nServerPort;		// The port for connections.
+	CSockets		m_aoConnections;	// The client connections.
+	CTCPSvrSocket	m_oSvrSocket;		// The listening server socket.
 	CLinkCache		m_oLinkCache;		// Cache of links values.
 	uint			m_nNextConvID;		// Conversation ID generator.
 
@@ -48,7 +49,6 @@ public:
 
 	bool			m_bTrayIcon;		// Show system tray indicator?
 	bool			m_bMinToTray;		// Minimise to system tray?
-	uint			m_nNetTimeOut;		// Pipe read/write time-out.
 	uint			m_nDDETimeOut;		// DDE transaction time-out.
 	bool			m_bDiscardDups;		// Discard duplicate updates?
 
@@ -71,12 +71,13 @@ public:
 
 	uint			m_nPktsSent;		// Packets sent in last second.
 	uint			m_nPktsRecv;		// Packets recieved in last second;
-	DWORD			m_dwTickCount;		// Status update previous tick count.
 
 	//
 	// Methods.
 	//
 	void Trace(const char* pszMsg, ...);
+
+	void CloseConnection(CNetDDESvrSocket* pConnection);
 
 	//
 	// Constants.
@@ -103,7 +104,6 @@ protected:
 	static const uint  BG_TIMER_FREQ;
 	static const bool  DEF_TRAY_ICON;
 	static const bool  DEF_MIN_TO_TRAY;
-	static const uint  DEF_NET_TIMEOUT;
 	static const uint  DEF_DDE_TIMEOUT;
 	static const bool  DEF_DISCARD_DUPS;
 	static const bool  DEF_TRACE_CONVS;
@@ -124,33 +124,35 @@ protected:
 	virtual void OnAdvise(CDDELink* pLink, const CDDEData* pData);
 
 	//
+	// IClient/IServerSocketListener methods.
+	//
+	virtual void OnAcceptReady(CTCPSvrSocket* pSvrSocket);
+	virtual void OnReadReady(CSocket* pSocket);
+	virtual void OnClosed(CSocket* pSocket, int nReason);
+	virtual void OnError(CSocket* pSocket, int nEvent, int nError);
+
+	//
 	// The backgound timer methods.
 	//
 	virtual void OnTimer(uint nTimerID);
 
-	// Background processing re-entrancy flag.
-	static bool g_bInBgProcessing;
-
 	//
 	// Background processing methods.
 	//
-	void HandleConnects();
-	void HandleRequests();
-	void HandleDisconnects();
 	void UpdateStats();
 
 	//
 	// Packet handlers.
 	//
-	void OnNetDDEClientConnect(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
-	void OnNetDDEClientDisconnect(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEDestroyConversation(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEStopAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEExecute(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEPoke(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+	void OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
+	void OnNetDDEClientDisconnect(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
 };
 
 /******************************************************************************

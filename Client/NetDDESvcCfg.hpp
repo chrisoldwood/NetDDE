@@ -34,7 +34,7 @@ public:
 	CString	m_strRemName;		// Remote DDE Service name.
 	CString	m_strLocName;		// Local DDE Service name.
 	CString	m_strServer;		// Host name.
-	CString	m_strPipeName;		// Named Pipe name.
+	uint	m_nServerPort;		// Server socket port.
 	bool	m_bAsyncAdvises;	// Use Async advises?
 	bool	m_bTextOnly;		// Only supports CF_TEXT?
 	CString	m_strInitialVal;	// Initial value.

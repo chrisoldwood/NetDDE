@@ -19,7 +19,8 @@
 *******************************************************************************
 */
 
-class CNetDDECltApp : public CApp, public CDefDDEServerListener
+class CNetDDECltApp : public CApp, public CDefDDEServerListener,
+						public IClientSocketListener
 {
 public:
 	// Template shorthands.
@@ -46,7 +47,7 @@ public:
 
 	bool		m_bTrayIcon;		// Show system tray indicator?
 	bool		m_bMinToTray;		// Minimise to system tray?
-	uint		m_nNetTimeOut;		// Pipe read/write time-out.
+	uint		m_nNetTimeOut;		// Socket request packet time-out.
 
 	bool		m_bTraceConvs;		// Trace conversation create/destroy?
 	bool		m_bTraceRequests;	// Trace requests?
@@ -79,6 +80,7 @@ public:
 	void Trace(const char* pszMsg, ...);
 
 	void Disconnect(CDDESvrConv* pConv);
+	void CloseConnection(CNetDDEService* pService);
 
 	//
 	// Constants.
@@ -137,19 +139,21 @@ protected:
 	virtual bool OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat, const CDDEData& oData);
 
 	//
+	// IClientSocketListener methods.
+	//
+	virtual void OnReadReady(CSocket* pSocket);
+	virtual void OnClosed(CSocket* pSocket, int nReason);
+	virtual void OnError(CSocket* pSocket, int nEvent, int nError);
+
+	//
 	// Message handlers.
 	//
 	virtual void OnTimer(uint nTimerID);
 	virtual void OnThreadMsg(UINT nMsg, WPARAM wParam, LPARAM lParam);
 
-	// Background processing re-entrancy flag.
-	static bool g_bInBgProcessing;
-
 	//
 	// Background processing methods.
 	//
-	void HandleNotifications();
-	void HandleDisconnects();
 	void UpdateStats();
 	void OnPostInitalUpdates();
 

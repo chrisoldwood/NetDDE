@@ -34,7 +34,7 @@ public:
 	CString	m_strLocName;
 	bool	m_bTextOnly;
 	CString	m_strServer;
-	CString	m_strPipe;
+	uint	m_nPort;
 	CString	m_strDefaultVal;
 	bool	m_bReqInitVal;
 	bool	m_bAsyncAdvises;
@@ -48,7 +48,7 @@ protected:
 	CEditBox	m_ebLocName;
 	CCheckBox	m_ckTextOnly;
 	CEditBox	m_ebServer;
-	CEditBox	m_ebPipe;
+	CDecimalBox	m_ebPort;
 	CEditBox	m_ebDefaultVal;
 	CCheckBox	m_ckReqVal;
 	CCheckBox	m_ckAsync;

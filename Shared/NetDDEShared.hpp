@@ -36,6 +36,6 @@
 #include "LinkCache.hpp"
 #include "NetDDEDefs.hpp"
 #include "NetDDEPacket.hpp"
-#include "NetDDEPipe.hpp"
+#include "NetDDESocket.hpp"
 
 #endif //NETDDESHARED_HPP

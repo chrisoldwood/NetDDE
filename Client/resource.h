@@ -49,7 +49,7 @@
 #define IDC_REMOTE_NAME                 1104
 #define IDC_REMOVE                      1105
 #define IDC_SERVER                      1105
-#define IDC_PIPE                        1106
+#define IDC_PORT                        1106
 #define IDC_ASYNC                       1107
 #define IDC_TEXT_ONLY                   1108
 #define IDC_DEF_ADVISE_VAL              1109

@@ -122,6 +122,9 @@
 			<File
 				RelativePath=".\LinkCache.cpp">
 			</File>
+			<File
+				RelativePath=".\NetDDESocket.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -140,10 +143,10 @@
 				RelativePath=".\NetDDEPacket.hpp">
 			</File>
 			<File
-				RelativePath=".\NetDDEPipe.hpp">
+				RelativePath=".\NetDDEShared.hpp">
 			</File>
 			<File
-				RelativePath=".\NetDDEShared.hpp">
+				RelativePath=".\NetDDESocket.hpp">
 			</File>
 		</Filter>
 		<Filter

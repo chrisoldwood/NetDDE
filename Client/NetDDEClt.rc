@@ -244,8 +244,8 @@ BEGIN
     GROUPBOX        "Net DDE Server",IDC_STATIC,5,75,230,50
     LTEXT           "&Server:",IDC_STATIC,15,90,50,8
     EDITTEXT        IDC_SERVER,15,100,100,14,ES_AUTOHSCROLL
-    LTEXT           "&Pipe Name:",IDC_STATIC,125,90,50,8
-    EDITTEXT        IDC_PIPE,125,100,100,14,ES_AUTOHSCROLL
+    LTEXT           "&Port Name:",IDC_STATIC,125,90,50,8
+    EDITTEXT        IDC_PORT,125,100,100,14,ES_AUTOHSCROLL
     GROUPBOX        "Advise Settings",IDC_STATIC,5,130,230,100
     CONTROL         "Request &Inital Value?",IDC_REQ_VALUE,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,15,150,100,10

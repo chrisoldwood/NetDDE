@@ -1,9 +1,9 @@
 /******************************************************************************
 ** (C) Chris Oldwood
 **
-** MODULE:		NETDDECLTPIPE.CPP
+** MODULE:		NETDDECLTSOCKET.CPP
 ** COMPONENT:	The Application
-** DESCRIPTION:	CNetDDECltPipe class definition.
+** DESCRIPTION:	CNetDDECltSocket class definition.
 **
 *******************************************************************************
 */
@@ -27,10 +27,13 @@
 *******************************************************************************
 */
 
-CNetDDECltPipe::CNetDDECltPipe()
-	: CNetDDEPipe(this)
+CNetDDECltSocket::CNetDDECltSocket(CNetDDEService* pService)
+	: CTCPCltSocket(ASYNC)
+	, CNetDDESocket(this)
+	, m_pService(pService)
+	, m_nTimeOut(App.m_nNetTimeOut)
 {
-	SetTimeOut(App.m_nNetTimeOut);
+	ASSERT(pService != NULL);
 }
 
 /******************************************************************************
@@ -45,11 +48,29 @@ CNetDDECltPipe::CNetDDECltPipe()
 *******************************************************************************
 */
 
-CNetDDECltPipe::~CNetDDECltPipe()
+CNetDDECltSocket::~CNetDDECltSocket()
 {
 	Close();
+}
 
-	// Clenup packet queue.
+/******************************************************************************
+** Method:		Close()
+**
+** Description:	Close the socket.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDECltSocket::Close()
+{
+	// Forward to base class.
+	CTCPCltSocket::Close();
+
+	// Cleanup packet queue.
 	m_aoPackets.DeleteAll();
 }
 
@@ -67,63 +88,37 @@ CNetDDECltPipe::~CNetDDECltPipe()
 *******************************************************************************
 */
 
-void CNetDDECltPipe::ReadResponsePacket(CNetDDEPacket& oPacket, uint nType)
+void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nType)
 {
 	DWORD dwStartTime = ::GetTickCount();
 
 	// Until timed-out...
-	while ((::GetTickCount() - dwStartTime) < m_dwTimeOut)
+	while ((::GetTickCount() - dwStartTime) < m_nTimeOut)
 	{
-		// Any packet received?
-		if (RecvPacket(oPacket))
+		// Any response packets received?
+		if (m_aoPackets.Size())
 		{
-			// The packet we're after?
-			if (oPacket.DataType() == nType)
-				return;
+			ASSERT(m_aoPackets.Size() == 1);
 
-			ASSERT(oPacket.DataType() & CNetDDEPacket::ASYNC_PACKET);
+			// Find our response.
+			for (int i = 0; i < m_aoPackets.Size(); ++i)
+			{
+				if (m_aoPackets[i]->DataType() == nType)
+				{
+					oPacket = *m_aoPackets[i];
 
-			// Append to notification queue.
-			m_aoPackets.Add(new CNetDDEPacket(oPacket));
+					m_aoPackets.Delete(i);
+
+					return;
+				}
+			}
 		}
+
+		// Handle any socket messages.
+		CWinSock::ProcessSocketMsgs();
 
 		::Sleep(1);
 	}
 
-	throw CPipeException(CPipeException::E_READ_FAILED, WAIT_TIMEOUT);
-}
-
-/******************************************************************************
-** Method:		ReadNotifyPacket()
-**
-** Description:	Gets the next notification packet either from the packet queue
-**				or by reading directly from the pipe.
-**
-** Parameters:	None.
-**
-** Returns:		A packet or NULL.
-**
-*******************************************************************************
-*/
-
-bool CNetDDECltPipe::ReadNotifyPacket(CNetDDEPacket& oPacket)
-{
-	// Packet queue not empty.
-	if (m_aoPackets.Size())
-	{
-		oPacket = *m_aoPackets[0];
-
-		m_aoPackets.Delete(0);
-
-		return true;
-	}
-	// Check pipe.
-	else if (Available() > 0)
-	{
-		// Try and read a packet.
-		if (RecvPacket(oPacket))
-			return true;
-	}
-
-	return false;
+	throw CSocketException(CSocketException::E_RECV_FAILED, WAIT_TIMEOUT);
 }
