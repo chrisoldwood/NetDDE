@@ -57,6 +57,23 @@ void CAppDlg::OnInitDialog()
 }
 
 /******************************************************************************
+** Method:		Clear()
+**
+** Description:	Clear the window.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppDlg::Clear()
+{
+	m_lbTrace.Reset();
+}
+
+/******************************************************************************
 ** Method:		Trace()
 **
 ** Description:	Add a line of trace to the window.

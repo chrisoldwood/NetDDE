@@ -30,6 +30,7 @@ public:
 	//
 	// Methods.
 	//
+	void Clear();
 	void Trace(const char* pszMsg);
 
 	//
