@@ -887,6 +887,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 
 	try
 	{
+/**/
 		// Call DDE to create the conversation.
 		CDDECltConv* pConv = m_pDDEClient->CreateConversation(strService, strTopic);
 
@@ -895,6 +896,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 
 		// Attach to the connection.
 		oConnection.AddConversation(pConv);
+/**/
 	}
 	catch (CDDEException& /*e*/)
 	{
@@ -1090,7 +1092,11 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	oStream.Close();
 
 	if (App.m_bTraceAdvises)
-		App.Trace("DDE_START_ADVISE: %s %s", strItem, CClipboard::FormatName(nFormat));
+	{
+		CString strMsg = (nPktType == CNetDDEPacket::DDE_START_ADVISE) ? "DDE_START_ADVISE" : "DDE_START_ADVISE_ASYNC";
+
+		App.Trace("%s: %s %s", strMsg, strItem, CClipboard::FormatName(nFormat));
+	}
 
 	try
 	{
