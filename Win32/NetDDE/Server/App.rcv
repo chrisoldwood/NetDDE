@@ -18,29 +18,29 @@
 */
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION		1,2,0,0
-PRODUCTVERSION	1,2,0,0
+FILEVERSION		1,5,0,0
+PRODUCTVERSION	1,5,0,0
 FILEFLAGSMASK	VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
 FILEFLAGS		VS_FF_DEBUG | VS_FF_PRERELEASE
 #else
 FILEFLAGS		0
 #endif
-FILEOS			VOS_DOS_WINDOWS32
+FILEOS			VOS__WINDOWS32
 FILETYPE		VFT_APP
-FILESUBTYPE		VFT_UNKNOWN
+FILESUBTYPE		VFT2_UNKNOWN
 BEGIN
 	BLOCK "StringFileInfo"
 	BEGIN
 		BLOCK "040904E4"
 		BEGIN
 			VALUE "FileDescription",  "Net DDE Server\0"
-			VALUE "FileVersion",      "1.2\0"
+			VALUE "FileVersion",      "1.5\0"
 			VALUE "InternalName",     "NetDDEServer.exe\0"
 			VALUE "LegalCopyright",   "(C) Chris Oldwood 2002-2004\0"
 			VALUE "OriginalFilename", "NetDDEServer.exe\0"
 			VALUE "ProductName",      "Net DDE Bridge\0"
-			VALUE "ProductVersion",   "1.2\0"
+			VALUE "ProductVersion",   "1.5\0"
 #ifdef _DEBUG
 			VALUE "Comments",         "Debug Build\0"
 #endif
