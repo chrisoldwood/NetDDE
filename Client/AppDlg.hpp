@@ -30,12 +30,18 @@ public:
 	//
 	// Methods.
 	//
+	void Trace(const char* pszMsg);
 
 	//
 	// Members.
 	//
 
 protected:
+	//
+	// Controls.
+	//
+	CListBox	m_lbTrace;
+
 	//
 	// Message processors.
 	//
