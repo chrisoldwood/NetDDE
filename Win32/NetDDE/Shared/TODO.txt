@@ -1,11 +1,3 @@
 - Change to use async sockets.
 
 - Send multiple advises in a single packet.
-
-- Configurable DDE and pipe time-outs.
-
-- Configurable option for detecting duplicates.
-
-- Add server support for disconnecting NetDDE clients.
-
-- System tray menu for restoring and closing.
