@@ -31,7 +31,8 @@ public:
 	//
 	// Members.
 	//
-	CString	m_strService;		// DDE Service name.
+	CString	m_strRemName;		// Remote DDE Service name.
+	CString	m_strLocName;		// Local DDE Service name.
 	CString	m_strServer;		// Host name.
 	CString	m_strPipeName;		// Named Pipe name.
 	bool	m_bAsyncAdvises;	// Use Async advises?

@@ -213,10 +213,10 @@ void CAppCmds::OnOptionsServices()
 		{
 			CNetDDEService* pService = App.m_aoServices[i];
 
-			App.Trace("DDE_STATUS: Unregistering service: %s", pService->m_oCfg.m_strService);
+			App.Trace("DDE_STATUS: Unregistering service: %s", pService->m_oCfg.m_strLocName);
 
 			// Unregister the service name.
-			App.m_pDDEServer->Unregister(pService->m_oCfg.m_strService);
+			App.m_pDDEServer->Unregister(pService->m_oCfg.m_strLocName);
 		}
 
 		App.m_aoServices.DeleteAll();
@@ -232,14 +232,14 @@ void CAppCmds::OnOptionsServices()
 
 			try
 			{
-				App.Trace("DDE_STATUS: Registering service: %s", pService->m_oCfg.m_strService);
+				App.Trace("DDE_STATUS: Registering service: %s", pService->m_oCfg.m_strLocName);
 
 				// Register the DDE service name.
-				App.m_pDDEServer->Register(pService->m_oCfg.m_strService);
+				App.m_pDDEServer->Register(pService->m_oCfg.m_strLocName);
 			}
 			catch (CException& e)
 			{
-				App.AlertMsg("Failed to register DDE service: %s\n\n%s", pService->m_oCfg.m_strService, e.ErrorText());
+				App.AlertMsg("Failed to register DDE service: %s\n\n%s", pService->m_oCfg.m_strLocName, e.ErrorText());
 			}
 
 			// Add to collection.

@@ -42,7 +42,7 @@
 #define IDC_SERVICES                    1102
 #define IDC_ADD                         1103
 #define IDC_EDIT                        1104
-#define IDC_SERVICE                     1104
+#define IDC_REMOTE_NAME                 1104
 #define IDC_REMOVE                      1105
 #define IDC_SERVER                      1105
 #define IDC_PIPE                        1106
@@ -52,8 +52,8 @@
 #define IDC_BAD_ADVISE_VAL              1110
 #define IDC_LINKS                       1110
 #define IDC_REQ_VALUE                   1111
+#define IDC_LOCAL_NAME                  1112
 #define IDD_SERVICE                     2037
-#define IDD_DIALOG1                     2038
 #define IDD_LINKS                       2038
 #define ID_VIEW_CLEAR_TRACE             3068
 #define IDD_MAIN                        5000
