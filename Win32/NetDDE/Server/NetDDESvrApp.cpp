@@ -33,9 +33,9 @@ CNetDDESvrApp App;
 */
 
 #ifdef _DEBUG
-const char* CNetDDESvrApp::VERSION      = "v1.5 [Debug]";
+const char* CNetDDESvrApp::VERSION = "v2.0 Beta [Debug]";
 #else
-const char* CNetDDESvrApp::VERSION      = "v1.5";
+const char* CNetDDESvrApp::VERSION = "v2.0 Beta";
 #endif
 
 const char* CNetDDESvrApp::INI_FILE_VER  = "1.0";
@@ -54,6 +54,8 @@ const bool  CNetDDESvrApp::DEF_TRACE_TO_WINDOW   = true;
 const int   CNetDDESvrApp::DEF_TRACE_LINES       = 100;
 const bool  CNetDDESvrApp::DEF_TRACE_TO_FILE     = false;
 const char* CNetDDESvrApp::DEF_TRACE_FILE        = "NetDDEServer.log";
+
+const uint  CNetDDESvrApp::WM_POLL_SOCKETS = WM_APP + 1;
 
 /******************************************************************************
 ** Method:		Constructor
@@ -121,6 +123,21 @@ CNetDDESvrApp::~CNetDDESvrApp()
 
 bool CNetDDESvrApp::OnOpen()
 {
+	HWND hPrevWnd = NULL;
+
+	// Only allow a single instance.
+	if ((hPrevWnd = ::FindWindow(CAppWnd::WNDCLASS_NAME, NULL)) != NULL)
+	{
+		// If not visible OR minimised, restore it.
+		if (!::IsWindowVisible(hPrevWnd) || ::IsIconic(hPrevWnd))
+		{
+			::ShowWindow(hPrevWnd, SW_RESTORE);
+			::SetForegroundWindow(hPrevWnd);
+		}
+
+		return false;
+	}
+
 	// Set the app title.
 	m_strTitle = "NetDDE Server";
 
@@ -232,7 +249,7 @@ bool CNetDDESvrApp::OnClose()
 					App.Trace("NETDDE_SERVER_DISCONNECT:");
 
 				// Send disconnect message.
-				CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT, NULL, 0);
+				CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT);
 
 				pConnection->SendPacket(oPacket);
 
@@ -639,45 +656,10 @@ void CNetDDESvrApp::OnAcceptReady(CTCPSvrSocket* pSvrSocket)
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnReadReady(CSocket* pSocket)
+void CNetDDESvrApp::OnReadReady(CSocket* /*pSocket*/)
 {
-	ASSERT(pSocket != &m_oSvrSocket);
-
-	CNetDDESvrSocket* pConnection = static_cast<CNetDDESvrSocket*>(pSocket);
-
-	try
-	{
-		CNetDDEPacket oPacket;
-
-		while (pConnection->RecvPacket(oPacket))
-		{
-			// Update stats.
-			++m_nPktsRecv;
-
-			// Decode packet type.
-			switch (oPacket.DataType())
-			{
-				case CNetDDEPacket::NETDDE_CLIENT_CONNECT:		OnNetDDEClientConnect(*pConnection, oPacket);		break;
-				case CNetDDEPacket::NETDDE_CLIENT_DISCONNECT:	OnNetDDEClientDisconnect(*pConnection, oPacket);	break;
-				case CNetDDEPacket::DDE_CREATE_CONVERSATION:	OnDDECreateConversation(*pConnection, oPacket);		break;
-				case CNetDDEPacket::DDE_DESTROY_CONVERSATION:	OnDDEDestroyConversation(*pConnection, oPacket);	break;
-				case CNetDDEPacket::DDE_REQUEST:				OnDDERequest(*pConnection, oPacket);				break;
-				case CNetDDEPacket::DDE_START_ADVISE:			OnDDEStartAdvise(*pConnection, oPacket);			break;
-				case CNetDDEPacket::DDE_STOP_ADVISE:			OnDDEStopAdvise(*pConnection, oPacket);				break;
-				case CNetDDEPacket::DDE_EXECUTE:				OnDDEExecute(*pConnection, oPacket);				break;
-				case CNetDDEPacket::DDE_POKE:					OnDDEPoke(*pConnection, oPacket);					break;
-				default:										ASSERT_FALSE();										break;
-			}
-
-			// If disconnect received, stop reading.
-			if (!pConnection->IsOpen())
-				return;
-		}
-	}
-	catch (CSocketException& e)
-	{
-		App.Trace("SOCKET_ERROR: %s", e.ErrorText());
-	}
+	// Handle later.
+	m_MainThread.PostMessage(WM_POLL_SOCKETS);
 }
 
 /******************************************************************************
@@ -790,6 +772,8 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 	CString strService;
 	CString strComputer;
 	CString strUser;
+	CString strProcess;
+	CString strVersion;
 
 	// Decode request message.
 	CMemStream oReqStream(oReqPacket.Buffer());
@@ -801,11 +785,16 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 	oReqStream >> strService;
 	oReqStream >> strComputer;
 	oReqStream >> strUser;
+	oReqStream >> strProcess;
+	oReqStream >> strVersion;
 
 	oReqStream.Close();
 
 	if (App.m_bTraceNetConns)
+	{
 		App.Trace("NETDDE_CLIENT_CONNECT: %u %s %s %s", nProtocol, strService, strComputer, strUser);
+		App.Trace("NETDDE_CLIENT_VERSION: %s %s", strProcess, strVersion);
+	}
 
 	// Save connection details.
 	oConnection.m_strService  = strService;
@@ -816,16 +805,18 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 		bResult = true;
 
 	// Create response message.
-	CMemStream oRspStream(oReqPacket.Buffer());
+	CBuffer    oRspBuffer;
+	CMemStream oRspStream(oRspBuffer);
 
 	oRspStream.Create();
 
 	oRspStream << bResult;
+	oRspStream << CString(App.VERSION);
 
 	oRspStream.Close();
 
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::NETDDE_CLIENT_CONNECT, oReqPacket.Buffer());
+	CNetDDEPacket oRspPacket(CNetDDEPacket::NETDDE_CLIENT_CONNECT, oReqPacket.PacketID(), oRspBuffer);
 
 	oConnection.SendPacket(oRspPacket);
 
@@ -926,7 +917,8 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	}
 
 	// Create response message.
-	CMemStream oRspStream(oReqPacket.Buffer());
+	CBuffer    oRspBuffer;
+	CMemStream oRspStream(oRspBuffer);
 
 	oRspStream.Create();
 
@@ -937,7 +929,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	oRspStream.Close();
 
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_CREATE_CONVERSATION, oReqPacket.Buffer());
+	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_CREATE_CONVERSATION, oReqPacket.PacketID(), oRspBuffer);
 
 	oConnection.SendPacket(oRspPacket);
 
@@ -1077,7 +1069,8 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 
 	// Create response message.
-	CMemStream oRspStream(oReqPacket.Buffer());
+	CBuffer    oRspBuffer;
+	CMemStream oRspStream(oRspBuffer);
 
 	oRspStream.Create();
 
@@ -1087,7 +1080,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	oRspStream.Close();
 
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_REQUEST, oReqPacket.Buffer());
+	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_REQUEST, oReqPacket.PacketID(), oRspBuffer);
 
 	oConnection.SendPacket(oRspPacket);
 
@@ -1168,32 +1161,46 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 		App.Trace("DDE_ERROR: %s", e.ErrorText());
 	}
 
-	// Sync start advise OR failed async start advise?
-	if ( (!bAsync) || ((bAsync) && (!bResult)) )
+	// Sync advise start?
+	if (!bAsync)
 	{
-		uint nPktType = (!bAsync) ? CNetDDEPacket::DDE_START_ADVISE : CNetDDEPacket::DDE_START_ADVISE_FAILED;
-
 		// Create response message.
-		CMemStream oRspStream(oReqPacket.Buffer());
+		CBuffer    oRspBuffer;
+		CMemStream oRspStream(oRspBuffer);
 
 		oRspStream.Create();
 
-		if (!bAsync)
-		{
-			oRspStream << bResult;
-		}
-		else
-		{
-			oRspStream.Write(&hConv, sizeof(hConv));
-			oRspStream << strItem;
-			oRspStream << nFormat;
-			oRspStream << true;
-		}
+		oRspStream << bResult;
 
 		oRspStream.Close();
 
 		// Send response message.
-		CNetDDEPacket oRspPacket(nPktType, oReqPacket.Buffer());
+		CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_START_ADVISE, oReqPacket.PacketID(), oRspBuffer);
+
+		oConnection.SendPacket(oRspPacket);
+
+		// Update stats.
+		++m_nPktsSent;
+	}
+
+	// Failed async advise start?
+	if ((bAsync) && (!bResult))
+	{
+		// Create response message.
+		CBuffer    oRspBuffer;
+		CMemStream oRspStream(oRspBuffer);
+
+		oRspStream.Create();
+
+		oRspStream.Write(&hConv, sizeof(hConv));
+		oRspStream << strItem;
+		oRspStream << nFormat;
+		oRspStream << true;
+
+		oRspStream.Close();
+
+		// Send response message.
+		CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_START_ADVISE_FAILED, oRspBuffer);
 
 		oConnection.SendPacket(oRspPacket);
 
@@ -1227,7 +1234,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 		}
 	}
 	// Link established AND not 1st real link?
-	if ( (bResult) && (pLink->RefCount() > 1) )
+	else if ( (bResult) && (pLink->RefCount() > 1) )
 	{
 		// Find last advise value.
 		pLinkValue = m_oLinkCache.Find(pConv, pLink);
@@ -1396,7 +1403,8 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 
 	// Create response message.
-	CMemStream oRspStream(oReqPacket.Buffer());
+	CBuffer    oRspBuffer;
+	CMemStream oRspStream(oRspBuffer);
 
 	oRspStream.Create();
 
@@ -1405,7 +1413,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	oRspStream.Close();
 
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_EXECUTE, oReqPacket.Buffer());
+	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_EXECUTE, oReqPacket.PacketID(), oRspBuffer);
 
 	oConnection.SendPacket(oRspPacket);
 
@@ -1474,7 +1482,8 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 	}
 
 	// Create response message.
-	CMemStream oRspStream(oReqPacket.Buffer());
+	CBuffer    oRspBuffer;
+	CMemStream oRspStream(oRspBuffer);
 
 	oRspStream.Create();
 
@@ -1483,7 +1492,7 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 	oRspStream.Close();
 
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_POKE, oReqPacket.Buffer());
+	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_POKE, oReqPacket.PacketID(), oRspBuffer);
 
 	oConnection.SendPacket(oRspPacket);
 
@@ -1552,7 +1561,7 @@ void CNetDDESvrApp::CloseConnection(CNetDDESvrSocket* pConnection)
 	try
 	{
 		// Send disconnect message.
-		CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT, NULL, 0);
+		CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT);
 
 		pConnection->SendPacket(oPacket);
 
@@ -1566,4 +1575,93 @@ void CNetDDESvrApp::CloseConnection(CNetDDESvrSocket* pConnection)
 
 	// Cleanup.
 	OnClosed(pConnection, 0);
+}
+
+/******************************************************************************
+** Method:		OnThreadMsg()
+**
+** Description:	Message handler for general thread messages.
+**
+** Parameters:	Standard thread message parameters.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+void CNetDDESvrApp::OnThreadMsg(UINT nMsg, WPARAM /*wParam*/, LPARAM /*lParam*/)
+{
+	// Forward to real handler.
+	if (nMsg == WM_POLL_SOCKETS)
+		OnPollSockets();
+}
+
+/******************************************************************************
+** Method:		OnPollSockets()
+**
+** Description:	Poll the sockets and process any new requests.
+**				NB: Can be re-entered if in the middle of a DDE transaction.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDESvrApp::OnPollSockets()
+{
+	// Re-entrancy guard.
+	static bool bGuarded = false;
+
+	if (!bGuarded)
+	{
+		CAutoBool l(&bGuarded);
+
+		bool bRecvPacket = true;
+
+		// Until no packets left...
+		while (bRecvPacket)
+		{
+			bRecvPacket = false;
+
+			// For all connections...
+			for (int i = 0; i < m_aoConnections.Size(); ++i)
+			{
+				CNetDDESvrSocket* pConnection = m_aoConnections[i];
+
+				try
+				{
+					CNetDDEPacket oPacket;
+
+					// No packet waiting?
+					if (!pConnection->RecvPacket(oPacket))
+						continue;
+
+					bRecvPacket = true;
+
+					// Dispatch packet to handler.
+					switch (oPacket.DataType())
+					{
+						case CNetDDEPacket::NETDDE_CLIENT_CONNECT:		OnNetDDEClientConnect(*pConnection, oPacket);		break;
+						case CNetDDEPacket::NETDDE_CLIENT_DISCONNECT:	OnNetDDEClientDisconnect(*pConnection, oPacket);	break;
+						case CNetDDEPacket::DDE_CREATE_CONVERSATION:	OnDDECreateConversation(*pConnection, oPacket);		break;
+						case CNetDDEPacket::DDE_DESTROY_CONVERSATION:	OnDDEDestroyConversation(*pConnection, oPacket);	break;
+						case CNetDDEPacket::DDE_REQUEST:				OnDDERequest(*pConnection, oPacket);				break;
+						case CNetDDEPacket::DDE_START_ADVISE:			OnDDEStartAdvise(*pConnection, oPacket);			break;
+						case CNetDDEPacket::DDE_STOP_ADVISE:			OnDDEStopAdvise(*pConnection, oPacket);				break;
+						case CNetDDEPacket::DDE_EXECUTE:				OnDDEExecute(*pConnection, oPacket);				break;
+						case CNetDDEPacket::DDE_POKE:					OnDDEPoke(*pConnection, oPacket);					break;
+						default:										ASSERT_FALSE();										break;
+					}
+
+					// Update stats.
+					++m_nPktsRecv;
+				}
+				catch (CSocketException& e)
+				{
+					App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+				}
+			}
+		}
+	}
 }

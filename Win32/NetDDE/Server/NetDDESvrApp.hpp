@@ -117,6 +117,8 @@ protected:
 	static const char* DEF_TRACE_FILE;
 	static const uint  DEF_MAX_TRACE;
 
+	static const uint  WM_POLL_SOCKETS;
+
 	//
 	// IDDEClientListener methods.
 	//
@@ -132,14 +134,16 @@ protected:
 	virtual void OnError(CSocket* pSocket, int nEvent, int nError);
 
 	//
-	// The backgound timer methods.
+	// Message handlers.
 	//
 	virtual void OnTimer(uint nTimerID);
+	virtual void OnThreadMsg(UINT nMsg, WPARAM wParam, LPARAM lParam);
 
 	//
 	// Background processing methods.
 	//
 	void UpdateStats();
+	void OnPollSockets();
 
 	//
 	// Packet handlers.
