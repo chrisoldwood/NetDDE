@@ -68,14 +68,14 @@ inline void CNetDDEPipe::SendPacket(const CNetDDEPacket& oPacket)
 
 inline bool CNetDDEPipe::RecvPacket(CNetDDEPacket& oPacket)
 {
-	// Set buffer size to header only.
-	oPacket.Buffer().Size(sizeof(CNetDDEPacket::Header));
-
 	uint nAvail = m_oPipe.Available();
 
 	// Enough data to read packet header?
 	if (nAvail >= sizeof(CNetDDEPacket::Header))
 	{
+		// Set buffer size to header only.
+		oPacket.Buffer().Size(sizeof(CNetDDEPacket::Header));
+
 		// Peek at packet header.
 		uint nRead = m_oPipe.Peek(oPacket.Buffer(), oPacket.Buffer().Size());
 
@@ -90,9 +90,9 @@ inline bool CNetDDEPipe::RecvPacket(CNetDDEPacket& oPacket)
 			{
 				oPacket.Buffer().Size(nPktSize);
 
-				// Read and process packet.
-				if (m_oPipe.Read(oPacket.Buffer()) == nPktSize)
-					return true;
+				// Read entire packet.
+				m_oPipe.Read(oPacket.Buffer());
+				return true;
 			}
 		}
 	}
