@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
-// Used by App.rc
+// Microsoft Visual C++ generated include file.
+// Used by NetDDEClt.rc
 //
 #define IDR_APPICON                     2
 #define IDR_APPMENU                     3
@@ -46,10 +46,15 @@
 #define IDC_REMOVE                      1105
 #define IDC_SERVER                      1105
 #define IDC_PIPE                        1106
-#define IDC_ASYNC_ADVISES               1107
 #define IDC_ASYNC                       1107
 #define IDC_TEXT_ONLY                   1108
+#define IDC_DEF_ADVISE_VAL              1109
+#define IDC_BAD_ADVISE_VAL              1110
+#define IDC_LINKS                       1110
+#define IDC_REQ_VALUE                   1111
 #define IDD_SERVICE                     2037
+#define IDD_DIALOG1                     2038
+#define IDD_LINKS                       2038
 #define ID_VIEW_CLEAR_TRACE             3068
 #define IDD_MAIN                        5000
 #define IDD_ABOUT                       5001
@@ -65,9 +70,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        2038
+#define _APS_NEXT_RESOURCE_VALUE        2039
 #define _APS_NEXT_COMMAND_VALUE         3069
-#define _APS_NEXT_CONTROL_VALUE         1108
+#define _APS_NEXT_CONTROL_VALUE         1111
 #define _APS_NEXT_SYMED_VALUE           104
 #endif
 #endif
