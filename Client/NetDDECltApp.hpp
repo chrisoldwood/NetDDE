@@ -77,6 +77,8 @@ public:
 
 	void Trace(const char* pszMsg, ...);
 
+	void Disconnect(CDDESvrConv* pConv);
+
 	//
 	// Constants.
 	//
