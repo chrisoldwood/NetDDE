@@ -247,6 +247,12 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\LinkCache.cpp">
+			</File>
+			<File
+				RelativePath=".\LinksDlg.cpp">
+			</File>
+			<File
 				RelativePath="NetDDEClt.rc">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -407,6 +413,12 @@
 			</File>
 			<File
 				RelativePath="DDEConvsDlg.hpp">
+			</File>
+			<File
+				RelativePath=".\LinkCache.hpp">
+			</File>
+			<File
+				RelativePath=".\LinksDlg.hpp">
 			</File>
 			<File
 				RelativePath="..\Shared\LinkValue.hpp">
