@@ -37,8 +37,9 @@ CDDEConvsDlg::CDDEConvsDlg()
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
-		CMD_CTRLMSG(IDC_LINKS, BN_CLICKED, OnViewLinks)
-		NFY_CTRLMSG(IDC_GRID,  NM_DBLCLK,  OnDblClkConv)
+		CMD_CTRLMSG(IDC_LINKS,      BN_CLICKED, OnViewLinks)
+		CMD_CTRLMSG(IDC_DISCONNECT, BN_CLICKED, OnCloseConv)
+		NFY_CTRLMSG(IDC_GRID,       NM_DBLCLK,  OnDblClkConv)
 	END_CTRLMSG_TABLE
 }
 
@@ -64,23 +65,8 @@ void CDDEConvsDlg::OnInitDialog()
 	m_lvGrid.InsertColumn(TOPIC_NAME,   "Topic",   125, LVCFMT_LEFT );
 	m_lvGrid.InsertColumn(LINK_COUNT,   "Links",    70, LVCFMT_RIGHT);
 
-	CDDESvrConvs aoConvs;
-
-	// Get the list of conversations.
-	App.m_pDDEServer->GetAllConversations(aoConvs);
-
-	// Load grid data.
-	for (int i = 0; i < aoConvs.Size(); ++i)
-	{
-		char szValue[50];
-
-		CDDESvrConv* pConv = aoConvs[i];
-
-		m_lvGrid.InsertItem(i,             pConv->Service());
-		m_lvGrid.ItemText  (i, TOPIC_NAME, pConv->Topic());
-		m_lvGrid.ItemText  (i, LINK_COUNT, itoa(pConv->NumLinks(), szValue, 10));
-		m_lvGrid.ItemData  (i, (LPARAM)pConv->Handle());
-	}
+	// Populate.
+	Refresh();
 }
 
 /******************************************************************************
@@ -98,6 +84,42 @@ void CDDEConvsDlg::OnInitDialog()
 bool CDDEConvsDlg::OnOk()
 {
 	return true;
+}
+
+/******************************************************************************
+** Method:		Refresh()
+**
+** Description:	Refresh the list of conversations.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CDDEConvsDlg::Refresh()
+{
+	// Clear old contents.
+	m_lvGrid.DeleteAllItems();
+
+	CDDESvrConvs aoConvs;
+
+	// Get the list of conversations.
+	App.m_pDDEServer->GetAllConversations(aoConvs);
+
+	// Load grid data.
+	for (int i = 0; i < aoConvs.Size(); ++i)
+	{
+		char szValue[50];
+
+		CDDESvrConv* pConv = aoConvs[i];
+
+		m_lvGrid.InsertItem(i,             pConv->Service());
+		m_lvGrid.ItemText  (i, TOPIC_NAME, pConv->Topic());
+		m_lvGrid.ItemText  (i, LINK_COUNT, itoa(pConv->NumLinks(), szValue, 10));
+		m_lvGrid.ItemData  (i, (LPARAM)pConv->Handle());
+	}
 }
 
 /******************************************************************************
@@ -137,6 +159,46 @@ void CDDEConvsDlg::OnViewLinks()
 
 	// Show dialog.
 	Dlg.RunModal(*this);
+
+	// Re-populate.
+	Refresh();
+}
+
+/******************************************************************************
+** Method:		OnCloseConv()
+**
+** Description:	Terminate the selected DDE conversation.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CDDEConvsDlg::OnCloseConv()
+{
+	// Ignore, if no selection.
+	if (!m_lvGrid.IsSelection())
+		return;
+
+	// Get the selected conversation.
+	HCONV hConv = (HCONV) m_lvGrid.ItemData(m_lvGrid.Selection());
+
+	// Find the conversation.
+	CDDESvrConv* pConv = App.m_pDDEServer->FindConversation(hConv);
+
+	if (pConv == NULL)
+	{
+		AlertMsg("The conversation has already been terminated.");
+		return;
+	}
+
+	// Terminate it.
+	App.Disconnect(pConv);
+
+	// Re-populate.
+	Refresh();
 }
 
 /******************************************************************************
