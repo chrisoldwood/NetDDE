@@ -98,6 +98,16 @@ BEGIN
     END
 END
 
+IDR_TRAYMENU MENU 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "&Restore",                    1001
+        MENUITEM SEPARATOR
+        MENUITEM "&Exit",                       1002
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -168,8 +178,8 @@ CAPTION "Server Connections"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     CONTROL         "List1",IDC_GRID,"SysListView32",LVS_REPORT | 
-                    LVS_SINGLESEL | LVS_NOSORTHEADER | WS_BORDER | 
-                    WS_TABSTOP,5,5,250,100,WS_EX_CLIENTEDGE
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | 
+                    WS_BORDER | WS_TABSTOP,5,5,250,100,WS_EX_CLIENTEDGE
     DEFPUSHBUTTON   "Close",IDCANCEL,205,110,50,14
 END
 
@@ -179,25 +189,28 @@ CAPTION "DDE Conversations"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     CONTROL         "List1",IDC_GRID,"SysListView32",LVS_REPORT | 
-                    LVS_SINGLESEL | LVS_NOSORTHEADER | WS_BORDER | 
-                    WS_TABSTOP,5,5,225,100,WS_EX_CLIENTEDGE
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | 
+                    WS_BORDER | WS_TABSTOP,5,5,225,100,WS_EX_CLIENTEDGE
     PUSHBUTTON      "&Links",IDC_LINKS,5,110,50,14
     PUSHBUTTON      "&Disconnect",IDC_DISCONNECT,60,110,50,14
     DEFPUSHBUTTON   "Close",IDCANCEL,180,110,50,14
 END
 
-IDD_OPTIONS DIALOG  0, 0, 137, 90
+IDD_OPTIONS DIALOGEX 0, 0, 247, 121
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Options"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "Interface",IDC_STATIC,5,5,125,55
+    GROUPBOX        "Interface",IDC_STATIC,5,5,235,40
     CONTROL         "&Show Status In System Tray",IDC_TRAY_ICON,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,15,20,105,10
     CONTROL         "&Minimise To System Tray",IDC_MIN_TO_TRAY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,40,105,10
-    DEFPUSHBUTTON   "OK",IDOK,15,70,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,71,70,50,14
+                    BS_AUTOCHECKBOX | WS_TABSTOP,130,20,105,10
+    GROUPBOX        "Networking",IDC_STATIC,5,50,235,40
+    LTEXT           "&Time Out (ms):",IDC_STATIC,15,66,50,8
+    EDITTEXT        IDC_NET_TIMEOUT,75,65,40,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,70,100,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,125,100,50,14
 END
 
 IDD_SERVICES DIALOGEX 0, 0, 232, 126
@@ -253,8 +266,8 @@ CAPTION "%s Links"
 FONT 8, "MS Sans Serif", 400, 0, 0x0
 BEGIN
     CONTROL         "",IDC_GRID,"SysListView32",LVS_REPORT | LVS_SINGLESEL | 
-                    LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,5,5,250,150,
-                    WS_EX_CLIENTEDGE
+                    LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | WS_BORDER | 
+                    WS_TABSTOP,5,5,250,150,WS_EX_CLIENTEDGE
     DEFPUSHBUTTON   "Close",IDCANCEL,205,160,50,14
 END
 
@@ -310,9 +323,9 @@ BEGIN
     IDD_OPTIONS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 130
+        RIGHTMARGIN, 240
         TOPMARGIN, 7
-        BOTTOMMARGIN, 83
+        BOTTOMMARGIN, 114
     END
 
     IDD_SERVICES, DIALOG
@@ -413,6 +426,12 @@ END
 STRINGTABLE 
 BEGIN
     ID_VIEW_CLEAR_TRACE     "Clear the trace window"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_TRAY_RESTORE         "Restore the window"
+    ID_TRAY_EXIT            "Close the application\nClose"
 END
 
 #endif    // English (U.K.) resources
