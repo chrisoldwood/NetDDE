@@ -24,6 +24,6 @@
 #define NETDDE_PIPE_FORMAT		"\\\\%s\\pipe\\%s"
 
 // The NetDDE protocol version.
-const uint16 NETDDE_PROTOCOL = 1;
+const uint16 NETDDE_PROTOCOL = 2;
 
 #endif // NETDDEDEFS_HPP
