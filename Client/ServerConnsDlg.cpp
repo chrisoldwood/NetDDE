@@ -66,17 +66,21 @@ void CServerConnsDlg::OnInitDialog()
 	// Load grid data.
 	for (int i = 0; i < App.m_aoServices.Size(); ++i)
 	{
-		char szValue[50];
-
 		CNetDDEService* pConnection = App.m_aoServices[i];
 
 		// Only add if connection active.
-		if (pConnection->m_aoConvs.Size() > 0)
+		if (pConnection->m_aoNetConvs.Size() > 0)
 		{
+			int nLinks = 0;
+
+			// Sum links for all conversations.
+			for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+				nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.Size();
+
 			m_lvGrid.InsertItem(i,                pConnection->m_oCfg.m_strRemName);
 			m_lvGrid.ItemText  (i, COMPUTER_NAME, pConnection->m_oCfg.m_strServer);
-			m_lvGrid.ItemText  (i, CONV_COUNT,    itoa(pConnection->m_aoConvs.Size(), szValue, 10));
-			m_lvGrid.ItemText  (i, LINK_COUNT,    itoa(pConnection->m_aoLinks.Size(), szValue, 10));
+			m_lvGrid.ItemText  (i, CONV_COUNT,    CStrCvt::FormatInt(pConnection->m_aoNetConvs.Size()));
+			m_lvGrid.ItemText  (i, LINK_COUNT,    CStrCvt::FormatInt(nLinks));
 		}
 	}
 }
