@@ -36,6 +36,7 @@ public:
 	//
 	CNetDDEConv* FindNetConv(CDDESvrConv* pConv) const;
 
+public:
 	//
 	// Members.
 	//
