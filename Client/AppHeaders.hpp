@@ -33,6 +33,7 @@
 
 // App data classes.
 #include "LinkValue.hpp"
+#include "LinkCache.hpp"
 #include "NetDDEDefs.hpp"
 #include "NetDDEPacket.hpp"
 #include "NetDDEPipe.hpp"
