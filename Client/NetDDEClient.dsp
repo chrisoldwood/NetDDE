@@ -90,10 +90,6 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\App.rc
-# End Source File
-# Begin Source File
-
 SOURCE=.\AppCmds.cpp
 # End Source File
 # Begin Source File
@@ -107,6 +103,10 @@ SOURCE=.\AppWnd.cpp
 # Begin Source File
 
 SOURCE=.\DDEConvsDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetDDEClt.rc
 # End Source File
 # Begin Source File
 
