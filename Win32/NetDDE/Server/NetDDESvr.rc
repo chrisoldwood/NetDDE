@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "Resource.h"
 
@@ -30,12 +30,12 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "Resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "#include ""windows.h""\r\n"
@@ -44,7 +44,7 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "#include ""App.rcv""\r\n"
@@ -61,19 +61,19 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_APPICON             ICON    DISCARDABLE     "App.ico"
-IDI_NET_LOST            ICON    DISCARDABLE     "NetLost.ico"
-IDI_NET_IDLE            ICON    DISCARDABLE     "NetIdle.ico"
-IDI_NET_SEND            ICON    DISCARDABLE     "NetSend.ico"
-IDI_NET_RECV            ICON    DISCARDABLE     "NetRecv.ico"
-IDI_NET_BOTH            ICON    DISCARDABLE     "NetBoth.ico"
+IDR_APPICON             ICON                    "App.ico"
+IDI_NET_LOST            ICON                    "NetLost.ico"
+IDI_NET_IDLE            ICON                    "NetIdle.ico"
+IDI_NET_SEND            ICON                    "NetSend.ico"
+IDI_NET_RECV            ICON                    "NetRecv.ico"
+IDI_NET_BOTH            ICON                    "NetBoth.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-IDR_APPMENU MENU DISCARDABLE 
+IDR_APPMENU MENU 
 BEGIN
     POPUP "&File"
     BEGIN
@@ -103,8 +103,8 @@ END
 // Dialog
 //
 
-IDD_MAIN DIALOG DISCARDABLE  0, 0, 301, 201
-STYLE WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+IDD_MAIN DIALOG  0, 0, 301, 201
+STYLE DS_SETFONT | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
 FONT 8, "MS Sans Serif"
 BEGIN
     LISTBOX         IDC_TRACE,5,5,290,190,NOT LBS_NOTIFY | 
@@ -112,8 +112,9 @@ BEGIN
                     WS_TABSTOP
 END
 
-IDD_ABOUT DIALOG DISCARDABLE  0, 0, 122, 126
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+IDD_ABOUT DIALOG  0, 0, 122, 126
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
 CAPTION "About NetDDEServer"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -132,7 +133,7 @@ BEGIN
 END
 
 IDD_CLIENT_CONNS DIALOGEX 0, 0, 312, 186
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Client Connections"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
@@ -142,8 +143,8 @@ BEGIN
                     WS_TABSTOP,5,5,300,150,WS_EX_CLIENTEDGE
 END
 
-IDD_TRACE_OPTIONS DIALOG DISCARDABLE  0, 0, 217, 156
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_TRACE_OPTIONS DIALOG  0, 0, 217, 156
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Trace Options"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -171,19 +172,20 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,111,135,50,15
 END
 
-IDD_DDE_CONVS DIALOGEX 0, 0, 237, 186
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_DDE_CONVS DIALOGEX 0, 0, 237, 130
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "DDE Conversations"
 FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Close",IDCANCEL,95,165,50,14
-    CONTROL         "List1",IDC_GRID,"SysListView32",LVS_REPORT | 
-                    LVS_SINGLESEL | LVS_NOSORTHEADER | WS_BORDER | 
-                    WS_TABSTOP,5,5,225,150,WS_EX_CLIENTEDGE
+    DEFPUSHBUTTON   "Close",IDCANCEL,180,110,50,14
+    CONTROL         "",IDC_GRID,"SysListView32",LVS_REPORT | LVS_SINGLESEL | 
+                    LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,5,5,225,100,
+                    WS_EX_CLIENTEDGE
+    PUSHBUTTON      "&Links",IDC_LINKS,5,110,50,14
 END
 
-IDD_OPTIONS DIALOG DISCARDABLE  0, 0, 137, 90
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_OPTIONS DIALOG  0, 0, 137, 90
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Options"
 FONT 8, "MS Sans Serif"
 BEGIN
@@ -196,13 +198,25 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,71,70,50,14
 END
 
+IDD_LINKS DIALOGEX 0, 0, 262, 182
+STYLE DS_SETFONT | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CAPTION | 
+    WS_SYSMENU | WS_THICKFRAME
+CAPTION "%s Links"
+FONT 8, "MS Sans Serif", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "Close",IDCANCEL,205,160,50,14
+    CONTROL         "",IDC_GRID,"SysListView32",LVS_REPORT | LVS_SINGLESEL | 
+                    LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,5,5,250,150,
+                    WS_EX_CLIENTEDGE
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Accelerator
 //
 
-IDR_APPACCEL ACCELERATORS DISCARDABLE 
+IDR_APPACCEL ACCELERATORS 
 BEGIN
     VK_F1,          ID_HELP_CONTENTS,       VIRTKEY, NOINVERT
 END
@@ -214,7 +228,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_ABOUT, DIALOG
     BEGIN
@@ -242,7 +256,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 230
         TOPMARGIN, 7
-        BOTTOMMARGIN, 179
+        BOTTOMMARGIN, 123
     END
 
     IDD_OPTIONS, DIALOG
@@ -251,6 +265,14 @@ BEGIN
         RIGHTMARGIN, 130
         TOPMARGIN, 7
         BOTTOMMARGIN, 83
+    END
+
+    IDD_LINKS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 255
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 175
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -261,68 +283,68 @@ END
 // String Table
 //
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_SYS_RESTORE         "Restore the window size and position."
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_SYS_MOVE            "Move the window"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_SYS_SIZE            "Resize the window"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_SYS_MINIMIZE        "Minimize the window"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_SYS_MAXIMIZE        "Maximize the window"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_SYS_CLOSE           "Close the window"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     IDS_SYS_SWITCH          "Switch to another application"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_HELP_POPUP           "Help options"
     ID_HELP_CONTENTS        "Displays the help contents page\nHelp"
     ID_HELP_ABOUT           "Show NetDDE Server version\nAbout"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_VIEW_POPUP           "View options"
     ID_VIEW_CLIENT_CONNS    "Shows the client connections"
     ID_VIEW_DDE_CONVS       "Shows the DDE conversations"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_FILE_POPUP           "File options"
     ID_FILE_EXIT            "Close the application\nClose"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_OPTIONS_POPUP        "Settings options"
     ID_OPTIONS_TRACE        "Configure the trace settings"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE 
 BEGIN
     ID_VIEW_CLEAR_TRACE     "Clear the trace window"
 END
