@@ -30,6 +30,7 @@
 CNetDDESvrPipe::CNetDDESvrPipe()
 	: CNetDDEPipe(this)
 {
+	SetTimeOut(App.m_nNetTimeOut);
 }
 
 /******************************************************************************
