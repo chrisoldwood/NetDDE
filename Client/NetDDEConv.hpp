@@ -28,16 +28,21 @@ public:
 	//
 	// Constructors/Destructor.
 	//
-	CNetDDEConv(HCONV hSvrConv);
+	CNetDDEConv(HCONV hSvrConv, uint32 nSvrConvID);
 	~CNetDDEConv();
 	
 public:
+	// Template shorthands.
+	typedef TList<CDDELink*> CLinkList;
+
 	//
 	// Members.
 	//
-	HCONV			m_hSvrConv;		// The server side conversation.
+	HCONV			m_hSvrConv;		// The server side conversation handle.
+	uint32			m_nSvrConvID;	// The server side conversation ID;
 	CDDESvrConv*	m_pCltConv;		// The client side conversation.
 	CLinks			m_aoLinks;		// The active links.
+	CLinkList		m_loNewLinks;	// The list of new links.
 };
 
 /******************************************************************************
@@ -47,8 +52,9 @@ public:
 *******************************************************************************
 */
 
-inline CNetDDEConv::CNetDDEConv(HCONV hSvrConv)
+inline CNetDDEConv::CNetDDEConv(HCONV hSvrConv, uint32 nSvrConvID)
 	: m_hSvrConv(hSvrConv)
+	, m_nSvrConvID(nSvrConvID)
 	, m_pCltConv(NULL)
 {
 }
