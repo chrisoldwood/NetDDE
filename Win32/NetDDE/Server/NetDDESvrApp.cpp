@@ -236,7 +236,7 @@ bool CNetDDESvrApp::OnClose()
 	m_pDDEClient->Uninitialise();
 
 	// Empty the link cache.
-	m_oLinkCache.Clear();
+	m_oLinkCache.Purge();
 
 	// Save settings.
 	SaveConfig();
@@ -452,6 +452,9 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 		}
 	}
 
+	// Purge link cache.
+	m_oLinkCache.Purge(pConv);
+
 	uint nRefCount = pConv->RefCount();
 
 	// Free conversation.
@@ -480,7 +483,27 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	if (pLink == NULL)
 		return;
 
-	CDDEConv*  pConv = pLink->Conversation();
+	CDDEConv* pConv = pLink->Conversation();
+	CBuffer   oData = pData->GetBuffer();
+
+	// Find the links' value in the cache.
+	CLinkValue* pValue = m_oLinkCache.Find(pConv, pLink);
+
+	// Discard duplicate updates.
+	if ((pValue != NULL) && (pValue->m_oLastValue == oData))
+		return;
+
+	// Create a cache entry, if a new link.
+	if (pValue == NULL)
+		pValue = m_oLinkCache.Create(pConv, pLink);
+
+	ASSERT(pValue != NULL);
+
+	// Update links' cached value.
+	pValue->m_oLastValue  = oData;
+	pValue->m_tLastUpdate = CDateTime::Current();
+
+	// Create advise packet.
 	HCONV      hConv = pConv->Handle();
 	CBuffer    oBuffer;
 	CMemStream oStream(oBuffer);
@@ -490,29 +513,21 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	oStream.Write(&hConv, sizeof(hConv));
 	oStream << pLink->Item();
 	oStream << (uint32) pLink->Format();
-	oStream << pData->GetBuffer();
+	oStream << oData;
 	oStream << true;
 
 	oStream.Close();
 
 	CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
 
-	CLinkValue* pValue = NULL;
-
-	// Find the links' value cache.
-	if ((pValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
-		pValue = m_oLinkCache.Create(pConv, pLink);
-
-	ASSERT(pValue != NULL);
-
-	// Update links' value.
-	pValue->m_oLastValue  = pData->GetBuffer();
-	pValue->m_tLastUpdate = CDateTime::Current();
-
 	// Notify all NetDDEClients...
 	for (int i = 0; i < m_aoConnections.Size(); ++i)
 	{
 		CNetDDESvrPipe* pConnection = m_aoConnections[i];
+
+		// Ignore, if connection severed.
+		if (!pConnection->IsOpen())
+			continue;
 
 		// Connection references link?
 		if (pConnection->IsLinkUsed(pLink))
@@ -522,12 +537,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 				if (App.m_bTraceUpdates)
 				{
 					uint    nFormat = pLink->Format();
-					CString strData;
-
-					if (nFormat == CF_TEXT)
-						strData = (const char*)(const void*)pData->GetBuffer().Buffer();
-					else
-						strData = CClipboard::FormatName(nFormat);
+					CString strData = (nFormat == CF_TEXT) ? oData.ToString() : CClipboard::FormatName(nFormat);
 
 					App.Trace("DDE_ADVISE: %s %s [%s]", pConv->Service(), pLink->Item(), strData);
 				}
@@ -690,6 +700,8 @@ void CNetDDESvrApp::HandleRequests()
 					case CNetDDEPacket::DDE_REQUEST:				OnDDERequest(*pConnection, oPacket);				break;
 					case CNetDDEPacket::DDE_START_ADVISE:			OnDDEStartAdvise(*pConnection, oPacket);			break;
 					case CNetDDEPacket::DDE_STOP_ADVISE:			OnDDEStopAdvise(*pConnection, oPacket);				break;
+					case CNetDDEPacket::DDE_EXECUTE:				OnDDEExecute(*pConnection, oPacket);				break;
+					case CNetDDEPacket::DDE_POKE:					OnDDEPoke(*pConnection, oPacket);					break;
 					default:										ASSERT_FALSE();										break;
 				}
 
@@ -734,6 +746,10 @@ void CNetDDESvrApp::HandleDisconnects()
 			{
 				CNetDDEConv* pNetConv = pConnection->m_aoNetConvs[j];
 
+				// Purge link cache, if last reference.
+				if (pNetConv->m_pSvrConv->RefCount() == 1)
+					m_oLinkCache.Purge(pNetConv->m_pSvrConv);
+
 				m_pDDEClient->DestroyConversation(pNetConv->m_pSvrConv);
 			}
 
@@ -741,6 +757,10 @@ void CNetDDESvrApp::HandleDisconnects()
 			m_aoConnections.Delete(i);
 		}
 	}
+
+	// Flush value cache, if all connections closed.
+	if ( (m_aoConnections.Size() == 0) && (m_oLinkCache.Size() > 0) )
+		m_oLinkCache.Purge();
 }
 
 /******************************************************************************
@@ -973,6 +993,10 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrPipe& oConnection, CNetDD
 					pConv->DestroyLink(pNetConv->m_aoLinks[i]);
 			}
 
+			// Purge link cache, if last reference.
+			if (pNetConv->m_pSvrConv->RefCount() == 1)
+				m_oLinkCache.Purge(pConv);
+
 			// Call DDE to terminate the conversation.
 			m_pDDEClient->DestroyConversation(pConv);
 		}
@@ -1050,7 +1074,6 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oRe
 
 	oRspStream << bResult;
 	oRspStream << oData.GetBuffer();
-	oRspStream << "DDE_REQUEST";
 
 	oRspStream.Close();
 
@@ -1301,6 +1324,156 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& 
 			pNetConv->m_aoLinks.Remove(pNetConv->m_aoLinks.Find(pLink));
 		}
 	}
+}
+
+/******************************************************************************
+** Method:		OnDDEExecute()
+**
+** Description:	NetDDEClient executing a command.
+**
+** Parameters:	oConnection		The connection the packet came from.
+**				oReqPacket		The request packet.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDESvrApp::OnDDEExecute(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket)
+{
+	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_EXECUTE);
+
+	bool     bResult = false;
+
+	HCONV	hConv;
+	uint32  nConvID;
+	CString strCmd;
+
+	// Decode message.
+	CMemStream oStream(oReqPacket.Buffer());
+
+	oStream.Open();
+	oStream.Seek(sizeof(CNetDDEPacket::Header));
+
+	oStream.Read(&hConv, sizeof(hConv));
+	oStream >> nConvID;
+	oStream >> strCmd;
+
+	oStream.Close();
+
+	if (App.m_bTraceRequests)
+		App.Trace("DDE_EXECUTE: 0x%p [%s]", hConv, strCmd);
+
+	try
+	{
+		// Locate the conversation.
+		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
+
+		if (pConv != NULL)
+		{
+			// Call DDE to do the execute.
+			pConv->Execute(strCmd);
+
+			bResult = true;
+		}
+	}
+	catch (CDDEException& /*e*/)
+	{
+	}
+
+	// Create response message.
+	CMemStream oRspStream(oReqPacket.Buffer());
+
+	oRspStream.Create();
+
+	oRspStream << bResult;
+
+	oRspStream.Close();
+
+	// Send response message.
+	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_EXECUTE, oReqPacket.Buffer());
+
+	oConnection.SendPacket(oRspPacket);
+
+	// Update stats.
+	++m_nPktsSent;
+}
+
+/******************************************************************************
+** Method:		OnDDEPoke()
+**
+** Description:	NetDDEClient pokeing a value into an item.
+**
+** Parameters:	oConnection		The connection the packet came from.
+**				oReqPacket		The request packet.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDESvrApp::OnDDEPoke(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket)
+{
+	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_POKE);
+
+	bool     bResult = false;
+
+	HCONV	 hConv;
+	uint32   nConvID;
+	CString  strItem;
+	uint32   nFormat;
+	CBuffer  oData;
+
+	// Decode message.
+	CMemStream oStream(oReqPacket.Buffer());
+
+	oStream.Open();
+	oStream.Seek(sizeof(CNetDDEPacket::Header));
+
+	oStream.Read(&hConv, sizeof(hConv));
+	oStream >> nConvID;
+	oStream >> strItem;
+	oStream >> nFormat;
+	oStream >> oData;
+
+	oStream.Close();
+
+	if (App.m_bTraceRequests)
+		App.Trace("DDE_POKE: %s %s [%s]", strItem, CClipboard::FormatName(nFormat), oData.ToString());
+
+	try
+	{
+		// Locate the conversation.
+		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
+
+		if (pConv != NULL)
+		{
+			// Call DDE to do the poke.
+			pConv->Poke(strItem, nFormat, oData.Buffer(), oData.Size());
+
+			bResult = true;
+		}
+	}
+	catch (CDDEException& /*e*/)
+	{
+	}
+
+	// Create response message.
+	CMemStream oRspStream(oReqPacket.Buffer());
+
+	oRspStream.Create();
+
+	oRspStream << bResult;
+
+	oRspStream.Close();
+
+	// Send response message.
+	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_POKE, oReqPacket.Buffer());
+
+	oConnection.SendPacket(oRspPacket);
+
+	// Update stats.
+	++m_nPktsSent;
 }
 
 /******************************************************************************

@@ -143,6 +143,8 @@ protected:
 	void OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
 	void OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
 	void OnDDEStopAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEExecute(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEPoke(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
 };
 
 /******************************************************************************
