@@ -43,6 +43,7 @@ const uint  CNetDDECltApp::BG_TIMER_FREQ =  1;
 
 const bool  CNetDDECltApp::DEF_TRAY_ICON         = true;
 const bool  CNetDDECltApp::DEF_MIN_TO_TRAY       = false;
+const uint  CNetDDECltApp::DEF_NET_TIMEOUT       = 30000;
 const bool  CNetDDECltApp::DEF_TRACE_CONVS       = true;
 const bool  CNetDDECltApp::DEF_TRACE_REQUESTS    = false;
 const bool  CNetDDECltApp::DEF_TRACE_ADVISES     = false;
@@ -77,6 +78,7 @@ CNetDDECltApp::CNetDDECltApp()
 	, m_nTimerID(0)
 	, m_bTrayIcon(DEF_TRAY_ICON)
 	, m_bMinToTray(DEF_MIN_TO_TRAY)
+	, m_nNetTimeOut(DEF_NET_TIMEOUT)
 	, m_bTraceConvs(DEF_TRACE_CONVS)
 	, m_bTraceRequests(DEF_TRACE_REQUESTS)
 	, m_bTraceAdvises(DEF_TRACE_ADVISES)
@@ -370,9 +372,10 @@ void CNetDDECltApp::LoadConfig()
 	m_bTraceToFile   = m_oIniFile.ReadBool  ("Trace", "ToFile",         m_bTraceToFile  );
 	m_strTraceFile   = m_oIniFile.ReadString("Trace", "FileName",       m_strTraceFile  );
 
-	// Read the UI settings.
-	m_bTrayIcon  = m_oIniFile.ReadBool("UI", "TrayIcon",  m_bTrayIcon );
-	m_bMinToTray = m_oIniFile.ReadBool("UI", "MinToTray", m_bMinToTray);
+	// Read the general settings.
+	m_bTrayIcon    = m_oIniFile.ReadBool("Main", "TrayIcon",     m_bTrayIcon  );
+	m_bMinToTray   = m_oIniFile.ReadBool("Main", "MinToTray",    m_bMinToTray );
+	m_nNetTimeOut  = m_oIniFile.ReadInt ("Main", "NetTimeOut",   m_nNetTimeOut);
 
 	// Read the window pos and size.
 	m_rcLastPos.left   = m_oIniFile.ReadInt("UI", "Left",   0);
@@ -433,9 +436,10 @@ void CNetDDECltApp::SaveConfig()
 	m_oIniFile.WriteBool  ("Trace", "ToFile",         m_bTraceToFile  );
 	m_oIniFile.WriteString("Trace", "FileName",       m_strTraceFile  );
 
-	// Write the UI settings.
-	m_oIniFile.WriteBool("UI", "TrayIcon",  m_bTrayIcon );
-	m_oIniFile.WriteBool("UI", "MinToTray", m_bMinToTray);
+	// Write the general settings.
+	m_oIniFile.WriteBool("Main", "TrayIcon",     m_bTrayIcon  );
+	m_oIniFile.WriteBool("Main", "MinToTray",    m_bMinToTray );
+	m_oIniFile.WriteInt ("Main", "NetTimeOut",   m_nNetTimeOut);
 
 	// Write the window pos and size.
 	m_oIniFile.WriteInt("UI", "Left",   m_rcLastPos.left  );
@@ -1756,8 +1760,11 @@ void CNetDDECltApp::UpdateStats()
 		// Format tooltip.
 		CString strTip = "NetDDE Client";
 
-		strTip += "\nConversations: " + CStrCvt::FormatInt(m_pDDEServer->GetNumConversations());
-		strTip += "\nConnections: "   + CStrCvt::FormatInt(nConns);
+		if (nConns > 0)
+		{
+			strTip += "\nConnections: "   + CStrCvt::FormatInt(nConns);
+			strTip += "\nConversations: " + CStrCvt::FormatInt(m_pDDEServer->GetNumConversations());
+		}
 
 		// Update tray icon.
 		if (m_AppWnd.m_oTrayIcon.IsVisible())
