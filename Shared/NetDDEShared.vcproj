@@ -123,6 +123,9 @@
 				RelativePath=".\LinkCache.cpp">
 			</File>
 			<File
+				RelativePath=".\NetDDEPacket.cpp">
+			</File>
+			<File
 				RelativePath=".\NetDDESocket.cpp">
 			</File>
 		</Filter>
