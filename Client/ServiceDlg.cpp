@@ -25,18 +25,22 @@
 
 CServiceDlg::CServiceDlg()
 	: CDialog(IDD_SERVICE)
-	, m_bAsync(false)
+	, m_bAsyncAdvises(false)
 	, m_bTextOnly(false)
 {
 	DEFINE_CTRL_TABLE
-		CTRL(IDC_SERVICE,   &m_ebService )
-		CTRL(IDC_SERVER,    &m_ebServer  )
-		CTRL(IDC_PIPE,      &m_ebPipe    )
-		CTRL(IDC_ASYNC,     &m_ckAsync   )
-		CTRL(IDC_TEXT_ONLY, &m_ckTextOnly)
+		CTRL(IDC_SERVICE,        &m_ebService   )
+		CTRL(IDC_TEXT_ONLY,      &m_ckTextOnly  )
+		CTRL(IDC_SERVER,         &m_ebServer    )
+		CTRL(IDC_PIPE,           &m_ebPipe      )
+		CTRL(IDC_DEF_ADVISE_VAL, &m_ebDefaultVal)
+		CTRL(IDC_REQ_VALUE,      &m_ckReqVal    )
+		CTRL(IDC_ASYNC,          &m_ckAsync     )
+		CTRL(IDC_BAD_ADVISE_VAL, &m_ebFailedVal )
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
+		CMD_CTRLMSG(IDC_ASYNC, BN_CLICKED, OnClickedAsync)
 	END_CTRLMSG_TABLE
 }
 
@@ -56,10 +60,16 @@ void CServiceDlg::OnInitDialog()
 {
 	// Initialise controls.
 	m_ebService.Text(m_strService);
+	m_ckTextOnly.Check(m_bTextOnly);
 	m_ebServer.Text(m_strServer);
 	m_ebPipe.Text(m_strPipe);
-	m_ckAsync.Check(m_bAsync);
-	m_ckTextOnly.Check(m_bTextOnly);
+	m_ebDefaultVal.Text(m_strDefaultVal);
+	m_ckReqVal.Check(m_bReqInitVal);
+	m_ckAsync.Check(m_bAsyncAdvises);
+	m_ebFailedVal.Text(m_strFailedVal);
+
+	// Initialise dependent controls.
+	OnClickedAsync();
 }
 
 /******************************************************************************
@@ -99,11 +109,33 @@ bool CServiceDlg::OnOk()
 	}
 
 	// Get control values.
-	m_strService = m_ebService.Text();
-	m_strServer  = m_ebServer.Text();
-	m_strPipe    = m_ebPipe.Text();
-	m_bAsync     = m_ckAsync.IsChecked();
-	m_bTextOnly  = m_ckTextOnly.IsChecked();
+	m_strService    = m_ebService.Text();
+	m_bTextOnly     = m_ckTextOnly.IsChecked();
+	m_strServer     = m_ebServer.Text();
+	m_strPipe       = m_ebPipe.Text();
+	m_strDefaultVal = m_ebDefaultVal.Text();
+	m_bReqInitVal   = m_ckReqVal.IsChecked();
+	m_bAsyncAdvises = m_ckAsync.IsChecked();
+	m_strFailedVal  = m_ebFailedVal.Text();
 
 	return true;
+}
+
+/******************************************************************************
+** Method:		OnClickedAsync()
+**
+** Description:	Async checkbox toggled. Update dependent controls.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CServiceDlg::OnClickedAsync()
+{
+	bool bAsync = m_ckAsync.IsChecked();
+
+	m_ebFailedVal.Enable(bAsync);
 }
