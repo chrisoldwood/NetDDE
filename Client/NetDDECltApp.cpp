@@ -33,7 +33,7 @@ const char* CNetDDECltApp::VERSION      = "v1.0 [Debug]";
 const char* CNetDDECltApp::VERSION      = "v1.0";
 #endif
 const char* CNetDDECltApp::INI_FILE_VER  = "1.0";
-const uint  CNetDDECltApp::BG_TIMER_FREQ = 10;
+const uint  CNetDDECltApp::BG_TIMER_FREQ =  1;
 const uint  CNetDDECltApp::DEF_MAX_TRACE = 25;
 
 // Background processing re-entrancy flag.
@@ -136,6 +136,8 @@ bool CNetDDECltApp::OnOpen()
 
 			strPipeName.Format(NETDDE_PIPE_FORMAT, pService->m_strServer, pService->m_strPipeName);
 
+			App.Trace("PIPE_STATUS: Connecting to %s", strPipeName);
+
 			// Open the connection to the server
 			pService->m_oConnection.Open(strPipeName);
 
@@ -161,6 +163,12 @@ bool CNetDDECltApp::OnOpen()
 
 			// Wait for response.
 			pService->m_oConnection.WaitForPacket(oPacket, CNetDDEPacket::NETDDE_CLIENT_CONNECT);
+		}
+		catch (CPipeException& e)
+		{
+			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+
+			AlertMsg("Failed to initialise service: %s\n\n%s", pService->m_strService, e.ErrorText());
 		}
 		catch (CException& e)
 		{
@@ -471,8 +479,9 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 				pService->m_hSvrConv = hSvrConv;
 		}
 	}
-	catch (CException& /*e*/)
+	catch (CPipeException& e)
 	{
+		App.Trace("PIPE_ERROR: %s", e.ErrorText());
 	}
 
 	return bAccept;
@@ -556,8 +565,9 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 			pService->m_aoConvs.Remove(pService->m_aoConvs.Find(pConv));
 		}
 	}
-	catch (CException& /*e*/)
+	catch (CPipeException& e)
 	{
+		App.Trace("PIPE_ERROR: %s", e.ErrorText());
 	}
 }
 
@@ -629,8 +639,9 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 				oData.SetBuffer(oDDEData);
 		}
 	}
-	catch (CException& /*e*/)
+	catch (CPipeException& e)
 	{
+		App.Trace("PIPE_ERROR: %s", e.ErrorText());
 	}
 
 	return bResult;
@@ -698,8 +709,9 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 			oRspStream.Close();
 		}
 	}
-	catch (CException& /*e*/)
+	catch (CPipeException& e)
 	{
+		App.Trace("PIPE_ERROR: %s", e.ErrorText());
 	}
 
 	return bResult;
@@ -813,8 +825,9 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 			pService->m_aoLinks.Remove(pService->m_aoLinks.Find(pLink));
 		}
 	}
-	catch (CException& /*e*/)
+	catch (CPipeException& e)
 	{
+		App.Trace("PIPE_ERROR: %s", e.ErrorText());
 	}
 }
 
@@ -888,12 +901,16 @@ void CNetDDECltApp::HandleNotifications()
 				delete pPacket;
 			}
 		}
-		catch (CException& /*e*/)
+		catch (CPipeException& e)
 		{
-			App.Trace("NETDDE_SERVER_DISCONNECT: %s", pService->m_strServer);
+			App.Trace("PIPE_ERROR: %s", e.ErrorText());
 
-			// Pipe disconnected?.
+			// Pipe disconnected?
 			pService->m_oConnection.Close();
+		}
+		catch (CException& e)
+		{
+			App.Trace("UNHANDLED_EXCEPTION: %s", e.ErrorText());
 		}
 	}
 }
