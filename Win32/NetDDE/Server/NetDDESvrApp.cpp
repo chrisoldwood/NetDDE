@@ -1228,15 +1228,17 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& 
 
 		if (pConv != NULL)
 		{
+			// Locate the link. (May not exist, if async advised).
 			CDDELink* pLink = pConv->FindLink(strItem, nFormat);
 
-			ASSERT(pLink != NULL);
+			if (pLink != NULL)
+			{
+				// Detach from the connection.
+				oConnection.RemoveLink(pLink);
 
-			// Detach from the connection.
-			oConnection.RemoveLink(pLink);
-
-			// Call DDE to destroy the link.
-			pConv->DestroyLink(pLink);
+				// Call DDE to destroy the link.
+				pConv->DestroyLink(pLink);
+			}
 
 			bResult = true;
 		}
