@@ -1,0 +1,16 @@
+Version 1.1
+===========
+
+- Includes fixes to the underlying class libraries.
+
+
+Version 1.0
+===========
+
+- First public release.
+
+
+Chris Oldwood 
+(gort@cix.co.uk)
+
+19th June 2003
