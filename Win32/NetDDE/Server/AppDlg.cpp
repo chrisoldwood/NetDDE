@@ -72,5 +72,5 @@ void CAppDlg::Trace(const char* pszMsg)
 	if (i >= App.m_nMaxTrace)
 		m_lbTrace.Delete(0);
 
-	m_lbTrace.Update();
+//	m_lbTrace.Update();
 }
