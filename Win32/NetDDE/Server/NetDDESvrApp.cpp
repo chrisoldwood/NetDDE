@@ -33,9 +33,9 @@ CNetDDESvrApp App;
 */
 
 #ifdef _DEBUG
-const char* CNetDDESvrApp::VERSION      = "v1.2 [Debug]";
+const char* CNetDDESvrApp::VERSION      = "v1.5 [Debug]";
 #else
-const char* CNetDDESvrApp::VERSION      = "v1.2";
+const char* CNetDDESvrApp::VERSION      = "v1.5";
 #endif
 
 const char* CNetDDESvrApp::INI_FILE_VER  = "1.0";
@@ -163,7 +163,7 @@ bool CNetDDESvrApp::OnOpen()
 		return false;
 
 	// Show it.
-	if ( (m_iCmdShow == SW_SHOWNORMAL) && (m_rcLastPos.Empty() == false) )
+	if (ShowNormal() && !m_rcLastPos.Empty())
 		m_AppWnd.Move(m_rcLastPos);
 
 	m_AppWnd.Show(m_iCmdShow);
@@ -207,13 +207,9 @@ bool CNetDDESvrApp::OnClose()
 
 			if (pConnection->IsOpen())
 			{
-				CConvs aoConvs;
-
-				// Delete the connections conversation list.
-				pConnection->GetConversations(aoConvs);
-
-				for (int j = 0; j < aoConvs.Size(); ++j)
-					m_pDDEClient->DestroyConversation(aoConvs[j]);
+				// Delete the conversation list.
+				for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+					m_pDDEClient->DestroyConversation(pConnection->m_aoNetConvs[j]->m_pSvrConv);
 
 				if (App.m_bTraceNetConns)
 					App.Trace("NETDDE_SERVER_DISCONNECT:");
@@ -413,43 +409,54 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 
 	CNetDDEPacket oPacket(CNetDDEPacket::DDE_DISCONNECT, oBuffer);
 
-	// Notify all NetDDEClients...
+	// For all NetDDEClients...
 	for (int i = 0; i < m_aoConnections.Size(); ++i)
 	{
 		CNetDDESvrPipe* pConnection = m_aoConnections[i];
+		bool            bNotifyConn = true;
 
-		if (pConnection->UsesConversation(pConv))
+		// Clean-up all client conversations...
+		for (int j = pConnection->m_aoNetConvs.Size()-1; j >= 0; --j)
 		{
-			// Remove conversation from connection.
-			while (pConnection->UsesConversation(pConv))
-				pConnection->RemoveConversation(pConv);
+			CNetDDEConv* pNetConv = pConnection->m_aoNetConvs[j];
 
-			try
+			if (pNetConv->m_pSvrConv == pConv)
 			{
-				if (App.m_bTraceConvs)
-					App.Trace("DDE_DISCONNECT: %s, %s", pConv->Service(), pConv->Topic());
+				try
+				{
+					// Only send once per client.
+					if (bNotifyConn)
+					{
+						bNotifyConn = false;
 
-				// Send disconnect message.
-				pConnection->SendPacket(oPacket);
+						if (App.m_bTraceConvs)
+							App.Trace("DDE_DISCONNECT: %s, %s", pConv->Service(), pConv->Topic());
 
-				// Update stats.
-				++m_nPktsSent;
+						// Send disconnect message.
+						pConnection->SendPacket(oPacket);
+
+						// Update stats.
+						++m_nPktsSent;
+					}
+				}
+				catch (CPipeException& e)
+				{
+					App.Trace("PIPE_ERROR: %s", e.ErrorText());
+
+					// Pipe disconnected?.
+					pConnection->Close();
+				}
+
+				pConnection->m_aoNetConvs.Delete(j);
 			}
-			catch (CPipeException& e)
-			{
-				App.Trace("PIPE_ERROR: %s", e.ErrorText());
-
-				// Pipe disconnected?.
-				pConnection->Close();
-			}
-
-			uint nRefCount = pConv->RefCount();
-
-			// Free conversation.
-			while (nRefCount--)
-				m_pDDEClient->DestroyConversation(pConv);
 		}
 	}
+
+	uint nRefCount = pConv->RefCount();
+
+	// Free conversation.
+	while (nRefCount--)
+		m_pDDEClient->DestroyConversation(pConv);
 }
 
 /******************************************************************************
@@ -507,7 +514,8 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	{
 		CNetDDESvrPipe* pConnection = m_aoConnections[i];
 
-		if (pConnection->UsesLink(pLink))
+		// Connection references link?
+		if (pConnection->IsLinkUsed(pLink))
 		{
 			try
 			{
@@ -715,22 +723,22 @@ void CNetDDESvrApp::HandleRequests()
 void CNetDDESvrApp::HandleDisconnects()
 {
 	// Any pipes now closed?
-	for (int i = 0; i < m_aoConnections.Size(); ++i)
+	for (int i = m_aoConnections.Size()-1; i >= 0; --i)
 	{
 		CNetDDESvrPipe* pConnection = m_aoConnections[i]; 
 
 		if (!pConnection->IsOpen())
 		{
-			CConvs aoConvs;
+			// Close all DDE conversations.
+			for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+			{
+				CNetDDEConv* pNetConv = pConnection->m_aoNetConvs[j];
 
-			// Delete the connections conversation list.
-			pConnection->GetConversations(aoConvs);
-
-			for (int j = 0; j < aoConvs.Size(); ++j)
-				m_pDDEClient->DestroyConversation(aoConvs[j]);
+				m_pDDEClient->DestroyConversation(pNetConv->m_pSvrConv);
+			}
 
 			// Delete from collection.
-			m_aoConnections.Delete(m_aoConnections.Find(pConnection));
+			m_aoConnections.Delete(i);
 		}
 	}
 }
@@ -776,9 +784,9 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrPipe& oConnection, CNetDDEPa
 		App.Trace("NETDDE_CLIENT_CONNECT: %u %s %s %s", nProtocol, strService, strComputer, strUser);
 
 	// Save connection details.
-	oConnection.Service(strService);
-	oConnection.Computer(strComputer);
-	oConnection.User(strUser);
+	oConnection.m_strService  = strService;
+	oConnection.m_strComputer = strComputer;
+	oConnection.m_strUser     = strUser;
 
 	if (nProtocol == NETDDE_PROTOCOL)
 		bResult = true;
@@ -875,7 +883,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 	oReqStream.Close();
 
 	if (App.m_bTraceConvs)
-		App.Trace("DDE_CREATE_CONVERSATION: %s %s", strService, strTopic);
+		App.Trace("DDE_CREATE_CONVERSATION: %s %s [#%u]", strService, strTopic, nConvID);
 
 	try
 	{
@@ -886,8 +894,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 		hConv   = pConv->Handle();
 
 		// Attach to the connection.
-		// TODO:
-		oConnection.AddConversation(pConv);
+		oConnection.m_aoNetConvs.Add(new CNetDDEConv(pConv, nConvID));
 	}
 	catch (CDDEException& /*e*/)
 	{
@@ -930,8 +937,6 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrPipe& oConnection, CNetDD
 {
 	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_DESTROY_CONVERSATION);
 
-	bool bResult = false;
-
 	HCONV  hConv;
 	uint32 nConvID;
 
@@ -947,27 +952,36 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrPipe& oConnection, CNetDD
 	oStream.Close();
 
 	if (App.m_bTraceConvs)
-		App.Trace("DDE_DESTROY_CONVERSATION: 0x%p", hConv);
+		App.Trace("DDE_DESTROY_CONVERSATION: 0x%p [#%u]", hConv, nConvID);
 
-	try
+	// Locate the conversation.
+	CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
+
+	if (pConv != NULL)
 	{
-		// Locate the conversation.
-		// TODO:
-		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
+		CNetDDEConv* pNetConv = oConnection.FindNetConv(pConv, nConvID);
 
-		if (pConv != NULL)
+		ASSERT(pNetConv != NULL);
+
+		try
 		{
-			// Detach from the connection.
-			oConnection.RemoveConversation(pConv);
+			// Not final reference?
+			if (pNetConv->m_pSvrConv->RefCount() != 1)
+			{
+				// Destroy NetDDE conversations' links.
+				for (int i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
+					pConv->DestroyLink(pNetConv->m_aoLinks[i]);
+			}
 
 			// Call DDE to terminate the conversation.
 			m_pDDEClient->DestroyConversation(pConv);
-
-			bResult = true;
 		}
-	}
-	catch (CDDEException& /*e*/)
-	{
+		catch (CDDEException& /*e*/)
+		{
+		}
+
+		// Detach from the connection.
+		oConnection.m_aoNetConvs.Delete(oConnection.m_aoNetConvs.Find(pNetConv));
 	}
 }
 
@@ -991,6 +1005,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oRe
 	bool     bResult = false;
 
 	HCONV	 hConv;
+	uint32   nConvID;
 	CString  strItem;
 	uint32   nFormat;
 	CDDEData oData(m_pDDEClient);
@@ -1002,6 +1017,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oRe
 	oStream.Seek(sizeof(CNetDDEPacket::Header));
 
 	oStream.Read(&hConv, sizeof(hConv));
+	oStream >> nConvID;
 	oStream >> strItem;
 	oStream >> nFormat;
 
@@ -1071,6 +1087,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	CDDELink*    pLink = NULL;
 
 	HCONV	 hConv;
+	uint32   nConvID;
 	CString  strItem;
 	uint32   nFormat;
 	bool     bAsync;
@@ -1083,6 +1100,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	oStream.Seek(sizeof(CNetDDEPacket::Header));
 
 	oStream.Read(&hConv, sizeof(hConv));
+	oStream >> nConvID;
 	oStream >> strItem;
 	oStream >> nFormat;
 	oStream >> bAsync;
@@ -1100,11 +1118,15 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 
 		if (pConv != NULL)
 		{
+			CNetDDEConv* pNetConv = oConnection.FindNetConv(pConv, nConvID);
+
+			ASSERT(pNetConv != NULL);
+
 			// Call DDE to create the link.
 			pLink = pConv->CreateLink(strItem, nFormat);
 
 			// Attach to the connection.
-			oConnection.AddLink(pLink);
+			pNetConv->m_aoLinks.Add(pLink);
 
 			bResult = true;
 		}
@@ -1231,9 +1253,8 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& 
 {
 	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_STOP_ADVISE);
 
-	bool     bResult = false;
-
 	HCONV	 hConv;
+	uint32   nConvID;
 	CString  strItem;
 	uint32   nFormat;
 
@@ -1244,6 +1265,7 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& 
 	oStream.Seek(sizeof(CNetDDEPacket::Header));
 
 	oStream.Read(&hConv, sizeof(hConv));
+	oStream >> nConvID;
 	oStream >> strItem;
 	oStream >> nFormat;
 
@@ -1252,30 +1274,32 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& 
 	if (App.m_bTraceAdvises)
 		App.Trace("DDE_STOP_ADVISE: %s %s", strItem, CClipboard::FormatName(nFormat));
 
-	try
+	// Locate the conversation.
+	CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
+
+	if (pConv != NULL)
 	{
-		// Locate the conversation.
-		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
+		// Locate the link. (May not exist, if async advised).
+		CDDELink* pLink = pConv->FindLink(strItem, nFormat);
 
-		if (pConv != NULL)
+		if (pLink != NULL)
 		{
-			// Locate the link. (May not exist, if async advised).
-			CDDELink* pLink = pConv->FindLink(strItem, nFormat);
+			CNetDDEConv* pNetConv = oConnection.FindNetConv(pConv, nConvID);
 
-			if (pLink != NULL)
+			ASSERT(pNetConv != NULL);
+
+			try
 			{
-				// Detach from the connection.
-				oConnection.RemoveLink(pLink);
-
 				// Call DDE to destroy the link.
 				pConv->DestroyLink(pLink);
 			}
+			catch (CDDEException& /*e*/)
+			{
+			}
 
-			bResult = true;
+			// Detach from the connection.
+			pNetConv->m_aoLinks.Remove(pNetConv->m_aoLinks.Find(pLink));
 		}
-	}
-	catch (CDDEException& /*e*/)
-	{
 	}
 }
 
@@ -1306,9 +1330,15 @@ void CNetDDESvrApp::UpdateStats()
 		else if (m_nPktsRecv > 0) 
 			nIconID = IDI_NET_RECV;
 
+		// Format tooltip.
+		CString strTip = "NetDDE Server";
+
+		strTip += "\nConversations: " + CStrCvt::FormatInt(m_pDDEClient->GetNumConversations());
+		strTip += "\nConnections: "   + CStrCvt::FormatInt(m_aoConnections.Size());
+
 		// Update tray icon.
 		if (m_AppWnd.m_oTrayIcon.IsVisible())
-			m_AppWnd.m_oTrayIcon.Modify(nIconID);
+			m_AppWnd.m_oTrayIcon.Modify(nIconID, strTip);
 
 		// Reset for next update.
 		m_nPktsSent   = 0;
