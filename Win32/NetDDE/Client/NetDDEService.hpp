@@ -13,8 +13,7 @@
 #define NETDDESERVICE_HPP
 
 // Template shorthands.
-typedef TPtrArray<CDDESvrConv> CConvs;
-typedef TPtrArray<CDDELink> CLinks;
+typedef TPtrArray<CNetDDEConv> CNetConvs;
 
 /******************************************************************************
 ** 
@@ -33,13 +32,16 @@ public:
 	~CNetDDEService();
 
 	//
+	// Methods.
+	//
+	CNetDDEConv* FindNetConv(CDDESvrConv* pConv) const;
+
+	//
 	// Members.
 	//
-	CNetDDESvcCfg	m_oCfg;
-	CNetDDECltPipe 	m_oConnection;
-	HCONV			m_hSvrConv;
-	CConvs			m_aoConvs;
-	CLinks			m_aoLinks;
+	CNetDDESvcCfg	m_oCfg;				// The service configuration.
+	CNetDDECltPipe 	m_oConnection;		// The connection to the NetDDE server.
+	CNetConvs		m_aoNetConvs;		// The active NetDDE conversations.
 };
 
 /******************************************************************************
@@ -50,12 +52,27 @@ public:
 */
 
 inline CNetDDEService::CNetDDEService()
-	: m_hSvrConv(NULL)
 {
 }
 
 inline CNetDDEService::~CNetDDEService()
 {
+	ASSERT(m_aoNetConvs.Size() == 0);
+}
+
+inline CNetDDEConv* CNetDDEService::FindNetConv(CDDESvrConv* pConv) const
+{
+	// For all service conversations.
+	for (int j = 0; j < m_aoNetConvs.Size(); ++j)
+	{
+		CNetDDEConv* pNetConv = m_aoNetConvs[j];
+
+		// Matches?
+		if (pNetConv->m_pCltConv == pConv)
+			return pNetConv;
+	}
+
+	return NULL;
 }
 
 #endif // NETDDESERVICE_HPP
