@@ -191,6 +191,10 @@ SOURCE=.\Toolbar.bmp
 # End Group
 # Begin Source File
 
+SOURCE=.\NetDDEServer.ini
+# End Source File
+# Begin Source File
+
 SOURCE=..\Shared\TODO.txt
 # End Source File
 # End Target
