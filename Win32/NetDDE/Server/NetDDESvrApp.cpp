@@ -72,6 +72,7 @@ CNetDDESvrApp::CNetDDESvrApp()
 	: CApp(m_AppWnd, m_AppCmds)
 	, m_pDDEClient(CDDEClient::Instance())
 	, m_pConnection(NULL)
+	, m_nNextConvID(1)
 	, m_nTimerID(0)
 	, m_bTrayIcon(DEF_TRAY_ICON)
 	, m_bMinToTray(DEF_MIN_TO_TRAY)
@@ -420,7 +421,8 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 		if (pConnection->UsesConversation(pConv))
 		{
 			// Remove conversation from connection.
-			pConnection->RemoveConversation(pConv);
+			while (pConnection->UsesConversation(pConv))
+				pConnection->RemoveConversation(pConv);
 
 			try
 			{
@@ -440,6 +442,12 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 				// Pipe disconnected?.
 				pConnection->Close();
 			}
+
+			uint nRefCount = pConv->RefCount();
+
+			// Free conversation.
+			while (nRefCount--)
+				m_pDDEClient->DestroyConversation(pConv);
 		}
 	}
 }
@@ -476,6 +484,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	oStream << pLink->Item();
 	oStream << (uint32) pLink->Format();
 	oStream << pData->GetBuffer();
+	oStream << true;
 
 	oStream.Close();
 
@@ -673,7 +682,6 @@ void CNetDDESvrApp::HandleRequests()
 					case CNetDDEPacket::DDE_REQUEST:				OnDDERequest(*pConnection, oPacket);				break;
 					case CNetDDEPacket::DDE_START_ADVISE:			OnDDEStartAdvise(*pConnection, oPacket);			break;
 					case CNetDDEPacket::DDE_STOP_ADVISE:			OnDDEStopAdvise(*pConnection, oPacket);				break;
-					case CNetDDEPacket::DDE_START_ADVISE_ASYNC:		OnDDEStartAdvise(*pConnection, oPacket);			break;
 					default:										ASSERT_FALSE();										break;
 				}
 
@@ -852,7 +860,8 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 
 	CString strService;
 	CString strTopic;
-	HCONV   hConv = NULL;
+	HCONV   hConv   = NULL;
+	uint32  nConvID = m_nNextConvID++;
 
 	// Decode request message.
 	CMemStream oReqStream(oReqPacket.Buffer());
@@ -870,7 +879,6 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 
 	try
 	{
-/**/
 		// Call DDE to create the conversation.
 		CDDECltConv* pConv = m_pDDEClient->CreateConversation(strService, strTopic);
 
@@ -878,8 +886,8 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 		hConv   = pConv->Handle();
 
 		// Attach to the connection.
+		// TODO:
 		oConnection.AddConversation(pConv);
-/**/
 	}
 	catch (CDDEException& /*e*/)
 	{
@@ -892,6 +900,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 
 	oRspStream << bResult;
 	oRspStream.Write(&hConv, sizeof(hConv));
+	oRspStream << nConvID;
 
 	oRspStream.Close();
 
@@ -923,7 +932,8 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrPipe& oConnection, CNetDD
 
 	bool bResult = false;
 
-	HCONV	 hConv;
+	HCONV  hConv;
+	uint32 nConvID;
 
 	// Decode message.
 	CMemStream oStream(oReqPacket.Buffer());
@@ -932,6 +942,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrPipe& oConnection, CNetDD
 	oStream.Seek(sizeof(CNetDDEPacket::Header));
 
 	oStream.Read(&hConv, sizeof(hConv));
+	oStream >> nConvID;
 
 	oStream.Close();
 
@@ -941,6 +952,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrPipe& oConnection, CNetDD
 	try
 	{
 		// Locate the conversation.
+		// TODO:
 		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
 		if (pConv != NULL)
@@ -1052,7 +1064,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 {
 	int nPktType = oReqPacket.DataType();
 
-	ASSERT((nPktType == CNetDDEPacket::DDE_START_ADVISE) || (nPktType == CNetDDEPacket::DDE_START_ADVISE_ASYNC));
+	ASSERT(nPktType == CNetDDEPacket::DDE_START_ADVISE);
 
 	bool         bResult = false;
 	CDDECltConv* pConv = NULL;
@@ -1061,6 +1073,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	HCONV	 hConv;
 	CString  strItem;
 	uint32   nFormat;
+	bool     bAsync;
 	bool	 bReqVal;
 
 	// Decode message.
@@ -1072,16 +1085,13 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	oStream.Read(&hConv, sizeof(hConv));
 	oStream >> strItem;
 	oStream >> nFormat;
+	oStream >> bAsync;
 	oStream >> bReqVal;
 
 	oStream.Close();
 
 	if (App.m_bTraceAdvises)
-	{
-		CString strMsg = (nPktType == CNetDDEPacket::DDE_START_ADVISE) ? "DDE_START_ADVISE" : "DDE_START_ADVISE_ASYNC";
-
-		App.Trace("%s: %s %s", strMsg, strItem, CClipboard::FormatName(nFormat));
-	}
+		App.Trace("DDE_START_ADVISE: %s %s %s", strItem, CClipboard::FormatName(nFormat), (bAsync) ? "[ASYNC]" : "");
 
 	try
 	{
@@ -1103,20 +1113,32 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	{
 	}
 
-	// Synchronous advise start?
-	if (nPktType == CNetDDEPacket::DDE_START_ADVISE)
+	// Sync start advise OR failed async start advise?
+	if ( (!bAsync) || ((bAsync) && (!bResult)) )
 	{
+		uint nPktType = (!bAsync) ? CNetDDEPacket::DDE_START_ADVISE : CNetDDEPacket::DDE_START_ADVISE_FAILED;
+
 		// Create response message.
 		CMemStream oRspStream(oReqPacket.Buffer());
 
 		oRspStream.Create();
 
-		oRspStream << bResult;
+		if (!bAsync)
+		{
+			oRspStream << bResult;
+		}
+		else
+		{
+			oRspStream.Write(&hConv, sizeof(hConv));
+			oRspStream << strItem;
+			oRspStream << nFormat;
+			oRspStream << true;
+		}
 
 		oRspStream.Close();
 
 		// Send response message.
-		CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_START_ADVISE, oReqPacket.Buffer());
+		CNetDDEPacket oRspPacket(nPktType, oReqPacket.Buffer());
 
 		oConnection.SendPacket(oRspPacket);
 
@@ -1166,6 +1188,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 		oStream << strItem;
 		oStream << nFormat;
 		oStream << pLinkValue->m_oLastValue;
+		oStream << true;
 
 		oStream.Close();
 
