@@ -42,6 +42,7 @@ public:
 	CPipes			m_aoConnections;	// The client connections.
 	CNetDDESvrPipe*	m_pConnection;		// The waiting server connection.
 	CLinkCache		m_oLinkCache;		// Cache of links values.
+	uint			m_nNextConvID;		// Conversation ID generator.
 
 	uint			m_nTimerID;			// The background timer ID.
 
