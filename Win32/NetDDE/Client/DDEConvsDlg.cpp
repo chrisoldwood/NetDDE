@@ -120,6 +120,10 @@ void CDDEConvsDlg::Refresh()
 		m_lvGrid.ItemText  (i, LINK_COUNT, itoa(pConv->NumLinks(), szValue, 10));
 		m_lvGrid.ItemData  (i, (LPARAM)pConv->Handle());
 	}
+
+	// Select 1st by default.
+	if (m_lvGrid.ItemCount() > 0)
+		m_lvGrid.Select(0);
 }
 
 /******************************************************************************
