@@ -5,3 +5,15 @@
 - Configurable DDE and pipe time-outs.
 
 - Configurable option for detecting duplicates.
+
+- Don't query if shutting down through unhandled exception.
+
+- Fix Trace to handle embeded CRLFs.
+
+- Log when duplicates are ignored.
+
+- Add support for disconnecting clients.
+
+- Log when request returned from cache.
+
+- System try menu for restoring and closing.
