@@ -60,8 +60,8 @@ void CDDEConvsDlg::OnInitDialog()
 	m_lvGrid.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvGrid.InsertColumn(SERVICE_NAME, "Service", 100, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(TOPIC_NAME,   "Topic",   100, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(SERVICE_NAME, "Service", 125, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(TOPIC_NAME,   "Topic",   125, LVCFMT_LEFT );
 	m_lvGrid.InsertColumn(LINK_COUNT,   "Links",    70, LVCFMT_RIGHT);
 
 	CDDESvrConvs aoConvs;
