@@ -68,8 +68,10 @@ CNetDDECltPipe::~CNetDDECltPipe()
 
 void CNetDDECltPipe::ReadResponsePacket(CNetDDEPacket& oPacket, uint nType)
 {
-	// Until read.
-	for(;;)
+	DWORD dwStartTime = ::GetTickCount();
+
+	// Until timed-out...
+	while ((::GetTickCount() - dwStartTime) < m_dwTimeOut)
 	{
 		// Any packet received?
 		if (RecvPacket(oPacket))
@@ -86,6 +88,8 @@ void CNetDDECltPipe::ReadResponsePacket(CNetDDEPacket& oPacket, uint nType)
 
 		::Sleep(1);
 	}
+
+	throw CPipeException(CPipeException::E_READ_FAILED, WAIT_TIMEOUT);
 }
 
 /******************************************************************************
