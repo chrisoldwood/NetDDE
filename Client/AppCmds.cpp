@@ -42,6 +42,7 @@ CAppCmds::CAppCmds()
 		// View menu.
 		CMD_ENTRY(ID_VIEW_SERVER_CONNS,	OnViewServerConns,	NULL,				-1)
 		CMD_ENTRY(ID_VIEW_DDE_CONVS,	OnViewDDEConvs,		NULL,				-1)
+		CMD_ENTRY(ID_VIEW_CLEAR_TRACE,	OnViewClearTrace,	NULL,				-1)
 		// Options menu.
 		CMD_ENTRY(ID_OPTIONS_GENERAL,	OnOptionsGeneral,	NULL,				-1)
 		CMD_ENTRY(ID_OPTIONS_TRACE,		OnOptionsTrace,		NULL,				-1)
@@ -123,6 +124,23 @@ void CAppCmds::OnViewDDEConvs()
 }
 
 /******************************************************************************
+** Method:		OnViewClearTrace()
+**
+** Description:	Clear the trace window.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppCmds::OnViewClearTrace()
+{
+	App.m_AppWnd.m_AppDlg.Clear();
+}
+
+/******************************************************************************
 ** Method:		OnOptionsGeneral()
 **
 ** Description:	Configure the general options.
@@ -191,9 +209,42 @@ void CAppCmds::OnOptionsServices()
 	if ( (Dlg.RunModal(App.m_rMainWnd) == IDOK) && (Dlg.m_bModified) )
 	{
 		// Cleanup all current services.
+		for (i = 0; i < App.m_aoServices.Size(); ++i)
+		{
+			CNetDDEService* pService = App.m_aoServices[i];
+
+			App.Trace("DDE_STATUS: Unregistering service: %s", pService->m_oCfg.m_strService);
+
+			// Unregister the service name.
+			App.m_pDDEServer->Unregister(pService->m_oCfg.m_strService);
+		}
+
+		App.m_aoServices.DeleteAll();
 
 		// Start all new ones.
-		
+		for (i = 0; i < Dlg.m_aoServices.Size(); ++i)
+		{
+			CNetDDESvcCfg*  pSvcCfg  = Dlg.m_aoServices[i];
+			CNetDDEService* pService = new CNetDDEService;
+
+			// Set config.
+			pService->m_oCfg = *pSvcCfg;
+
+			try
+			{
+				App.Trace("DDE_STATUS: Registering service: %s", pService->m_oCfg.m_strService);
+
+				// Register the DDE service name.
+				App.m_pDDEServer->Register(pService->m_oCfg.m_strService);
+			}
+			catch (CException& e)
+			{
+				App.AlertMsg("Failed to register DDE service: %s\n\n%s", pService->m_oCfg.m_strService, e.ErrorText());
+			}
+
+			// Add to collection.
+			App.m_aoServices.Add(pService);
+		}
 	}
 }
 

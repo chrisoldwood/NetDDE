@@ -38,6 +38,7 @@ public:
 	// View menu.
 	void OnViewServerConns();
 	void OnViewDDEConvs();
+	void OnViewClearTrace();
 
 	// Options menu.
 	void OnOptionsGeneral();
