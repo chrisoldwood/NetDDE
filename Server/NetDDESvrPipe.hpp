@@ -51,6 +51,7 @@ public:
 	void RemoveConversation(CDDECltConv* pConv);
 	bool UsesConversation(CDDECltConv* pConv);
 	void GetConversations(CConvs& aoConvs);
+	int  NumConversations() const;
 
 	//
 	// Link methods.
@@ -60,6 +61,7 @@ public:
 	void RemoveAllConvLinks(CDDECltConv* pConv);
 	bool UsesLink(CDDELink* pLink);
 	void GetLinks(CLinks& aoLinks);
+	int  NumLinks() const;
 
 protected:
 	//
@@ -107,6 +109,16 @@ inline const CString& CNetDDESvrPipe::User() const
 inline void CNetDDESvrPipe::User(const CString& strUser)
 {
 	m_strUser = strUser;
+}
+
+inline int CNetDDESvrPipe::NumConversations() const
+{
+	return m_aoConvs.Size();
+}
+
+inline int CNetDDESvrPipe::NumLinks() const
+{
+	return m_aoLinks.Size();
 }
 
 #endif // NETDDESVRPIPE_HPP
