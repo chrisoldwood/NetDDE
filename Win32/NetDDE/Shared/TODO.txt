@@ -1,11 +1,7 @@
-- Support multiple topics per service.
-
 - Change to use async sockets.
 
-- Send inital values on links.
+- Send multiple advises in a single packet.
 
 - Fix multiple client-side conversations bug (protocol change).
 
-- Fix cleaning up NetDDE server converastion when closing real DDE server.
-
-- Change system tray and application icons.
+- Fix windows shutdown bug - OnEndSesssion()/OnClose().
