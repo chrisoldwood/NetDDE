@@ -12,6 +12,8 @@
 #ifndef NETDDEPACKET_HPP
 #define NETDDEPACKET_HPP
 
+#include <limits.h>
+
 /******************************************************************************
 ** 
 ** The data packet passed between the client and server.
@@ -26,8 +28,9 @@ public:
 	// Constructors/Destructor.
 	//
 	CNetDDEPacket();
-	CNetDDEPacket(uint nDataType, const void* pData, uint nDataSize);
+	CNetDDEPacket(uint nDataType);
 	CNetDDEPacket(uint nDataType, const CBuffer& oBuffer);
+	CNetDDEPacket(uint nDataType, uint nPacketID, const CBuffer& oBuffer);
 	CNetDDEPacket(const CNetDDEPacket& oPacket);
 	virtual ~CNetDDEPacket();
 	
@@ -42,6 +45,7 @@ public:
 	//
 	uint        DataSize() const;
 	uint        DataType() const;
+	uint        PacketID() const;
 	const void* DataBuffer() const;
 
 	/**************************************************************************
@@ -50,6 +54,10 @@ public:
 
 	enum DataTypes
 	{
+		// Packet type bitmasks.
+		PACKET_SYNC_MASK			= 0xF000,
+		PACKET_TYPE_MASK			= 0x0FFF,
+
 		// Packet handling type.
 		SYNC_PACKET					= 0x0000,
 		ASYNC_PACKET				= 0xF000,
@@ -80,9 +88,13 @@ public:
 
 	struct Header
 	{
-		uint m_nDataSize;
-		uint m_nDataType;
+		uint m_nDataSize;	// Size of entire packet.
+		uint m_nDataType;	// Message type.
+		uint m_nPacketID;	// Unique packet ID.
 	};
+
+	// Packet ID for async packets.
+	static const uint ASYNC_PACKET_ID = UINT_MAX;
 
 protected:
 	//
@@ -91,9 +103,18 @@ protected:
 	CBuffer	m_oBuffer;
 
 	//
+	// Class members.
+	//
+	static uint s_nNextPktID;
+
+	//
 	// Internal methods.
 	//
+	void    Create(uint nDataType, uint nPacketID, const void* pData, uint nDataSize);
+
 	Header* GetHeader() const;
+
+	static uint GeneratePktID();
 };
 
 /******************************************************************************
@@ -108,28 +129,29 @@ inline CNetDDEPacket::CNetDDEPacket()
 {
 }
 
-inline CNetDDEPacket::CNetDDEPacket(uint nDataType, const void* pData, uint nDataSize)
-	: m_oBuffer(sizeof(Header) + nDataSize)
+inline CNetDDEPacket::CNetDDEPacket(uint nDataType)
 {
-	ASSERT((pData != NULL) || (nDataSize == 0));
+	uint nPacketID = ASYNC_PACKET_ID;
 
-	Header* pHeader = GetHeader();
+	if ((nDataType & PACKET_SYNC_MASK) == SYNC_PACKET)
+		nPacketID = GeneratePktID();
 
-	pHeader->m_nDataSize = nDataSize;
-	pHeader->m_nDataType = nDataType;
-
-	m_oBuffer.Set(pData, nDataSize, sizeof(Header));
+	Create(nDataType, nPacketID, NULL, 0);
 }
 
 inline CNetDDEPacket::CNetDDEPacket(uint nDataType, const CBuffer& oBuffer)
-	: m_oBuffer(sizeof(Header) + oBuffer.Size())
 {
-	Header* pHeader = GetHeader();
+	uint nPacketID = ASYNC_PACKET_ID;
 
-	pHeader->m_nDataSize = oBuffer.Size();
-	pHeader->m_nDataType = nDataType;
+	if ((nDataType & PACKET_SYNC_MASK) == SYNC_PACKET)
+		nPacketID = GeneratePktID();
 
-	m_oBuffer.Set(oBuffer.Buffer(), oBuffer.Size(), sizeof(Header));
+	Create(nDataType, nPacketID, oBuffer.Buffer(), oBuffer.Size());
+}
+
+inline CNetDDEPacket::CNetDDEPacket(uint nDataType, uint nPacketID, const CBuffer& oBuffer)
+{
+	Create(nDataType, nPacketID, oBuffer.Buffer(), oBuffer.Size());
 }
 
 inline CNetDDEPacket::CNetDDEPacket(const CNetDDEPacket& oPacket)
@@ -161,6 +183,11 @@ inline uint CNetDDEPacket::DataType() const
 	return GetHeader()->m_nDataType;
 }
 
+inline uint CNetDDEPacket::PacketID() const
+{
+	return GetHeader()->m_nPacketID;
+}
+
 inline const void* CNetDDEPacket::DataBuffer() const
 {
 	ASSERT(m_oBuffer.Buffer() != NULL);
@@ -175,6 +202,16 @@ inline CNetDDEPacket::Header* CNetDDEPacket::GetHeader() const
 	ASSERT(m_oBuffer.Buffer() != NULL);
 
 	return (Header*) m_oBuffer.Buffer();
+}
+
+inline uint CNetDDEPacket::GeneratePktID()
+{
+	uint nPacketID = s_nNextPktID++;
+
+	if (nPacketID == ASYNC_PACKET_ID)
+		nPacketID = s_nNextPktID++;
+
+	return nPacketID;
 }
 
 #endif // NETDDEPACKET_HPP
