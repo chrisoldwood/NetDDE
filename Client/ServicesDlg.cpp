@@ -29,7 +29,7 @@ CServicesDlg::CServicesDlg()
 	, m_bModified(false)
 {
 	DEFINE_CTRL_TABLE
-		CTRL(IDC_GRID,	&m_lvServices)
+		CTRL(IDC_SERVICES,	&m_lvServices)
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
@@ -83,7 +83,7 @@ void CServicesDlg::OnInitDialog()
 	{
 		CNetDDESvcCfg* pService = m_aoServices[i];
 
-		m_lvServices.InsertItem(i,    pService->m_strService);
+		m_lvServices.InsertItem(i,    pService->m_strRemName);
 		m_lvServices.ItemText  (i, 1, pService->m_strServer);
 		m_lvServices.ItemPtr   (i,    pService);
 	}
@@ -129,7 +129,8 @@ void CServicesDlg::OnAdd()
 	CServiceDlg Dlg;
 
 	// Initialise with default values.
-	Dlg.m_strService    = "";
+	Dlg.m_strRemName    = "";
+	Dlg.m_strLocName    = "";
 	Dlg.m_bTextOnly     = false;
 	Dlg.m_strServer     = "";
 	Dlg.m_strPipe       = NETDDE_PIPE_DEFAULT;
@@ -145,7 +146,8 @@ void CServicesDlg::OnAdd()
 	CNetDDESvcCfg* pService = new CNetDDESvcCfg;
 
 	// Save service config and add to collection.
-	pService->m_strService    = Dlg.m_strService;
+	pService->m_strRemName    = Dlg.m_strRemName;
+	pService->m_strLocName    = Dlg.m_strLocName;
 	pService->m_bTextOnly     = Dlg.m_bTextOnly;
 	pService->m_strServer     = Dlg.m_strServer;
 	pService->m_strPipeName   = Dlg.m_strPipe;
@@ -159,7 +161,7 @@ void CServicesDlg::OnAdd()
 	// Add service to view.
 	int i = m_lvServices.ItemCount();
 
-	m_lvServices.InsertItem(i,    pService->m_strService);
+	m_lvServices.InsertItem(i,    pService->m_strRemName);
 	m_lvServices.ItemText  (i, 1, pService->m_strServer);
 	m_lvServices.ItemPtr   (i,    pService);
 
@@ -196,7 +198,8 @@ void CServicesDlg::OnEdit()
 	CServiceDlg Dlg;
 
 	// Initialise with current config.
-	Dlg.m_strService    = pService->m_strService;
+	Dlg.m_strRemName    = pService->m_strRemName;
+	Dlg.m_strLocName    = pService->m_strLocName;
 	Dlg.m_bTextOnly     = pService->m_bTextOnly;
 	Dlg.m_strServer     = pService->m_strServer;
 	Dlg.m_strPipe       = pService->m_strPipeName;
@@ -210,7 +213,8 @@ void CServicesDlg::OnEdit()
 		return;
 
 	// Update service config.
-	pService->m_strService    = Dlg.m_strService;
+	pService->m_strRemName    = Dlg.m_strRemName;
+	pService->m_strLocName    = Dlg.m_strLocName;
 	pService->m_bTextOnly     = Dlg.m_bTextOnly;
 	pService->m_strServer     = Dlg.m_strServer;
 	pService->m_strPipeName   = Dlg.m_strPipe;
@@ -220,7 +224,7 @@ void CServicesDlg::OnEdit()
 	pService->m_strFailedVal  = Dlg.m_strFailedVal;
 
 	// Update UI.
-	m_lvServices.ItemText(nSel, 0, pService->m_strService);
+	m_lvServices.ItemText(nSel, 0, pService->m_strRemName);
 	m_lvServices.ItemText(nSel, 1, pService->m_strServer);
 
 	UpdateButtons();
