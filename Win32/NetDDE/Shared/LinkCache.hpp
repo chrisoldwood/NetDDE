@@ -31,10 +31,13 @@ public:
 	//
 	// Methods.
 	//
+	uint Size() const;
+
 	CLinkValue* Create(const CDDEConv* pConv, const CDDELink* pLink, const char* pszDefValue = NULL);
 	CLinkValue* Find(const CDDEConv* pConv, const CDDELink* pLink) const;
 
-	void Clear();
+	void Purge(const CDDEConv* pConv);
+	void Purge();
 
 protected:
 	// Template shorthands.
@@ -58,5 +61,10 @@ protected:
 **
 *******************************************************************************
 */
+
+inline uint CLinkCache::Size() const
+{
+	return m_oLinks.Count();
+}
 
 #endif // LINKCACHE_HPP
