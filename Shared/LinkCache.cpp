@@ -8,7 +8,7 @@
 *******************************************************************************
 */
 
-#include "AppHeaders.hpp"
+#include "NetDDEShared.hpp"
 
 #ifdef _DEBUG
 // For memory leak detection.
