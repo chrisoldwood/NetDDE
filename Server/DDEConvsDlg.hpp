@@ -46,6 +46,11 @@ protected:
 	};
 
 	//
+	// Internal methods.
+	//
+	void Refresh();
+
+	//
 	// Message handlers.
 	//
 	virtual void OnInitDialog();
