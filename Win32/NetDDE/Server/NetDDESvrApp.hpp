@@ -48,6 +48,9 @@ public:
 
 	bool			m_bTrayIcon;		// Show system tray indicator?
 	bool			m_bMinToTray;		// Minimise to system tray?
+	uint			m_nNetTimeOut;		// Pipe read/write time-out.
+	uint			m_nDDETimeOut;		// DDE transaction time-out.
+	bool			m_bDiscardDups;		// Discard duplicate updates?
 
 	bool			m_bTraceConvs;		// Trace conversation create/destroy.
 	bool			m_bTraceRequests;	// Trace requests.
@@ -100,6 +103,9 @@ protected:
 	static const uint  BG_TIMER_FREQ;
 	static const bool  DEF_TRAY_ICON;
 	static const bool  DEF_MIN_TO_TRAY;
+	static const uint  DEF_NET_TIMEOUT;
+	static const uint  DEF_DDE_TIMEOUT;
+	static const bool  DEF_DISCARD_DUPS;
 	static const bool  DEF_TRACE_CONVS;
 	static const bool  DEF_TRACE_REQUESTS;
 	static const bool  DEF_TRACE_ADVISES;
