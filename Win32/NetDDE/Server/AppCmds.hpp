@@ -36,7 +36,12 @@ public:
 	void OnFileExit();
 
 	// View menu.
-	void OnViewConnections();
+	void OnViewClientConns();
+	void OnViewDDEConvs();
+
+	// Options menu.
+	void OnOptionsGeneral();
+	void OnOptionsTrace();
 
 	// Help menu.
 	void OnHelpAbout();

@@ -9,8 +9,16 @@
 */
 
 #include "AppHeaders.hpp"
-#include "ConnsDlg.hpp"
+#include "ClientConnsDlg.hpp"
+#include "DDEConvsDlg.hpp"
+#include "OptionsDlg.hpp"
+#include "TraceOptionsDlg.hpp"
 #include "AboutDlg.hpp"
+
+#ifdef _DEBUG
+// For memory leak detection.
+#define new DBGCRT_NEW
+#endif
 
 /******************************************************************************
 ** Method:		Constructor.
@@ -31,7 +39,11 @@ CAppCmds::CAppCmds()
 		// File menu.
 		CMD_ENTRY(ID_FILE_EXIT,			OnFileExit,			NULL,				-1)
 		// View menu.
-		CMD_ENTRY(ID_VIEW_CONNECTIONS,	OnViewConnections,	NULL,				-1)
+		CMD_ENTRY(ID_VIEW_CLIENT_CONNS,	OnViewClientConns,	NULL,				-1)
+		CMD_ENTRY(ID_VIEW_DDE_CONVS,	OnViewDDEConvs,		NULL,				-1)
+		// Options menu.
+		CMD_ENTRY(ID_OPTIONS_GENERAL,	OnOptionsGeneral,	NULL,				-1)
+		CMD_ENTRY(ID_OPTIONS_TRACE,		OnOptionsTrace,		NULL,				-1)
 		// Help menu.
 		CMD_ENTRY(ID_HELP_ABOUT,		OnHelpAbout,		NULL,				10)
 	END_CMD_TABLE
@@ -71,9 +83,9 @@ void CAppCmds::OnFileExit()
 }
 
 /******************************************************************************
-** Method:		OnViewConnections()
+** Method:		OnViewClientConns()
 **
-** Description:	Show the connection list dialog.
+** Description:	Show the client connections status.
 **
 ** Parameters:	None.
 **
@@ -82,9 +94,75 @@ void CAppCmds::OnFileExit()
 *******************************************************************************
 */
 
-void CAppCmds::OnViewConnections()
+void CAppCmds::OnViewClientConns()
 {
-	CConnsDlg Dlg;
+	CClientConnsDlg Dlg;
+
+	Dlg.RunModal(App.m_rMainWnd);
+}
+
+/******************************************************************************
+** Method:		OnViewDDEConvs()
+**
+** Description:	Show the DDE conversations.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppCmds::OnViewDDEConvs()
+{
+	CDDEConvsDlg Dlg;
+
+	Dlg.RunModal(App.m_rMainWnd);
+}
+
+/******************************************************************************
+** Method:		OnOptionsGeneral()
+**
+** Description:	Configure the general options.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppCmds::OnOptionsGeneral()
+{
+	COptionsDlg Dlg;
+
+	if (Dlg.RunModal(App.m_rMainWnd) == IDOK)
+	{
+		// Add tray icon?
+		if ( (App.m_bTrayIcon) && (!App.m_AppWnd.m_oTrayIcon.IsVisible()) )
+			App.m_AppWnd.ShowTrayIcon(true);
+		
+		// Remove tray icon?
+		if ( (!App.m_bTrayIcon) && (App.m_AppWnd.m_oTrayIcon.IsVisible()) )
+			App.m_AppWnd.ShowTrayIcon(false);
+	}
+}
+
+/******************************************************************************
+** Method:		OnOptionsTrace()
+**
+** Description:	Configure the trace options.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppCmds::OnOptionsTrace()
+{
+	CTraceOptionsDlg Dlg;
 
 	Dlg.RunModal(App.m_rMainWnd);
 }
