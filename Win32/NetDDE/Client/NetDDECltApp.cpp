@@ -33,9 +33,9 @@ CNetDDECltApp App;
 */
 
 #ifdef _DEBUG
-const char* CNetDDECltApp::VERSION      = "v1.5 [Debug]";
+const char* CNetDDECltApp::VERSION      = "v2.0 Beta [Debug]";
 #else
-const char* CNetDDECltApp::VERSION      = "v1.5";
+const char* CNetDDECltApp::VERSION      = "v2.0 Beta";
 #endif
 
 const char* CNetDDECltApp::INI_FILE_VER  = "1.0";
@@ -122,6 +122,21 @@ CNetDDECltApp::~CNetDDECltApp()
 
 bool CNetDDECltApp::OnOpen()
 {
+	HWND hPrevWnd = NULL;
+
+	// Only allow a single instance.
+	if ((hPrevWnd = ::FindWindow(CAppWnd::WNDCLASS_NAME, NULL)) != NULL)
+	{
+		// If not visible OR minimised, restore it.
+		if (!::IsWindowVisible(hPrevWnd) || ::IsIconic(hPrevWnd))
+		{
+			::ShowWindow(hPrevWnd, SW_RESTORE);
+			::SetForegroundWindow(hPrevWnd);
+		}
+
+		return false;
+	}
+
 	// Set the app title.
 	m_strTitle = "NetDDE Client";
 
@@ -662,21 +677,22 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 
 			oReqStream.Close();
 
-			CNetDDEPacket oPacket(CNetDDEPacket::DDE_CREATE_CONVERSATION, oBuffer);
+			CNetDDEPacket oReqPacket(CNetDDEPacket::DDE_CREATE_CONVERSATION, oBuffer);
+			CNetDDEPacket oRspPacket;
 
 			if (m_bTraceConvs)
 				App.Trace("DDE_CREATE_CONVERSATION: %s %s", pszService, pszTopic);
 
 			// Send it.
-			pService->m_oConnection.SendPacket(oPacket);
+			pService->m_oConnection.SendPacket(oReqPacket);
 
 			// Wait for response.
-			pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_CREATE_CONVERSATION);
+			pService->m_oConnection.ReadResponsePacket(oRspPacket, oReqPacket.PacketID());
 
 			HCONV  hSvrConv;
 			uint32 nConvID;
 
-			CMemStream oRspStream(oPacket.Buffer());
+			CMemStream oRspStream(oRspPacket.Buffer());
 
 			oRspStream.Open();
 			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
@@ -877,19 +893,20 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 
 			oReqStream.Close();
 
-			CNetDDEPacket oPacket(CNetDDEPacket::DDE_REQUEST, oBuffer);
+			CNetDDEPacket oReqPacket(CNetDDEPacket::DDE_REQUEST, oBuffer);
+			CNetDDEPacket oRspPacket;
 
 			if (m_bTraceRequests)
 				App.Trace("DDE_REQUEST: %s %s %s %s", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
 
 			// Send it.
-			pService->m_oConnection.SendPacket(oPacket);
+			pService->m_oConnection.SendPacket(oReqPacket);
 
 			// Wait for response.
-			pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_REQUEST);
+			pService->m_oConnection.ReadResponsePacket(oRspPacket, oReqPacket.PacketID());
 
 			CBuffer    oDDEData;
-			CMemStream oRspStream(oPacket.Buffer());
+			CMemStream oRspStream(oRspPacket.Buffer());
 
 			oRspStream.Open();
 			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
@@ -970,21 +987,22 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 
 			oReqStream.Close();
 
-			CNetDDEPacket oPacket(CNetDDEPacket::DDE_START_ADVISE, oBuffer);
+			CNetDDEPacket oReqPacket(CNetDDEPacket::DDE_START_ADVISE, oBuffer);
+			CNetDDEPacket oRspPacket;
 
 			if (App.m_bTraceAdvises)
 				App.Trace("DDE_START_ADVISE: %s %s %s %s", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
 
 			// Send it.
-			pService->m_oConnection.SendPacket(oPacket);
+			pService->m_oConnection.SendPacket(oReqPacket);
 
 			// Expecting response?
 			if (!pService->m_oCfg.m_bAsyncAdvises)
 			{
 				// Wait for response.
-				pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_START_ADVISE);
+				pService->m_oConnection.ReadResponsePacket(oRspPacket, oReqPacket.PacketID());
 
-				CMemStream oRspStream(oPacket.Buffer());
+				CMemStream oRspStream(oRspPacket.Buffer());
 
 				oRspStream.Open();
 				oRspStream.Seek(sizeof(CNetDDEPacket::Header));
@@ -1044,11 +1062,6 @@ void CNetDDECltApp::OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink)
 	// Set the initial link value.
 	if ((m_oLinkCache.Find(pConv, pLink)) == NULL)
 		m_oLinkCache.Create(pConv, pLink, pService->m_oCfg.m_strInitialVal);
-
-	// If using "Async Advises" ensure we process the incoming 
-	// DDE_ADVISE notifications to avoid write deadlock on the server.
-	if (pService->m_oCfg.m_bAsyncAdvises)
-		OnTimer(m_nTimerID);
 
 	// If we're not requesting an inital value, send the default one.
 	if (!pService->m_oCfg.m_bReqInitalVal)
@@ -1192,18 +1205,19 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 
 			oReqStream.Close();
 
-			CNetDDEPacket oPacket(CNetDDEPacket::DDE_EXECUTE, oBuffer);
+			CNetDDEPacket oReqPacket(CNetDDEPacket::DDE_EXECUTE, oBuffer);
+			CNetDDEPacket oRspPacket;
 
 			if (App.m_bTraceRequests)
 				App.Trace("DDE_EXECUTE: %s %s [%s]", pConv->Service(), pConv->Topic(), strCmd);
 
 			// Send it.
-			pService->m_oConnection.SendPacket(oPacket);
+			pService->m_oConnection.SendPacket(oReqPacket);
 
 			// Wait for response.
-			pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_EXECUTE);
+			pService->m_oConnection.ReadResponsePacket(oRspPacket, oReqPacket.PacketID());
 
-			CMemStream oRspStream(oPacket.Buffer());
+			CMemStream oRspStream(oRspPacket.Buffer());
 
 			oRspStream.Open();
 			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
@@ -1280,18 +1294,19 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat
 
 			oReqStream.Close();
 
-			CNetDDEPacket oPacket(CNetDDEPacket::DDE_POKE, oBuffer);
+			CNetDDEPacket oReqPacket(CNetDDEPacket::DDE_POKE, oBuffer);
+			CNetDDEPacket oRspPacket;
 
 			if (App.m_bTraceRequests)
 				App.Trace("DDE_POKE: %s %s %s %s [%s]", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat), oData.GetString());
 
 			// Send it.
-			pService->m_oConnection.SendPacket(oPacket);
+			pService->m_oConnection.SendPacket(oReqPacket);
 
 			// Wait for response.
-			pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_POKE);
+			pService->m_oConnection.ReadResponsePacket(oRspPacket, oReqPacket.PacketID());
 
-			CMemStream oRspStream(oPacket.Buffer());
+			CMemStream oRspStream(oRspPacket.Buffer());
 
 			oRspStream.Open();
 			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
@@ -1341,8 +1356,10 @@ void CNetDDECltApp::OnReadReady(CSocket* pSocket)
 		while (pService->m_oConnection.RecvPacket(oPacket))
 		{
 			// Notification packet?
-			if (oPacket.DataType() & CNetDDEPacket::ASYNC_PACKET)
+			if ((oPacket.DataType() & CNetDDEPacket::PACKET_SYNC_MASK) == CNetDDEPacket::ASYNC_PACKET)
 			{
+				ASSERT(oPacket.PacketID() == CNetDDEPacket::ASYNC_PACKET_ID);
+
 				// Decode packet type.
 				switch (oPacket.DataType())
 				{
@@ -1363,6 +1380,8 @@ void CNetDDECltApp::OnReadReady(CSocket* pSocket)
 			// Response packet.
 			else
 			{
+				ASSERT(oPacket.PacketID() != CNetDDEPacket::ASYNC_PACKET_ID);
+
 				// Append to response queue.
 				pService->m_oConnection.QueueResponsePacket(new CNetDDEPacket(oPacket));
 			}
@@ -1813,7 +1832,10 @@ void CNetDDECltApp::OnPostInitalUpdates()
 			{
 				CDDESvrConv* pConv = static_cast<CDDESvrConv*>(pLink->Conversation());
 
-				pConv->PostLinkUpdate(pLink);
+				if (!pConv->PostLinkUpdate(pLink))
+				{
+					TRACE3("PostLinkUpdate('%s|%s', '%s') - Failed\n", pConv->Service(), pConv->Topic(), pLink->Item());
+				}
 			}
 
 			// Clear new links list.
@@ -1863,29 +1885,37 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	oReqStream << pService->m_oCfg.m_strRemName;
 	oReqStream << CSysInfo::ComputerName();
 	oReqStream << CSysInfo::UserName();
+	oReqStream << CPath::Application().FileName();
+	oReqStream << CString(App.VERSION);
 
 	oReqStream.Close();
 
 	// Send client connect message.
-	CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_CLIENT_CONNECT, oBuffer);
+	CNetDDEPacket oReqPacket(CNetDDEPacket::NETDDE_CLIENT_CONNECT, oBuffer);
+	CNetDDEPacket oRspPacket;
 
 	if (m_bTraceNetConns)
 		App.Trace("NETDDE_CLIENT_CONNECT: %u %s %s %s", NETDDE_PROTOCOL, pService->m_oCfg.m_strRemName, CSysInfo::ComputerName(), CSysInfo::UserName());
 
-	pService->m_oConnection.SendPacket(oPacket);
+	pService->m_oConnection.SendPacket(oReqPacket);
 
 	// Wait for response.
-	pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::NETDDE_CLIENT_CONNECT);
+	pService->m_oConnection.ReadResponsePacket(oRspPacket, oReqPacket.PacketID());
 
-	CMemStream oRspStream(oPacket.Buffer());
+	CString    strVersion;
+	CMemStream oRspStream(oRspPacket.Buffer());
 
 	oRspStream.Open();
 	oRspStream.Seek(sizeof(CNetDDEPacket::Header));
 
 	// Get result.
 	oRspStream >> bAccept;
+	oRspStream >> strVersion;
 
 	oRspStream.Close();
+
+	if (m_bTraceNetConns)
+		App.Trace("NETDDE_SERVER_VERSION: %s", strVersion);
 
 	if (!bAccept)
 		throw CSocketException(CSocketException::E_BAD_PROTOCOL, 0);
