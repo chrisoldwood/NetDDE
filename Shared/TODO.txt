@@ -7,3 +7,5 @@
 - Fix multiple client-side conversations bug (protocol change).
 
 - Fix cleaning up NetDDE server converastion when closing real DDE server.
+
+- Change system tray and application icons.
