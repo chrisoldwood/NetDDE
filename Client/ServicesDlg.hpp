@@ -52,6 +52,11 @@ protected:
 	void OnAdd();
 	void OnEdit();
 	void OnRemove();
+
+	//
+	// Internal methods.
+	//
+	void UpdateButtons();
 };
 
 /******************************************************************************
