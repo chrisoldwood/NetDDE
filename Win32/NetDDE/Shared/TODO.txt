@@ -2,6 +2,8 @@
 
 - Send multiple advises in a single packet.
 
-- Fix multiple client-side conversations bug (protocol change).
+- Detect and ignore duplicate advises (CBuffer ==).
 
-- Fix windows shutdown bug - OnEndSesssion()/OnClose().
+- Flush link cache when no connections.
+
+- Added Execute and Poke support.
