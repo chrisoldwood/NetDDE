@@ -34,7 +34,7 @@ const char* CNetDDESvrApp::VERSION      = "v1.0";
 #endif
 
 const char* CNetDDESvrApp::INI_FILE_VER  = "1.0";
-const uint  CNetDDESvrApp::BG_TIMER_FREQ = 10;
+const uint  CNetDDESvrApp::BG_TIMER_FREQ =  1;
 const uint  CNetDDESvrApp::DEF_MAX_TRACE = 25;
 
 // Background processing re-entrancy flag.
@@ -101,8 +101,11 @@ bool CNetDDESvrApp::OnOpen()
 	LoadConfig();
 
 	// Clear the log file.
-	m_fLogFile.Create(m_strLogFile);
-	m_fLogFile.Close();
+	if (m_bLogTrace)
+	{
+		m_fLogFile.Create(m_strLogFile);
+		m_fLogFile.Close();
+	}
 
 	try
 	{
