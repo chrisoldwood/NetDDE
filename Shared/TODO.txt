@@ -1,3 +1,5 @@
 - Send multiple advises in a single packet.
 
 - Fix unhandled exception during OnAsyncSelect().
+
+- Can't configure the server port.
