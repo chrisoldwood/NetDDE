@@ -73,6 +73,7 @@ public:
 	//
 	CNetDDEService* FindService(const char* pszService) const;
 	CNetDDEService* FindService(HCONV hSvrConv) const;
+	CNetDDEService* FindService(CDDESvrConv* pConv) const;
 
 	void Trace(const char* pszMsg, ...);
 
@@ -158,6 +159,7 @@ protected:
 	void OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
 	void OnDDEDisconnect(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
 	void OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
+	void OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
 };
 
 /******************************************************************************

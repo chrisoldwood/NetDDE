@@ -455,12 +455,12 @@ void CNetDDECltApp::SaveConfig()
 
 CNetDDEService* CNetDDECltApp::FindService(const char* pszService) const
 {
-	// Check services list...
+	// For all services...
 	for (int i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
-		// Valid service name?
+		// Matches local service name?
 		if (pService->m_oCfg.m_strLocName == pszService)
 			return pService;
 	}
@@ -471,7 +471,7 @@ CNetDDEService* CNetDDECltApp::FindService(const char* pszService) const
 /******************************************************************************
 ** Method:		FindService()
 **
-** Description:	Finds the NetDDEService for the server side conversarion handle.
+** Description:	Finds the NetDDEService by the server side conversation handle.
 **
 ** Parameters:	hSvrConv	The server side conversation handle.
 **
@@ -482,14 +482,53 @@ CNetDDEService* CNetDDECltApp::FindService(const char* pszService) const
 
 CNetDDEService* CNetDDECltApp::FindService(HCONV hSvrConv) const
 {
-	// Check services list...
+	// For all services...
 	for (int i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
-		// Valid service name?
-		if (pService->m_hSvrConv== hSvrConv)
-			return pService;
+		// For all service conversations.
+		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		{
+			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
+
+			// Matches?
+			if (pNetConv->m_hSvrConv == hSvrConv)
+				return pService;
+		}
+	}
+
+	return NULL;
+}
+
+/******************************************************************************
+** Method:		FindService()
+**
+** Description:	Finds the NetDDEService by the client side conversation.
+**
+** Parameters:	pConv	The client side conversation.
+**
+** Returns:		The service or NULL.
+**
+*******************************************************************************
+*/
+
+CNetDDEService* CNetDDECltApp::FindService(CDDESvrConv* pConv) const
+{
+	// For all services...
+	for (int i = 0; i < m_aoServices.Size(); ++i)
+	{
+		CNetDDEService* pService = m_aoServices[i];
+
+		// For all service conversations.
+		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		{
+			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
+
+			// Matches?
+			if (pNetConv->m_pCltConv == pConv)
+				return pService;
+		}
 	}
 
 	return NULL;
@@ -564,7 +603,7 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 		try
 		{
 			// Open connection, if first conversation.
-			if (pService->m_aoConvs.Size() == 0)
+			if (pService->m_aoNetConvs.Size() == 0)
 				ServerConnect(pService);
 
 			// Create conversation message.
@@ -589,7 +628,8 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 			// Wait for response.
 			pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_CREATE_CONVERSATION);
 
-			HCONV hSvrConv;
+			HCONV  hSvrConv;
+			uint32 nConvID;
 
 			CMemStream oRspStream(oPacket.Buffer());
 
@@ -599,13 +639,13 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 			// Get result.
 			oRspStream >> bAccept;
 			oRspStream.Read(&hSvrConv, sizeof(HCONV));
+			oRspStream >> nConvID;
 
 			oRspStream.Close();
 
-			ASSERT((pService->m_hSvrConv == NULL) || (pService->m_hSvrConv == hSvrConv));
-
+			// If accepted, attach to service.
 			if (bAccept)
-				pService->m_hSvrConv = hSvrConv;
+				pService->m_aoNetConvs.Add(new CNetDDEConv(hSvrConv, nConvID));
 
 			// Update stats.
 			++m_nPktsSent;
@@ -641,7 +681,18 @@ void CNetDDECltApp::OnConnectConfirm(CDDESvrConv* pConv)
 
 	ASSERT(pService != NULL);
 
-	pService->m_aoConvs.Add(pConv);
+	// Set the client side of the NetDDE conversation.
+	for (int i = 0; i < pService->m_aoNetConvs.Size(); ++i)
+	{
+		CNetDDEConv* pNetConv = pService->m_aoNetConvs[i];
+
+		// Server side handle was set in OnConnect().
+		if (pNetConv->m_pCltConv == NULL)
+		{
+			pNetConv->m_pCltConv = pConv;
+			break;
+		}
+	}
 }
 
 /******************************************************************************
@@ -660,9 +711,15 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 {
 	CNetDDEService* pService = FindService(pConv->Service());
 
+	ASSERT(pService != NULL);
+
 	// Valid service name?
 	if (pService != NULL)
 	{
+		CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
+
+		ASSERT(pNetConv != NULL);
+
 		try
 		{
 			// Create conversation message.
@@ -671,7 +728,8 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 
 			oReqStream.Create();
 
-			oReqStream.Write(&pService->m_hSvrConv, sizeof(HCONV));
+			oReqStream.Write(&pNetConv->m_hSvrConv, sizeof(HCONV));
+			oReqStream << pNetConv->m_nSvrConvID;
 
 			oReqStream.Close();
 
@@ -683,20 +741,11 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
 
-			// Remove from connections conversation list.
-			pService->m_aoConvs.Remove(pService->m_aoConvs.Find(pConv));
-
-			CDDESvrLinks aoLinks;
-
-			// Get all conversation links.
-			pConv->GetAllLinks(aoLinks);
-
-			// Remove links from service links collection.
-			for (int i = 0; i < aoLinks.Size(); ++i)
-				pService->m_aoLinks.Remove(pService->m_aoLinks.Find(aoLinks[i]));
+			// Remove from NetDDE conversation list.
+			pService->m_aoNetConvs.Delete(pService->m_aoNetConvs.Find(pNetConv));
 
 			// Close connection, if last conversation.
-			if (pService->m_aoConvs.Size() == 0)
+			if (pService->m_aoNetConvs.Size() == 0)
 				ServerDisconnect(pService);
 
 			// Update stats.
@@ -761,13 +810,17 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 
 		try
 		{
+			CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
+
+			ASSERT(pNetConv != NULL);
+
 			// Create conversation message.
 			CBuffer    oBuffer;
 			CMemStream oReqStream(oBuffer);
 
 			oReqStream.Create();
 
-			oReqStream.Write(&pService->m_hSvrConv, sizeof(HCONV));
+			oReqStream.Write(&pNetConv->m_hSvrConv, sizeof(HCONV));
 			oReqStream << pszItem;
 			oReqStream << (uint32) nFormat;
 
@@ -848,9 +901,9 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 
 		try
 		{
-			// Sync or Async advise?
-			bool bSync    = !pService->m_oCfg.m_bAsyncAdvises;
-			int  nPktType = bSync ? CNetDDEPacket::DDE_START_ADVISE : CNetDDEPacket::DDE_START_ADVISE_ASYNC;
+			CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
+
+			ASSERT(pNetConv != NULL);
 
 			// Create conversation message.
 			CBuffer    oBuffer;
@@ -858,27 +911,24 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 
 			oReqStream.Create();
 
-			oReqStream.Write(&pService->m_hSvrConv, sizeof(HCONV));
+			oReqStream.Write(&pNetConv->m_hSvrConv, sizeof(HCONV));
 			oReqStream << pszItem;
 			oReqStream << (uint32) nFormat;
+			oReqStream << pService->m_oCfg.m_bAsyncAdvises;
 			oReqStream << pService->m_oCfg.m_bReqInitalVal;
 
 			oReqStream.Close();
 
-			CNetDDEPacket oPacket(nPktType, oBuffer);
+			CNetDDEPacket oPacket(CNetDDEPacket::DDE_START_ADVISE, oBuffer);
 
 			if (App.m_bTraceAdvises)
-			{
-				CString strType = bSync ? "DDE_START_ADVISE" : "DDE_START_ADVISE_ASYNC";
-
-				App.Trace("%s: %s %s %s %s", strType, pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
-			}
+				App.Trace("DDE_START_ADVISE: %s %s %s %s", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
 
 			// Expecting response?
-			if (bSync)
+			if (!pService->m_oCfg.m_bAsyncAdvises)
 			{
 				// Wait for response.
 				pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_START_ADVISE);
@@ -930,12 +980,16 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 
 void CNetDDECltApp::OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink)
 {
-	CNetDDEService* pService = FindService(pConv->Service());
+	CNetDDEService* pService = FindService(pConv);
 
 	ASSERT(pService != NULL);
 
+	CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
+
+	ASSERT(pNetConv != NULL);
+
 	// Add link to service links' list.
-	pService->m_aoLinks.Add(pLink);
+	pNetConv->m_aoLinks.Add(pLink);
 
 	// Set the initial link value.
 	if ((m_oLinkCache.Find(pConv, pLink)) == NULL)
@@ -946,11 +1000,16 @@ void CNetDDECltApp::OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink)
 	if (pService->m_oCfg.m_bAsyncAdvises)
 		OnTimer(m_nTimerID);
 
-	// Post message to send inital values.
-	if (!m_bPostedAdviseMsg)
+	// If we're not requesting an inital value, send the default one.
+	if (!pService->m_oCfg.m_bReqInitalVal)
 	{
-		m_MainThread.PostMessage(WM_POST_INITIAL_UPDATES);
-		m_bPostedAdviseMsg = true;
+		pNetConv->m_loNewLinks.AddToTail(pLink);
+
+		if (!m_bPostedAdviseMsg)
+		{
+			m_MainThread.PostMessage(WM_POST_INITIAL_UPDATES);
+			m_bPostedAdviseMsg = true;
+		}
 	}
 }
 
@@ -1003,13 +1062,17 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 	{
 		try
 		{
+			CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
+
+			ASSERT(pNetConv != NULL);
+
 			// Create conversation message.
 			CBuffer    oBuffer;
 			CMemStream oReqStream(oBuffer);
 
 			oReqStream.Create();
 
-			oReqStream.Write(&pService->m_hSvrConv, sizeof(HCONV));
+			oReqStream.Write(&pNetConv->m_hSvrConv, sizeof(HCONV));
 			oReqStream << pLink->Item();
 			oReqStream << (uint32) pLink->Format();
 
@@ -1024,7 +1087,7 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 			pService->m_oConnection.SendPacket(oPacket);
 
 			// Remove from connections links list.
-			pService->m_aoLinks.Remove(pService->m_aoLinks.Find(pLink));
+			pNetConv->m_aoLinks.Remove(pNetConv->m_aoLinks.Find(pLink));
 
 			// Update stats.
 			++m_nPktsSent;
@@ -1123,6 +1186,7 @@ void CNetDDECltApp::HandleNotifications()
 					case CNetDDEPacket::NETDDE_SERVER_DISCONNECT:	OnNetDDEServerDisconnect(*pService, oPacket);	break;
 					case CNetDDEPacket::DDE_DISCONNECT:				OnDDEDisconnect(*pService, oPacket);			break;
 					case CNetDDEPacket::DDE_ADVISE:					OnDDEAdvise(*pService, oPacket);				break;
+					case CNetDDEPacket::DDE_START_ADVISE_FAILED:	OnDDEStartFailed(*pService, oPacket);			break;
 					default:										ASSERT_FALSE();									break;
 				}
 
@@ -1164,19 +1228,18 @@ void CNetDDECltApp::HandleDisconnects()
 		CNetDDEService* pService = m_aoServices[i];
 
 		// Connection closed AND outstanding conversations?
-		if ( (!pService->m_oConnection.IsOpen()) && (pService->m_aoConvs.Size() > 0) )
+		if ( (!pService->m_oConnection.IsOpen()) && (pService->m_aoNetConvs.Size() > 0) )
 		{
-			for (int j = 0; j < pService->m_aoConvs.Size(); ++j)
+			for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 			{
-				CDDESvrConv* pConv = pService->m_aoConvs[j];
+				CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
 				// Disconnect from DDE client.
-				m_pDDEServer->DestroyConversation(pConv);
+				m_pDDEServer->DestroyConversation(pNetConv->m_pCltConv);
 			}
 
-			// Discard conversations and links.
-			pService->m_aoConvs.RemoveAll();
-			pService->m_aoLinks.RemoveAll();
+			// Discard NetDDE conversations.
+			pService->m_aoNetConvs.DeleteAll();
 		}
 	}
 }
@@ -1241,20 +1304,22 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 			App.Trace("DDE_DISCONNECT: %s", pService->m_oCfg.m_strRemName);
 
 		// Cleanup all client conversations...
-		for (int j = 0; j < pService->m_aoConvs.Size(); ++j)
+		for (int i = pService->m_aoNetConvs.Size()-1; i >= 0; --i)
 		{
-			CDDESvrConv* pConv = pService->m_aoConvs[j];
+			CNetDDEConv* pNetConv = pService->m_aoNetConvs[i];
 
-			// Disconnect from DDE client.
-			m_pDDEServer->DestroyConversation(pConv);
+			// Is client-side NetDDE conversation?
+			if (pNetConv->m_hSvrConv == hSvrConv)
+			{
+				// Disconnect from DDE client.
+				m_pDDEServer->DestroyConversation(pNetConv->m_pCltConv);
+
+				pService->m_aoNetConvs.Delete(i);
+			}
 		}
 
-		// Discard conversations and links.
-		pService->m_aoConvs.RemoveAll();
-		pService->m_aoLinks.RemoveAll();
-
 		// Close connection, if last conversation.
-		if (pService->m_aoConvs.Size() == 0)
+		if (pService->m_aoNetConvs.Size() == 0)
 			ServerDisconnect(pService);
 	}
 }
@@ -1290,7 +1355,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 	oStream.Read(&hSvrConv, sizeof(HCONV));
 	oStream >> strItem;
 	oStream >> nFormat;
-	oStream >> oData;;
+	oStream >> oData;
 
 	oStream.Close();
 
@@ -1311,31 +1376,122 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 
 	if (pService != NULL)
 	{
-		// For all links....
-		for (int i = 0; i < pService->m_aoLinks.Size(); ++i)
+		// For all NetDDE conversations...
+		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 		{
-			CDDELink* pLink = pService->m_aoLinks[i];
-			CDDEConv* pConv = pLink->Conversation();
+			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
-			// Post advise, if it's the link that has been updated.
-			if ( (pLink->Item() == strItem) && (pLink->Format() == nFormat) )
+			// Ignore, if different conversation.
+			if (pNetConv->m_hSvrConv != hSvrConv)
+				continue;
+
+			// For all links....
+			for (int i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
 			{
-				CLinkValue* pValue = NULL;
+				CDDELink* pLink = pNetConv->m_aoLinks[i];
+				CDDEConv* pConv = pLink->Conversation();
 
-				// Find the links' value cache.
-				if ((pValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
-					pValue = m_oLinkCache.Create(pConv, pLink);
+				// Post advise, if it's the link that has been updated.
+				if ( (pLink->Item() == strItem) && (pLink->Format() == nFormat) )
+				{
+					CLinkValue* pValue = NULL;
 
-				ASSERT(pValue != NULL);
+					// Find the links' value cache.
+					if ((pValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
+						pValue = m_oLinkCache.Create(pConv, pLink);
 
-				// Update links' value.
-				pValue->m_oLastValue  = oData;
-				pValue->m_tLastUpdate = CDateTime::Current();
+					ASSERT(pValue != NULL);
 
-				// Notify DDE Client of advise.
-				CDDESvrConv* pConv = static_cast<CDDESvrConv*>(pLink->Conversation());
+					// Update links' value.
+					pValue->m_oLastValue  = oData;
+					pValue->m_tLastUpdate = CDateTime::Current();
 
-				pConv->PostLinkUpdate(pLink);
+					// Notify DDE Client of advise.
+					CDDESvrConv* pConv = static_cast<CDDESvrConv*>(pLink->Conversation());
+
+					pConv->PostLinkUpdate(pLink);
+				}
+			}
+		}
+	}
+}
+
+/******************************************************************************
+** Method:		OnDDEStartFailed()
+**
+** Description:	Async DDE Start Advise failed.
+**
+** Parameters:	oService		The service the packet came from.
+**				oNfyPacket		The notification packet.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oNfyPacket)
+{
+	ASSERT(oNfyPacket.DataType() == CNetDDEPacket::DDE_START_ADVISE_FAILED);
+
+	HCONV   hSvrConv;
+	CString strItem;
+	uint32  nFormat;
+
+	CMemStream oStream(oNfyPacket.Buffer());
+
+	oStream.Open();
+	oStream.Seek(sizeof(CNetDDEPacket::Header));
+
+	// Get advise parameters.
+	oStream.Read(&hSvrConv, sizeof(HCONV));
+	oStream >> strItem;
+	oStream >> nFormat;
+
+	oStream.Close();
+
+	if (App.m_bTraceAdvises)
+		App.Trace("DDE_START_ADVISE_FAILED: %s %s", oService.m_oCfg.m_strLocName, strItem);
+
+	// Find the service for the conversation handle.
+	CNetDDEService* pService = FindService(hSvrConv);
+
+	if (pService != NULL)
+	{
+		// For all NetDDE conversations...
+		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		{
+			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
+
+			// Ignore, if different conversation.
+			if (pNetConv->m_hSvrConv != hSvrConv)
+				continue;
+
+			// For all links....
+			for (int i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
+			{
+				CDDELink* pLink = pNetConv->m_aoLinks[i];
+				CDDEConv* pConv = pLink->Conversation();
+
+				// Post advise, if it's the link that has been updated.
+				if ( (pLink->Item() == strItem) && (pLink->Format() == nFormat) )
+				{
+					CLinkValue* pValue = NULL;
+
+					// Find the links' value cache.
+					if ((pValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
+						pValue = m_oLinkCache.Create(pConv, pLink);
+
+					ASSERT(pValue != NULL);
+
+					// Update links' value.
+					pValue->m_oLastValue.FromString(pService->m_oCfg.m_strFailedVal);
+					pValue->m_tLastUpdate = CDateTime::Current();
+
+					// Notify DDE Client of advise.
+					CDDESvrConv* pConv = static_cast<CDDESvrConv*>(pLink->Conversation());
+
+					pConv->PostLinkUpdate(pLink);
+				}
 			}
 		}
 	}
@@ -1405,6 +1561,35 @@ void CNetDDECltApp::UpdateStats()
 void CNetDDECltApp::OnPostInitalUpdates()
 {
 	TRACE("OnPostInitalUpdates()\n");
+
+	// Template shorthands.
+	typedef TListIter<CDDELink*> CLinkIter;
+
+	// For all services...
+	for (int i = 0; i < m_aoServices.Size(); ++i)
+	{
+		CNetDDEService* pService = m_aoServices[i];
+
+		// For all NetDDE conversations...
+		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		{
+			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
+
+			CLinkIter    oIter(pNetConv->m_loNewLinks);
+			CDDELink*    pLink = NULL;
+
+			// Post update on all new links...
+			while (oIter.Next(pLink))
+			{
+				CDDESvrConv* pConv = static_cast<CDDESvrConv*>(pLink->Conversation());
+
+				pConv->PostLinkUpdate(pLink);
+			}
+
+			// Clear new links list.
+			pNetConv->m_loNewLinks.RemoveAll();
+		}
+	}
 
 	// Reset 'posted' flag.
 	m_bPostedAdviseMsg = false;
@@ -1532,8 +1717,7 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 	// Close the connection.
 	pService->m_oConnection.Close();
 
-	// Reset the server conversation handle.
-	pService->m_hSvrConv = NULL;
+	ASSERT(pService->m_aoNetConvs.Size() == 0);
 }
 
 /******************************************************************************
