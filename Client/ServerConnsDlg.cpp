@@ -77,10 +77,12 @@ void CServerConnsDlg::OnInitDialog()
 			for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
 				nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.Size();
 
-			m_lvGrid.InsertItem(i,                pConnection->m_oCfg.m_strRemName);
-			m_lvGrid.ItemText  (i, COMPUTER_NAME, pConnection->m_oCfg.m_strServer);
-			m_lvGrid.ItemText  (i, CONV_COUNT,    CStrCvt::FormatInt(pConnection->m_aoNetConvs.Size()));
-			m_lvGrid.ItemText  (i, LINK_COUNT,    CStrCvt::FormatInt(nLinks));
+			int n = m_lvGrid.ItemCount();
+
+			m_lvGrid.InsertItem(n,                pConnection->m_oCfg.m_strRemName);
+			m_lvGrid.ItemText  (n, COMPUTER_NAME, pConnection->m_oCfg.m_strServer);
+			m_lvGrid.ItemText  (n, CONV_COUNT,    CStrCvt::FormatInt(pConnection->m_aoNetConvs.Size()));
+			m_lvGrid.ItemText  (n, LINK_COUNT,    CStrCvt::FormatInt(nLinks));
 		}
 	}
 }
