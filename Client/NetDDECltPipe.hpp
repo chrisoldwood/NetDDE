@@ -31,8 +31,8 @@ public:
 	//
 	// Methods.
 	//
-	void           WaitForPacket(CNetDDEPacket& oPacket, uint nType);
-	CNetDDEPacket* ReadNotifyPacket();
+	void ReadResponsePacket(CNetDDEPacket& oPacket, uint nType);
+	bool ReadNotifyPacket(CNetDDEPacket& oPacket);
 
 protected:
 	// Template shorthands.
