@@ -25,10 +25,12 @@
 
 COptionsDlg::COptionsDlg()
 	: CDialog(IDD_OPTIONS)
+	, m_ebNetTimeOut(false, 6)
 {
 	DEFINE_CTRL_TABLE
 		CTRL(IDC_TRAY_ICON,		&m_ckTrayIcon )
 		CTRL(IDC_MIN_TO_TRAY,	&m_ckMinToTray)
+		CTRL(IDC_NET_TIMEOUT,	&m_ebNetTimeOut)
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
@@ -53,6 +55,7 @@ void COptionsDlg::OnInitDialog()
 	// Initialise controls.
 	m_ckTrayIcon.Check(App.m_bTrayIcon);
 	m_ckMinToTray.Check(App.m_bMinToTray);
+	m_ebNetTimeOut.IntValue(App.m_nNetTimeOut);
 
 	// Handle control dependencies.
 	OnMinToTrayClicked();
@@ -73,8 +76,9 @@ void COptionsDlg::OnInitDialog()
 bool COptionsDlg::OnOk()
 {
 	// Get control values.
-	App.m_bTrayIcon  = m_ckTrayIcon.IsChecked();
-	App.m_bMinToTray = m_ckMinToTray.IsChecked();
+	App.m_bTrayIcon   = m_ckTrayIcon.IsChecked();
+	App.m_bMinToTray  = m_ckMinToTray.IsChecked();
+	App.m_nNetTimeOut = m_ebNetTimeOut.IntValue();
 
 	return true;
 }

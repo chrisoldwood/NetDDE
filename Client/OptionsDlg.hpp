@@ -37,6 +37,7 @@ protected:
 	//
 	CCheckBox	m_ckTrayIcon;
 	CCheckBox	m_ckMinToTray;
+	CDecimalBox	m_ebNetTimeOut;
 
 	//
 	// Message handlers.
