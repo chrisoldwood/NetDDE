@@ -33,9 +33,9 @@ CNetDDECltApp App;
 */
 
 #ifdef _DEBUG
-const char* CNetDDECltApp::VERSION      = "v2.0 Beta [Debug]";
+const char* CNetDDECltApp::VERSION      = "v2.0 [Debug]";
 #else
-const char* CNetDDECltApp::VERSION      = "v2.0 Beta";
+const char* CNetDDECltApp::VERSION      = "v2.0";
 #endif
 
 const char* CNetDDECltApp::INI_FILE_VER  = "1.0";
