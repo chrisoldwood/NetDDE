@@ -41,7 +41,7 @@ public:
 	//
 	virtual void Close();
 
-	void ReadResponsePacket(CNetDDEPacket& oPacket, uint nType);
+	void ReadResponsePacket(CNetDDEPacket& oPacket, uint nPacketID);
 
 	void QueueResponsePacket(CNetDDEPacket* pPacket);
 
