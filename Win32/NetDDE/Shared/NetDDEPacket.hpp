@@ -50,10 +50,21 @@ public:
 
 	enum DataTypes
 	{
-		NETDDE_CONNECT			= 0x0001,
-		NETDDE_DISCONNECT		= 0x0002,
-		DDE_CREATE_CONVERSATION	= 0x0003,
-		DDE_REQUEST				= 0x0004,
+		// Client -> Server internal packets.
+		NETDDE_CLIENT_CONNECT		= 0x0010,
+		NETDDE_CLIENT_DISCONNECT	= 0x0011,
+
+		// Client -> Server DDE request packets.
+		DDE_CREATE_CONVERSATION		= 0x0020,
+		DDE_DESTROY_CONVERSATION	= 0x0021,
+		DDE_REQUEST					= 0x0022,
+		DDE_START_ADVISE			= 0x0023,
+		DDE_STOP_ADVISE				= 0x0024,
+
+		// Server -> Client DDE notification packets.
+		NETDDE_SERVER_DISCONNECT	= 0x0030,
+		DDE_DISCONNECT				= 0x0031,
+		DDE_ADVISE					= 0x0032,
 	};
 
 	/**************************************************************************
