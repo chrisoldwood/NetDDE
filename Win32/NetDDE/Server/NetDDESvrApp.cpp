@@ -366,8 +366,12 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 
 void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 {
-	ASSERT(pLink != NULL);
+//	ASSERT(pLink != NULL);
 	ASSERT(pData != NULL);
+
+	// Ignore Advise, if during an Advise Start.
+	if (pLink == NULL)
+		return;
 
 	HCONV      hConv = pLink->Conversation()->Handle();
 	CBuffer    oBuffer;
@@ -524,7 +528,7 @@ void CNetDDESvrApp::HandleRequests()
 		{
 			CNetDDEPacket oPacket;
 
-			if (pConnection->RecvPacket(oPacket))
+			while (pConnection->RecvPacket(oPacket))
 			{
 				// Decode packet type.
 				switch (oPacket.DataType())
