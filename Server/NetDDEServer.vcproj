@@ -268,6 +268,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\LinksDlg.cpp">
+			</File>
+			<File
 				RelativePath="NetDDESvr.rc">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -327,32 +330,14 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="OptionsDlg.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
+				RelativePath=".\OptionsDlg.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath="..\Shared\AboutDlg.hpp">
+				RelativePath=".\AboutDlg.hpp">
 			</File>
 			<File
 				RelativePath="AppCmds.hpp">
@@ -373,16 +358,7 @@
 				RelativePath="DDEConvsDlg.hpp">
 			</File>
 			<File
-				RelativePath="..\Shared\LinkValue.hpp">
-			</File>
-			<File
-				RelativePath="..\Shared\NetDDEDefs.hpp">
-			</File>
-			<File
-				RelativePath="..\Shared\NetDDEPacket.hpp">
-			</File>
-			<File
-				RelativePath="..\Shared\NetDDEPipe.hpp">
+				RelativePath=".\LinksDlg.hpp">
 			</File>
 			<File
 				RelativePath="NetDDESvrApp.hpp">
@@ -391,13 +367,13 @@
 				RelativePath="NetDDESvrPipe.hpp">
 			</File>
 			<File
-				RelativePath="OptionsDlg.hpp">
+				RelativePath=".\OptionsDlg.hpp">
 			</File>
 			<File
 				RelativePath="Resource.h">
 			</File>
 			<File
-				RelativePath="..\Shared\TraceOptionsDlg.hpp">
+				RelativePath=".\TraceOptionsDlg.hpp">
 			</File>
 		</Filter>
 		<Filter
@@ -427,15 +403,6 @@
 		</Filter>
 		<File
 			RelativePath="NetDDEServer.ini">
-		</File>
-		<File
-			RelativePath="..\Shared\ReadMe.txt">
-		</File>
-		<File
-			RelativePath="..\Shared\RelNotes.txt">
-		</File>
-		<File
-			RelativePath="..\Shared\TODO.txt">
 		</File>
 	</Files>
 	<Globals>

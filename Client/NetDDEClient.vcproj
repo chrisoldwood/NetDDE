@@ -247,9 +247,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\LinkCache.cpp">
-			</File>
-			<File
 				RelativePath=".\LinksDlg.cpp">
 			</File>
 			<File
@@ -312,25 +309,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="OptionsDlg.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
+				RelativePath=".\OptionsDlg.cpp">
 			</File>
 			<File
 				RelativePath="ServerConnsDlg.cpp">
@@ -400,6 +379,9 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
+				RelativePath=".\AboutDlg.hpp">
+			</File>
+			<File
 				RelativePath="AppCmds.hpp">
 			</File>
 			<File
@@ -415,13 +397,7 @@
 				RelativePath="DDEConvsDlg.hpp">
 			</File>
 			<File
-				RelativePath=".\LinkCache.hpp">
-			</File>
-			<File
 				RelativePath=".\LinksDlg.hpp">
-			</File>
-			<File
-				RelativePath="..\Shared\LinkValue.hpp">
 			</File>
 			<File
 				RelativePath="NetDDECltApp.hpp">
@@ -430,22 +406,13 @@
 				RelativePath="NetDDECltPipe.hpp">
 			</File>
 			<File
-				RelativePath="..\Shared\NetDDEDefs.hpp">
-			</File>
-			<File
-				RelativePath="..\Shared\NetDDEPacket.hpp">
-			</File>
-			<File
-				RelativePath="..\Shared\NetDDEPipe.hpp">
-			</File>
-			<File
 				RelativePath="NetDDEService.hpp">
 			</File>
 			<File
 				RelativePath="NetDDESvcCfg.hpp">
 			</File>
 			<File
-				RelativePath="OptionsDlg.hpp">
+				RelativePath=".\OptionsDlg.hpp">
 			</File>
 			<File
 				RelativePath="Resource.h">
@@ -460,7 +427,7 @@
 				RelativePath="ServicesDlg.hpp">
 			</File>
 			<File
-				RelativePath="..\Shared\TraceOptionsDlg.hpp">
+				RelativePath=".\TraceOptionsDlg.hpp">
 			</File>
 		</Filter>
 		<Filter
@@ -490,15 +457,6 @@
 		</Filter>
 		<File
 			RelativePath="NetDDEClient.ini">
-		</File>
-		<File
-			RelativePath="..\Shared\ReadMe.txt">
-		</File>
-		<File
-			RelativePath="..\Shared\RelNotes.txt">
-		</File>
-		<File
-			RelativePath="..\Shared\TODO.txt">
 		</File>
 	</Files>
 	<Globals>
