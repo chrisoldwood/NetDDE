@@ -50,22 +50,26 @@ public:
 
 	enum DataTypes
 	{
+		// Packet handling type.
+		SYNC_PACKET					= 0x0000,
+		ASYNC_PACKET				= 0xF000,
+
 		// Client -> Server internal packets.
-		NETDDE_CLIENT_CONNECT		= 0x0010,
-		NETDDE_CLIENT_DISCONNECT	= 0x0011,
+		NETDDE_CLIENT_CONNECT		= (SYNC_PACKET | 0x0010),
+		NETDDE_CLIENT_DISCONNECT	= (SYNC_PACKET | 0x0011),
 
 		// Client -> Server DDE request packets.
-		DDE_CREATE_CONVERSATION		= 0x0020,
-		DDE_DESTROY_CONVERSATION	= 0x0021,
-		DDE_REQUEST					= 0x0022,
-		DDE_START_ADVISE			= 0x0023,
-		DDE_STOP_ADVISE				= 0x0024,
-		DDE_START_ADVISE_ASYNC		= 0x0025,
+		DDE_CREATE_CONVERSATION		= (SYNC_PACKET | 0x0020),
+		DDE_DESTROY_CONVERSATION	= (SYNC_PACKET | 0x0021),
+		DDE_REQUEST					= (SYNC_PACKET | 0x0022),
+		DDE_START_ADVISE			= (SYNC_PACKET | 0x0023),
+		DDE_STOP_ADVISE				= (SYNC_PACKET | 0x0024),
 
 		// Server -> Client DDE notification packets.
-		NETDDE_SERVER_DISCONNECT	= 0x0030,
-		DDE_DISCONNECT				= 0x0031,
-		DDE_ADVISE					= 0x0032,
+		NETDDE_SERVER_DISCONNECT	= (ASYNC_PACKET | 0x0030),
+		DDE_DISCONNECT				= (ASYNC_PACKET | 0x0031),
+		DDE_ADVISE					= (ASYNC_PACKET | 0x0032),
+		DDE_START_ADVISE_FAILED		= (ASYNC_PACKET | 0x0033),
 	};
 
 	/**************************************************************************
