@@ -36,6 +36,9 @@ public:
 	CString	m_strPipeName;		// Named Pipe name.
 	bool	m_bAsyncAdvises;	// Use Async advises?
 	bool	m_bTextOnly;		// Only supports CF_TEXT?
+	CString	m_strInitialVal;	// Initial value.
+	CString m_strFailedVal;		// Failed value (for Async advises).
+	bool	m_bReqInitalVal;	// Request initial value?
 };
 
 /******************************************************************************
@@ -48,6 +51,9 @@ public:
 inline CNetDDESvcCfg::CNetDDESvcCfg()
 	: m_bAsyncAdvises(false)
 	, m_bTextOnly(false)
+	, m_strInitialVal("#PNDG")
+	, m_strFailedVal("#LINK")
+	, m_bReqInitalVal(false)
 {
 }
 
