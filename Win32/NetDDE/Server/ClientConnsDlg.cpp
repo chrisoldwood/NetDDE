@@ -88,7 +88,7 @@ void CClientConnsDlg::Refresh()
 	// Load grid data.
 	for (int i = 0; i < App.m_aoConnections.Size(); ++i)
 	{
-		CNetDDESvrPipe* pConnection = App.m_aoConnections[i];
+		CNetDDESvrSocket* pConnection = App.m_aoConnections[i];
 
 		// Ignore, if now closed.
 		if (!pConnection->IsOpen())
@@ -150,20 +150,11 @@ void CClientConnsDlg::OnCloseConnection()
 	if (!m_lvGrid.IsSelection())
 		return;
 
-	CNetDDESvrPipe* pConnection = (CNetDDESvrPipe*) m_lvGrid.ItemPtr(m_lvGrid.Selection());
+	CNetDDESvrSocket* pConnection = (CNetDDESvrSocket*) m_lvGrid.ItemPtr(m_lvGrid.Selection());
 
 	// Close connection, if still active.
 	if ((App.m_aoConnections.Find(pConnection) != -1) && (pConnection->IsOpen()))
-	{
-		// Send disconnect message.
-		CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT, NULL, 0);
-
-		pConnection->SendPacket(oPacket);
-		pConnection->Close();
-
-		// Update stats.
-		++App.m_nPktsSent;
-	}
+		App.CloseConnection(pConnection);
 
 	// Re-populate.
 	Refresh();

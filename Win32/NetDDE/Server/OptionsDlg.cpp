@@ -25,13 +25,11 @@
 
 COptionsDlg::COptionsDlg()
 	: CDialog(IDD_OPTIONS)
-	, m_ebNetTimeOut(false, 6)
 	, m_ebDDETimeOut(false, 6)
 {
 	DEFINE_CTRL_TABLE
 		CTRL(IDC_TRAY_ICON,		&m_ckTrayIcon)
 		CTRL(IDC_MIN_TO_TRAY,	&m_ckMinToTray)
-		CTRL(IDC_NET_TIMEOUT,	&m_ebNetTimeOut)
 		CTRL(IDC_DDE_TIMEOUT,	&m_ebDDETimeOut)
 		CTRL(IDC_DISCARD_DUPS,	&m_ckDiscard)
 	END_CTRL_TABLE
@@ -58,7 +56,6 @@ void COptionsDlg::OnInitDialog()
 	// Initialise controls.
 	m_ckTrayIcon.Check(App.m_bTrayIcon);
 	m_ckMinToTray.Check(App.m_bMinToTray);
-	m_ebNetTimeOut.IntValue(App.m_nNetTimeOut);
 	m_ebDDETimeOut.IntValue(App.m_nDDETimeOut);
 	m_ckDiscard.Check(App.m_bDiscardDups);
 
@@ -83,7 +80,6 @@ bool COptionsDlg::OnOk()
 	// Get control values.
 	App.m_bTrayIcon    = m_ckTrayIcon.IsChecked();
 	App.m_bMinToTray   = m_ckMinToTray.IsChecked();
-	App.m_nNetTimeOut  = m_ebNetTimeOut.IntValue();
 	App.m_nDDETimeOut  = m_ebDDETimeOut.IntValue();
 	App.m_bDiscardDups = m_ckDiscard.IsChecked();
 

@@ -36,7 +36,7 @@
 
 // App data classes.
 #include "NetDDEConv.hpp"
-#include "NetDDESvrPipe.hpp"
+#include "NetDDESvrSocket.hpp"
 
 // App GUI classes.
 #include "AppCmds.hpp"

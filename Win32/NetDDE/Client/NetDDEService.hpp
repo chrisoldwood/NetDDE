@@ -40,9 +40,9 @@ public:
 	//
 	// Members.
 	//
-	CNetDDESvcCfg	m_oCfg;				// The service configuration.
-	CNetDDECltPipe 	m_oConnection;		// The connection to the NetDDE server.
-	CNetConvs		m_aoNetConvs;		// The active NetDDE conversations.
+	CNetDDESvcCfg		m_oCfg;				// The service configuration.
+	CNetDDECltSocket	m_oConnection;		// The connection to the NetDDE server.
+	CNetConvs			m_aoNetConvs;		// The active NetDDE conversations.
 };
 
 /******************************************************************************
@@ -53,6 +53,7 @@ public:
 */
 
 inline CNetDDEService::CNetDDEService()
+	: m_oConnection(this)
 {
 }
 

@@ -1,9 +1,9 @@
 /******************************************************************************
 ** (C) Chris Oldwood
 **
-** MODULE:		NETDDESVRPIPE.CPP
+** MODULE:		NETDDESVRSOCKET.CPP
 ** COMPONENT:	The Application
-** DESCRIPTION:	CNetDDESvrPipe class definition.
+** DESCRIPTION:	CNetDDESvrSocket class definition.
 **
 *******************************************************************************
 */
@@ -27,10 +27,11 @@
 *******************************************************************************
 */
 
-CNetDDESvrPipe::CNetDDESvrPipe()
-	: CNetDDEPipe(this)
+CNetDDESvrSocket::CNetDDESvrSocket()
+	: CTCPCltSocket(ASYNC)
+	, CNetDDESocket(this)
 {
-	SetTimeOut(App.m_nNetTimeOut);
+
 }
 
 /******************************************************************************
@@ -45,12 +46,30 @@ CNetDDESvrPipe::CNetDDESvrPipe()
 *******************************************************************************
 */
 
-CNetDDESvrPipe::~CNetDDESvrPipe()
+CNetDDESvrSocket::~CNetDDESvrSocket()
 {
 	Close();
 
 	// Cleanup.
 	m_aoNetConvs.DeleteAll();
+}
+
+/******************************************************************************
+** Method:		Close()
+**
+** Description:	Close the socket.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDESvrSocket::Close()
+{
+	// Forward to base class.
+	CTCPCltSocket::Close();
 }
 
 /******************************************************************************
@@ -66,7 +85,7 @@ CNetDDESvrPipe::~CNetDDESvrPipe()
 *******************************************************************************
 */
 
-CNetDDEConv* CNetDDESvrPipe::FindNetConv(CDDECltConv* pConv, uint32 nConvID) const
+CNetDDEConv* CNetDDESvrSocket::FindNetConv(CDDECltConv* pConv, uint32 nConvID) const
 {
 	// For all conversations...
 	for (int j = 0; j < m_aoNetConvs.Size(); ++j)
@@ -94,7 +113,7 @@ CNetDDEConv* CNetDDESvrPipe::FindNetConv(CDDECltConv* pConv, uint32 nConvID) con
 *******************************************************************************
 */
 
-bool CNetDDESvrPipe::IsLinkUsed(CDDELink* pLink) const
+bool CNetDDESvrSocket::IsLinkUsed(CDDELink* pLink) const
 {
 	CDDEConv* pConv = pLink->Conversation();
 

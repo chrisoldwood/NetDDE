@@ -39,7 +39,7 @@ const char* CNetDDECltApp::VERSION      = "v1.5";
 #endif
 
 const char* CNetDDECltApp::INI_FILE_VER  = "1.0";
-const uint  CNetDDECltApp::BG_TIMER_FREQ =  1;
+const uint  CNetDDECltApp::BG_TIMER_FREQ =  1000;
 
 const bool  CNetDDECltApp::DEF_TRAY_ICON         = true;
 const bool  CNetDDECltApp::DEF_MIN_TO_TRAY       = false;
@@ -55,9 +55,6 @@ const bool  CNetDDECltApp::DEF_TRACE_TO_FILE     = false;
 const char* CNetDDECltApp::DEF_TRACE_FILE        = "NetDDEClient.log";
 
 const uint  CNetDDECltApp::WM_POST_INITIAL_UPDATES = WM_APP + 1;
-
-// Background processing re-entrancy flag.
-bool CNetDDECltApp::g_bInBgProcessing = false;
 
 /******************************************************************************
 ** Method:		Constructor
@@ -152,6 +149,15 @@ bool CNetDDECltApp::OnOpen()
 
 	try
 	{
+		// Initialise WinSock.
+		int nResult = CWinSock::Startup(1, 1);
+
+		if (nResult != 0)
+		{
+			FatalMsg("Failed to initialise WinSock layer: %d.", nResult);
+			return false;
+		}
+
 		// Initialise the DDE server.
 		m_pDDEServer->Initialise();
 		m_pDDEServer->AddListener(this);
@@ -174,6 +180,8 @@ bool CNetDDECltApp::OnOpen()
 
 	// Update UI.
 	m_AppCmds.UpdateUI();
+
+	App.Trace("SERVER_STATUS: Server started");
 
 	// Register DDE services.
 	for (int i = 0; i < m_aoServices.Size(); ++i)
@@ -235,9 +243,14 @@ bool CNetDDECltApp::OnClose()
 	// Empty the link cache.
 	m_oLinkCache.Purge();
 
+	// Terminate WinSock.
+	CWinSock::Cleanup();
+
 	// Save settings.
 	SaveConfig();
 	
+	App.Trace("SERVER_STATUS: Server stopped");
+
 	return true;
 }
 
@@ -335,13 +348,12 @@ void CNetDDECltApp::LoadConfig()
 		// Entry valid?
 		if (strSection != "")
 		{
-			CString strRemName  = m_oIniFile.ReadString(strSection, "RemoteName", "");
-			CString strLocName  = m_oIniFile.ReadString(strSection, "LocalName",  "");
-			CString strServer   = m_oIniFile.ReadString(strSection, "Server",     "");
-			CString strPipeName = m_oIniFile.ReadString(strSection, "Pipe",       NETDDE_PIPE_DEFAULT);
+			CString strRemName = m_oIniFile.ReadString(strSection, "RemoteName", "");
+			CString strLocName = m_oIniFile.ReadString(strSection, "LocalName",  "");
+			CString strServer  = m_oIniFile.ReadString(strSection, "Server",     "");
 
 			// Section valid?
-			if ( (strRemName != "") && (strLocName != "") && (strServer != "") && (strPipeName != "") )
+			if ( (strRemName != "") && (strLocName != "") && (strServer != "") )
 			{
 				// Add to collection.
 				CNetDDEService* pService = new CNetDDEService;
@@ -349,7 +361,7 @@ void CNetDDECltApp::LoadConfig()
 				pService->m_oCfg.m_strRemName    = strRemName;
 				pService->m_oCfg.m_strLocName    = strLocName;
 				pService->m_oCfg.m_strServer     = strServer;
-				pService->m_oCfg.m_strPipeName   = strPipeName;
+				pService->m_oCfg.m_nServerPort   = m_oIniFile.ReadInt   (strSection, "Port",         NETDDE_PORT_DEFAULT);
 				pService->m_oCfg.m_bAsyncAdvises = m_oIniFile.ReadBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
 				pService->m_oCfg.m_bTextOnly     = m_oIniFile.ReadBool  (strSection, "TextOnly",     pService->m_oCfg.m_bTextOnly    );
 				pService->m_oCfg.m_strInitialVal = m_oIniFile.ReadString(strSection, "InitialValue", pService->m_oCfg.m_strInitialVal);
@@ -357,6 +369,9 @@ void CNetDDECltApp::LoadConfig()
 				pService->m_oCfg.m_bReqInitalVal = m_oIniFile.ReadBool  (strSection, "ReqInitValue", pService->m_oCfg.m_bReqInitalVal);
 
 				m_aoServices.Add(pService);
+
+				// Attach event handler.
+				pService->m_oConnection.AddClientListener(this);
 			}
 		}
 	}
@@ -417,7 +432,7 @@ void CNetDDECltApp::SaveConfig()
 		m_oIniFile.WriteString(strSection, "RemoteName",   pService->m_oCfg.m_strRemName   );
 		m_oIniFile.WriteString(strSection, "LocalName",    pService->m_oCfg.m_strLocName   );
 		m_oIniFile.WriteString(strSection, "Server",       pService->m_oCfg.m_strServer    );
-		m_oIniFile.WriteString(strSection, "Pipe",         pService->m_oCfg.m_strPipeName  );
+		m_oIniFile.WriteInt   (strSection, "Port",         pService->m_oCfg.m_nServerPort  );
 		m_oIniFile.WriteBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
 		m_oIniFile.WriteBool  (strSection, "TextOnly",     pService->m_oCfg.m_bTextOnly    );
 		m_oIniFile.WriteString(strSection, "InitialValue", pService->m_oCfg.m_strInitialVal);
@@ -677,12 +692,11 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 			if (bAccept)
 				pService->m_aoNetConvs.Add(new CNetDDEConv(hSvrConv, nConvID));
 		}
-		catch (CPipeException& e)
+		catch (CSocketException& e)
 		{
-			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
 
-			// Pipe disconnected?
-			pService->m_oConnection.Close();
+			CloseConnection(pService);
 		}
 
 		// Close connection, if last conversation.
@@ -775,12 +789,11 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
 		}
-		catch (CPipeException& e)
+		catch (CSocketException& e)
 		{
-			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
 
-			// Pipe disconnected?
-			pService->m_oConnection.Close();
+			CloseConnection(pService);
 		}
 
 		// Remove from NetDDE conversation list.
@@ -890,12 +903,11 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 			if (bResult)
 				oData.SetBuffer(oDDEData);
 		}
-		catch (CPipeException& e)
+		catch (CSocketException& e)
 		{
-			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
 
-			// Pipe disconnected?
-			pService->m_oConnection.Close();
+			CloseConnection(pService);
 		}
 
 		// Update stats.
@@ -988,12 +1000,11 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 				bResult = true;
 			}
 		}
-		catch (CPipeException& e)
+		catch (CSocketException& e)
 		{
-			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
 
-			// Pipe disconnected?
-			pService->m_oConnection.Close();
+			CloseConnection(pService);
 		}
 
 		// Update stats.
@@ -1126,12 +1137,11 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
 		}
-		catch (CPipeException& e)
+		catch (CSocketException& e)
 		{
-			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
 
-			// Pipe disconnected?
-			pService->m_oConnection.Close();
+			CloseConnection(pService);
 		}
 
 		// Remove from connections links list.
@@ -1203,12 +1213,11 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 
 			oRspStream.Close();
 		}
-		catch (CPipeException& e)
+		catch (CSocketException& e)
 		{
-			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
 
-			// Pipe disconnected?
-			pService->m_oConnection.Close();
+			CloseConnection(pService);
 		}
 
 		// Update stats.
@@ -1292,12 +1301,11 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat
 
 			oRspStream.Close();
 		}
-		catch (CPipeException& e)
+		catch (CSocketException& e)
 		{
-			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
 
-			// Pipe disconnected?
-			pService->m_oConnection.Close();
+			CloseConnection(pService);
 		}
 
 		// Update stats.
@@ -1309,82 +1317,31 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat
 }
 
 /******************************************************************************
-** Method:		OnTimer()
+** Method:		OnReadReady()
 **
-** Description:	The timer has gone off, process background tasks.
-**				NB: Re-entrancy can be caused when performing DDE requests.
+** Description:	Data received on the socket.
 **
-** Parameters:	nTimerID	The timer ID.
+** Parameters:	pSocket		The socket.
 **
 ** Returns:		Nothing.
 **
 *******************************************************************************
 */
 
-void CNetDDECltApp::OnTimer(uint /*nTimerID*/)
+void CNetDDECltApp::OnReadReady(CSocket* pSocket)
 {
+	CNetDDECltSocket* pConnection = static_cast<CNetDDECltSocket*>(pSocket);
+	CNetDDEService*   pService    = pConnection->Service();
+
 	try
 	{
-		// Guard against re-entrancy.
-		if (!g_bInBgProcessing)
+		CNetDDEPacket oPacket; 
+
+		// For all packets...
+		while (pService->m_oConnection.RecvPacket(oPacket))
 		{
-			g_bInBgProcessing = true;
-
-			HandleNotifications();
-			HandleDisconnects();
-
-			UpdateStats();
-
-			g_bInBgProcessing = false;
-		}
-	}
-	catch (CException& e)
-	{
-		StopTimer(m_nTimerID);
-
-		FatalMsg("Unexpected Exception: %s", e.ErrorText());
-
-		m_AppWnd.Destroy();
-	}
-	catch (...)
-	{
-		StopTimer(m_nTimerID);
-
-		FatalMsg("Unhandled Exception.");
-
-		m_AppWnd.Destroy();
-	}
-}
-
-/******************************************************************************
-** Method:		HandleNotifications()
-**
-** Description:	Handle notifications from NetDDEServers.
-**
-** Parameters:	None.
-**
-** Returns:		Nothing.
-**
-*******************************************************************************
-*/
-
-void CNetDDECltApp::HandleNotifications()
-{
-	// For all services...
-	for (int i = 0; i < m_aoServices.Size(); ++i)
-	{
-		CNetDDEService* pService = m_aoServices[i];
-
-		// Ignore if connection severed.
-		if (!pService->m_oConnection.IsOpen())
-			continue;
-
-		try
-		{
-			CNetDDEPacket oPacket; 
-
-			// For all notification packets...
-			while (pService->m_oConnection.ReadNotifyPacket(oPacket))
+			// Notification packet?
+			if (oPacket.DataType() & CNetDDEPacket::ASYNC_PACKET)
 			{
 				// Decode packet type.
 				switch (oPacket.DataType())
@@ -1403,55 +1360,94 @@ void CNetDDECltApp::HandleNotifications()
 				if (!pService->m_oConnection.IsOpen())
 					break;
 			}
+			// Response packet.
+			else
+			{
+				// Append to response queue.
+				pService->m_oConnection.QueueResponsePacket(new CNetDDEPacket(oPacket));
+			}
 		}
-		catch (CPipeException& e)
-		{
-			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+	}
+	catch (CSocketException& e)
+	{
+		App.Trace("SOCKET_ERROR: %s", e.ErrorText());
 
-			// Pipe disconnected?
-			pService->m_oConnection.Close();
-		}
+		CloseConnection(pService);
 	}
 }
 
 /******************************************************************************
-** Method:		HandleDisconnects()
+** Method:		OnClosed()
 **
-** Description:	Handle disconnections from NetDDEServers.
+** Description:	The socket was closed by the remote end.
 **
-** Parameters:	None.
+** Parameters:	pSocket		The socket.
+**				nReason		The reason for closure.
 **
 ** Returns:		Nothing.
 **
 *******************************************************************************
 */
 
-void CNetDDECltApp::HandleDisconnects()
+void CNetDDECltApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 {
-	// For all services...
-	for (int i = 0; i < m_aoServices.Size(); ++i)
+	CNetDDECltSocket* pConnection = static_cast<CNetDDECltSocket*>(pSocket);
+	CNetDDEService*   pService    = pConnection->Service();
+
+	// Outstanding conversations?
+	if (pService->m_aoNetConvs.Size() > 0)
 	{
-		CNetDDEService* pService = m_aoServices[i];
-
-		// Connection closed AND outstanding conversations?
-		if ( (!pService->m_oConnection.IsOpen()) && (pService->m_aoNetConvs.Size() > 0) )
+		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 		{
-			for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
-			{
-				CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
+			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
-				// Disconnect from DDE client.
-				m_pDDEServer->DestroyConversation(pNetConv->m_pCltConv);
-			}
-
-			// Discard NetDDE conversations.
-			pService->m_aoNetConvs.DeleteAll();
+			// Disconnect from DDE client.
+			m_pDDEServer->DestroyConversation(pNetConv->m_pCltConv);
 		}
+
+		// Discard NetDDE conversations.
+		pService->m_aoNetConvs.DeleteAll();
 	}
 
 	// Flush link cache, if all connections closed.
 	if ( (m_pDDEServer->GetNumConversations() == 0) && (m_oLinkCache.Size() > 0) )
 		m_oLinkCache.Purge();
+}
+
+/******************************************************************************
+** Method:		OnError()
+**
+** Description:	An error has occured on the socket.
+**
+** Parameters:	pSocket		The socket.
+**				nEvent		The event that caused the error.
+**				nError		The error code.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDECltApp::OnError(CSocket* /*pSocket*/, int nEvent, int nError)
+{
+	Trace("SOCKET_ERROR: %s [%s]", CWinSock::ErrorToSymbol(nError), CSocket::AsyncEventStr(nEvent));
+}
+
+/******************************************************************************
+** Method:		OnTimer()
+**
+** Description:	The timer has gone off, process background tasks.
+**
+** Parameters:	nTimerID	The timer ID.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDECltApp::OnTimer(uint /*nTimerID*/)
+{
+	UpdateStats();
 }
 
 /******************************************************************************
@@ -1474,6 +1470,9 @@ void CNetDDECltApp::OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPa
 
 	// Close connection to server.
 	oService.m_oConnection.Close();
+
+	// Cleanup.
+	OnClosed(&oService.m_oConnection, 0);
 }
 
 /******************************************************************************
@@ -1571,6 +1570,8 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 		oStream >> nFormat;
 		oStream >> oData;
 		oStream >> bEoP;
+
+		ASSERT(bEoP);
 
 		if (App.m_bTraceUpdates)
 		{
@@ -1833,7 +1834,7 @@ void CNetDDECltApp::OnPostInitalUpdates()
 **
 ** Returns:		Nothing.
 **
-** Exceptions:	CPipeException.
+** Exceptions:	CSocketException.
 **
 *******************************************************************************
 */
@@ -1844,15 +1845,11 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	if (pService->m_oConnection.IsOpen())
 		return;
 
-	CString strPipeName;
-
-	strPipeName.Format(NETDDE_PIPE_FORMAT, pService->m_oCfg.m_strServer, pService->m_oCfg.m_strPipeName);
-
 	if (m_bTraceNetConns)
-		App.Trace("PIPE_STATUS: Connecting to %s", strPipeName);
+		App.Trace("SOCKET_STATUS: Connecting to %s:%u", pService->m_oCfg.m_strServer, pService->m_oCfg.m_nServerPort);
 
 	// Open the connection to the server
-	pService->m_oConnection.Open(strPipeName);
+	pService->m_oConnection.Connect(pService->m_oCfg.m_strServer, pService->m_oCfg.m_nServerPort);
 
 	bool bAccept;
 
@@ -1891,7 +1888,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	oRspStream.Close();
 
 	if (!bAccept)
-		throw CPipeException(CPipeException::E_BAD_PROTOCOL, 0);
+		throw CSocketException(CSocketException::E_BAD_PROTOCOL, 0);
 
 	// Update stats.
 	++m_nPktsSent;
@@ -1963,4 +1960,25 @@ void CNetDDECltApp::OnThreadMsg(UINT nMsg, WPARAM /*wParam*/, LPARAM /*lParam*/)
 	// Forward to real handler.
 	if (nMsg == WM_POST_INITIAL_UPDATES)
 		OnPostInitalUpdates();
+}
+
+/******************************************************************************
+** Method:		CloseConnection()
+**
+** Description:	Close the connection to the server.
+**
+** Parameters:	pService		The service to terminate.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDECltApp::CloseConnection(CNetDDEService* pService)
+{
+	// Graceful close, if possible.
+	ServerDisconnect(pService);
+
+	// Cleanup.
+	OnClosed(&pService->m_oConnection, 0);
 }

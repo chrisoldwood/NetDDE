@@ -244,6 +244,9 @@ void CAppCmds::OnOptionsServices()
 
 			// Add to collection.
 			App.m_aoServices.Add(pService);
+
+			// Attach event handler.
+			pService->m_oConnection.AddClientListener(&App);
 		}
 	}
 }

@@ -35,8 +35,6 @@
 #define IDC_UPDATES                     1088
 #define IDC_DISCARD_DUPS                1088
 #define IDC_REQUESTS                    1089
-#define IDC_NET_TIMEOUT                 1089
-#define IDC_NET_TIMEOUT2                1090
 #define IDC_DDE_TIMEOUT                 1090
 #define IDC_WINDOW                      1094
 #define IDC_FILE                        1095

@@ -133,7 +133,7 @@ void CServicesDlg::OnAdd()
 	Dlg.m_strLocName    = "";
 	Dlg.m_bTextOnly     = false;
 	Dlg.m_strServer     = "";
-	Dlg.m_strPipe       = NETDDE_PIPE_DEFAULT;
+	Dlg.m_nPort         = NETDDE_PORT_DEFAULT;
 	Dlg.m_strDefaultVal = "#PNDG";
 	Dlg.m_bReqInitVal   = false;
 	Dlg.m_bAsyncAdvises = false;
@@ -150,7 +150,7 @@ void CServicesDlg::OnAdd()
 	pService->m_strLocName    = Dlg.m_strLocName;
 	pService->m_bTextOnly     = Dlg.m_bTextOnly;
 	pService->m_strServer     = Dlg.m_strServer;
-	pService->m_strPipeName   = Dlg.m_strPipe;
+	pService->m_nServerPort   = Dlg.m_nPort;
 	pService->m_strInitialVal = Dlg.m_strDefaultVal;
 	pService->m_bReqInitalVal = Dlg.m_bReqInitVal;
 	pService->m_bAsyncAdvises = Dlg.m_bAsyncAdvises;
@@ -202,7 +202,7 @@ void CServicesDlg::OnEdit()
 	Dlg.m_strLocName    = pService->m_strLocName;
 	Dlg.m_bTextOnly     = pService->m_bTextOnly;
 	Dlg.m_strServer     = pService->m_strServer;
-	Dlg.m_strPipe       = pService->m_strPipeName;
+	Dlg.m_nPort         = pService->m_nServerPort;
 	Dlg.m_strDefaultVal = pService->m_strInitialVal;
 	Dlg.m_bReqInitVal   = pService->m_bReqInitalVal;
 	Dlg.m_bAsyncAdvises = pService->m_bAsyncAdvises;
@@ -217,7 +217,7 @@ void CServicesDlg::OnEdit()
 	pService->m_strLocName    = Dlg.m_strLocName;
 	pService->m_bTextOnly     = Dlg.m_bTextOnly;
 	pService->m_strServer     = Dlg.m_strServer;
-	pService->m_strPipeName   = Dlg.m_strPipe;
+	pService->m_nServerPort   = Dlg.m_nPort;
 	pService->m_strInitialVal = Dlg.m_strDefaultVal;
 	pService->m_bReqInitalVal = Dlg.m_bReqInitVal;
 	pService->m_bAsyncAdvises = Dlg.m_bAsyncAdvises;

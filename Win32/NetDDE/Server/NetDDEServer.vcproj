@@ -309,25 +309,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="NetDDESvrPipe.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""/>
-				</FileConfiguration>
+				RelativePath=".\NetDDESvrSocket.cpp">
 			</File>
 			<File
 				RelativePath=".\OptionsDlg.cpp">
@@ -367,7 +349,7 @@
 				RelativePath="NetDDESvrApp.hpp">
 			</File>
 			<File
-				RelativePath="NetDDESvrPipe.hpp">
+				RelativePath=".\NetDDESvrSocket.hpp">
 			</File>
 			<File
 				RelativePath=".\OptionsDlg.hpp">

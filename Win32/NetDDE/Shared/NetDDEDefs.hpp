@@ -19,9 +19,8 @@
 *******************************************************************************
 */
 
-// The NetDDE pipe name format.
-#define NETDDE_PIPE_DEFAULT		"NET_DDE_SERVER"
-#define NETDDE_PIPE_FORMAT		"\\\\%s\\pipe\\%s"
+// The NetDDE socket defaults.
+const uint NETDDE_PORT_DEFAULT = 8888;
 
 // The NetDDE protocol version.
 const uint16 NETDDE_PROTOCOL = 2;
