@@ -224,14 +224,18 @@ SOURCE=.\NetRecv.ico
 
 SOURCE=.\NetSend.ico
 # End Source File
-# Begin Source File
-
-SOURCE=.\Toolbar.bmp
-# End Source File
 # End Group
 # Begin Source File
 
 SOURCE=.\NetDDEServer.ini
+# End Source File
+# Begin Source File
+
+SOURCE=..\Shared\ReadMe.txt
+# End Source File
+# Begin Source File
+
+SOURCE=..\Shared\RelNotes.txt
 # End Source File
 # Begin Source File
 
