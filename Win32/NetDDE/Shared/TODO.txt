@@ -1,0 +1,7 @@
+- Support custom data formats.
+
+- Make conv handle for topic, not service.
+
+- Send disconnect to client when server connection lost.
+
+- Trap all server<->client read/write errors and log.
