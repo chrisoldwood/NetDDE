@@ -361,6 +361,9 @@
 				RelativePath=".\LinksDlg.hpp">
 			</File>
 			<File
+				RelativePath=".\NetDDEConv.hpp">
+			</File>
+			<File
 				RelativePath="NetDDESvrApp.hpp">
 			</File>
 			<File

@@ -35,6 +35,7 @@
 #include "NetDDEShared.hpp"
 
 // App data classes.
+#include "NetDDEConv.hpp"
 #include "NetDDESvrPipe.hpp"
 
 // App GUI classes.
