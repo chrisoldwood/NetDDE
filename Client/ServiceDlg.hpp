@@ -34,6 +34,7 @@ public:
 	CString	m_strServer;
 	CString	m_strPipe;
 	bool	m_bAsync;
+	bool	m_bTextOnly;
 	
 protected:
 	//
@@ -43,6 +44,7 @@ protected:
 	CEditBox	m_ebServer;
 	CEditBox	m_ebPipe;
 	CCheckBox	m_ckAsync;
+	CCheckBox	m_ckTextOnly;
 
 	//
 	// Message handlers.

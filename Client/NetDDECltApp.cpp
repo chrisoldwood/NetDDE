@@ -348,6 +348,7 @@ void CNetDDECltApp::LoadConfig()
 				pService->m_oCfg.m_strServer     = strServer;
 				pService->m_oCfg.m_strPipeName   = strPipeName;
 				pService->m_oCfg.m_bAsyncAdvises = m_oIniFile.ReadBool(strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
+				pService->m_oCfg.m_bTextOnly     = m_oIniFile.ReadBool(strSection, "TextOnly",     pService->m_oCfg.m_bTextOnly    );
 
 				m_aoServices.Add(pService);
 			}
@@ -410,6 +411,7 @@ void CNetDDECltApp::SaveConfig()
 		m_oIniFile.WriteString(strSection, "Server",       pService->m_oCfg.m_strServer    );
 		m_oIniFile.WriteString(strSection, "Pipe",         pService->m_oCfg.m_strPipeName  );
 		m_oIniFile.WriteBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
+		m_oIniFile.WriteBool  (strSection, "TextOnly",     pService->m_oCfg.m_bTextOnly    );
 	}
 
 	// Write the trace settings.
@@ -689,6 +691,10 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 	// Valid service name AND connection open?
 	if ( (pService != NULL) && (pService->m_oConnection.IsOpen()) )
 	{
+		// Service only supports CF_TEXT?
+		if ( (pService->m_oCfg.m_bTextOnly) && (nFormat != CF_TEXT) )
+			return false;
+
 		try
 		{
 			// Create conversation message.
@@ -772,6 +778,10 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 	// Valid service name?
 	if ( (pService != NULL) && (pService->m_oConnection.IsOpen()) )
 	{
+		// Service only supports CF_TEXT?
+		if ( (pService->m_oCfg.m_bTextOnly) && (nFormat != CF_TEXT) )
+			return false;
+
 		try
 		{
 			// Sync or Async advise?

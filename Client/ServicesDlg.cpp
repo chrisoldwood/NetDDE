@@ -132,6 +132,7 @@ void CServicesDlg::OnAdd()
 	Dlg.m_strServer  = "";
 	Dlg.m_strPipe    = NETDDE_PIPE_DEFAULT;
 	Dlg.m_bAsync     = false;
+	Dlg.m_bTextOnly  = false;
 
 	// Show config dialog.
 	if (Dlg.RunModal(*this) != IDOK)
@@ -144,6 +145,7 @@ void CServicesDlg::OnAdd()
 	pService->m_strServer     = Dlg.m_strServer;
 	pService->m_strPipeName   = Dlg.m_strPipe;
 	pService->m_bAsyncAdvises = Dlg.m_bAsync;
+	pService->m_bTextOnly     = Dlg.m_bTextOnly;
 
 	m_aoServices.Add(pService);
 
@@ -191,6 +193,7 @@ void CServicesDlg::OnEdit()
 	Dlg.m_strServer  = pService->m_strServer;
 	Dlg.m_strPipe    = pService->m_strPipeName;
 	Dlg.m_bAsync     = pService->m_bAsyncAdvises;
+	Dlg.m_bTextOnly  = pService->m_bTextOnly;
 
 	// Show config dialog.
 	if (Dlg.RunModal(*this) != IDOK)
@@ -201,6 +204,7 @@ void CServicesDlg::OnEdit()
 	pService->m_strServer     = Dlg.m_strServer;
 	pService->m_strPipeName   = Dlg.m_strPipe;
 	pService->m_bAsyncAdvises = Dlg.m_bAsync;
+	pService->m_bTextOnly     = Dlg.m_bTextOnly;
 
 	// Update UI.
 	m_lvServices.ItemText(nSel, 0, pService->m_strService);
