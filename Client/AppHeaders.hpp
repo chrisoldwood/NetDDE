@@ -37,6 +37,7 @@
 // App data classes.
 #include "NetDDECltPipe.hpp"
 #include "NetDDESvcCfg.hpp"
+#include "NetDDEConv.hpp"
 #include "NetDDEService.hpp"
 
 // App GUI classes.
