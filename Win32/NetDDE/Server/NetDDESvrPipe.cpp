@@ -49,189 +49,67 @@ CNetDDESvrPipe::~CNetDDESvrPipe()
 	Close();
 
 	// Cleanup.
-	m_aoLinks.RemoveAll();
-	m_aoConvs.RemoveAll();
+	m_aoNetConvs.DeleteAll();
 }
 
 /******************************************************************************
-** Method:		AddConversation()
+** Method:		FindNetConv()
 **
-** Description:	Adds the conversation to the list used by this connection.
+** Description:	Find the NetDDE conversation by its DDE conversation and ID.
 **
-** Parameters:	pConv	The conversation.
+** Parameters:	pConv	The DDE conversation.
+**				nConvID	The conversation ID.
 **
-** Returns:		Nothing.
+** Returns:		The NetDDE conversation or NULL.
 **
 *******************************************************************************
 */
 
-void CNetDDESvrPipe::AddConversation(CDDECltConv* pConv)
+CNetDDEConv* CNetDDESvrPipe::FindNetConv(CDDECltConv* pConv, uint32 nConvID) const
 {
-	ASSERT(pConv != NULL);
-
-	m_aoConvs.Add(pConv);
-}
-
-/******************************************************************************
-** Method:		RemoveConversation()
-**
-** Description:	Removes the conversation from the list used by this connection.
-**				NB: It also removes all links associated with the conversation.
-**
-** Parameters:	pConv	The conversation.
-**
-** Returns:		Nothing.
-**
-*******************************************************************************
-*/
-
-void CNetDDESvrPipe::RemoveConversation(CDDECltConv* pConv)
-{
-	ASSERT(pConv != NULL);
-	ASSERT(UsesConversation(pConv));
-
-	RemoveAllConvLinks(pConv);
-
-	// Remove the conversation.
-	m_aoConvs.Remove(m_aoConvs.Find(pConv));
-}
-
-/******************************************************************************
-** Method:		UsesConversation()
-**
-** Description:	Queries if this connection uses the conversation.
-**
-** Parameters:	pConv	The conversation.
-**
-** Returns:		true or false.
-**
-*******************************************************************************
-*/
-
-bool CNetDDESvrPipe::UsesConversation(CDDECltConv* pConv)
-{
-	ASSERT(pConv != NULL);
-
-	return (m_aoConvs.Find(pConv) != -1);
-}
-
-/******************************************************************************
-** Method:		GetConversations()
-**
-** Description:	Gets the list of conversations used by the connection.
-**
-** Parameters:	aoConvs		The array to return the list.
-**
-** Returns:		Nothing.
-**
-*******************************************************************************
-*/
-
-void CNetDDESvrPipe::GetConversations(CConvs& aoConvs)
-{
-	for (int i = 0; i < m_aoConvs.Size(); ++i)
-		aoConvs.Add(m_aoConvs[i]);
-}
-
-/******************************************************************************
-** Method:		AddLink()
-**
-** Description:	Adds the link to the list used by this connection.
-**
-** Parameters:	pLink	The link.
-**
-** Returns:		Nothing.
-**
-*******************************************************************************
-*/
-
-void CNetDDESvrPipe::AddLink(CDDELink* pLink)
-{
-	ASSERT(pLink != NULL);
-
-	m_aoLinks.Add(pLink);
-}
-
-/******************************************************************************
-** Method:		RemoveLink()
-**
-** Description:	Removes the link from the list used by this connection.
-**
-** Parameters:	pLink	The link.
-**
-** Returns:		Nothing.
-**
-*******************************************************************************
-*/
-
-void CNetDDESvrPipe::RemoveLink(CDDELink* pLink)
-{
-	ASSERT(pLink != NULL);
-	ASSERT(UsesLink(pLink));
-
-	m_aoLinks.Remove(m_aoLinks.Find(pLink));
-}
-
-/******************************************************************************
-** Method:		RemoveAllConvLinks()
-**
-** Description:	Removes all links from the list used by the conversation.
-**
-** Parameters:	pConv	The conversation.
-**
-** Returns:		Nothing.
-**
-*******************************************************************************
-*/
-
-void CNetDDESvrPipe::RemoveAllConvLinks(CDDECltConv* pConv)
-{
-	ASSERT(pConv != NULL);
-	ASSERT(UsesConversation(pConv));
-
-	// Remove all links associated with conversation.
-	for (int i = m_aoLinks.Size()-1; i >= 0; --i)
+	// For all conversations...
+	for (int j = 0; j < m_aoNetConvs.Size(); ++j)
 	{
-		CDDELink* pLink = m_aoLinks[i];
+		CNetDDEConv* pNetConv = m_aoNetConvs[j];
 
-		if (pLink->Conversation() == pConv)
-			m_aoLinks.Remove(i);
+		// Matches?
+		if ((pNetConv->m_pSvrConv == pConv) && (pNetConv->m_nSvrConvID == nConvID))
+			return pNetConv;
 	}
+
+	return NULL;
 }
 
 /******************************************************************************
-** Method:		UsesLink()
+** Method:		IsLinkUsed()
 **
-** Description:	Queries if this connection uses the link.
+** Description:	Checks if the link is referenced by any of the connections'
+**				conversations.
 **
-** Parameters:	pLink	The link.
+** Parameters:	pLink	The DDE link.
 **
 ** Returns:		true or false.
 **
 *******************************************************************************
 */
 
-bool CNetDDESvrPipe::UsesLink(CDDELink* pLink)
+bool CNetDDESvrPipe::IsLinkUsed(CDDELink* pLink) const
 {
-	ASSERT(pLink != NULL);
+	CDDEConv* pConv = pLink->Conversation();
 
-	return (m_aoLinks.Find(pLink) != -1);
-}
+	// For all conversations...
+	for (int i = 0; i < m_aoNetConvs.Size(); ++i)
+	{
+		CNetDDEConv* pNetConv = m_aoNetConvs[i];
 
-/******************************************************************************
-** Method:		GetLinks()
-**
-** Description:	Gets the list of links used by the connection.
-**
-** Parameters:	aoLinks		The array to return the list.
-**
-** Returns:		Nothing.
-**
-*******************************************************************************
-*/
+		// Ignore, if different conversation.
+		if (pNetConv->m_pSvrConv != pConv)
+			continue;
 
-void CNetDDESvrPipe::GetLinks(CLinks& aoLinks)
-{
-	for (int i = 0; i < m_aoLinks.Size(); ++i)
-		aoLinks.Add(m_aoLinks[i]);
+		// Conversation references link?
+		if (pNetConv->m_aoLinks.Find(pLink) != -1)
+			return true;
+	}
+
+	return false;
 }
