@@ -106,7 +106,10 @@ void CAppWnd::OnUserMsg(uint /*nMsg*/, WPARAM /*wParam*/, LPARAM lParam)
 	{
 		// Restore window, if minimsed.
 		if (!::IsWindowVisible(m_hWnd))
+		{
 			Show(SW_SHOWNORMAL);
+			::SetForegroundWindow(m_hWnd);
+		}
 	}
 	// Icon clicked with right button?
 	else if ( (lParam == WM_RBUTTONUP) || (lParam == WM_CONTEXTMENU) )
@@ -168,6 +171,18 @@ void CAppWnd::OnFocus()
 
 bool CAppWnd::OnQueryClose()
 {
+	// Warn user if server in use.
+	if (App.m_aoConnections.Size() > 0)
+	{
+		CString strMsg;
+
+		strMsg.Format("There are %d client(s) connected to the server.\n\nAre you sure you want to close it?", App.m_aoConnections.Size());
+
+		// Abort if NO or CANCEL.
+		if (QueryMsg(strMsg) != IDYES)
+			return false;
+	}
+
 	// Remove the tray icon.
 	m_oTrayIcon.Remove();
 
