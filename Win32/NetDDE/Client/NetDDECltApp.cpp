@@ -809,6 +809,9 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 
 			oData.SetBuffer(pValue->m_oLastValue);
 
+			if (m_bTraceRequests)
+				App.Trace("DDE_REQUEST: %s %s %s %s [%s]", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat), oData.GetString());
+
 			return true;
 		}
 
@@ -1855,7 +1858,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	oRspStream.Close();
 
 	if (!bAccept)
-		throw CException(CException::E_GENERIC, "Invalid protocol: %u", NETDDE_PROTOCOL);
+		throw CPipeException(CPipeException::E_BAD_PROTOCOL, 0);
 
 	// Update stats.
 	++m_nPktsSent;
