@@ -349,6 +349,11 @@ void CNetDDECltApp::LoadConfig()
 	// Read the file version.
 	CString strVer = m_oIniFile.ReadString("Version", "Version", INI_FILE_VER);
 
+	// Read the general settings.
+	m_bTrayIcon   = m_oIniFile.ReadBool("Main", "TrayIcon",     m_bTrayIcon  );
+	m_bMinToTray  = m_oIniFile.ReadBool("Main", "MinToTray",    m_bMinToTray );
+	m_nNetTimeOut = m_oIniFile.ReadInt ("Main", "NetTimeOut",   m_nNetTimeOut);
+
 	// Read the service descriptions.
 	int nCount = m_oIniFile.ReadInt("Services", "Count", 0);
 
@@ -401,11 +406,6 @@ void CNetDDECltApp::LoadConfig()
 	m_nTraceLines    = m_oIniFile.ReadInt   ("Trace", "Lines",          m_nTraceLines   );
 	m_bTraceToFile   = m_oIniFile.ReadBool  ("Trace", "ToFile",         m_bTraceToFile  );
 	m_strTraceFile   = m_oIniFile.ReadString("Trace", "FileName",       m_strTraceFile  );
-
-	// Read the general settings.
-	m_bTrayIcon    = m_oIniFile.ReadBool("Main", "TrayIcon",     m_bTrayIcon  );
-	m_bMinToTray   = m_oIniFile.ReadBool("Main", "MinToTray",    m_bMinToTray );
-	m_nNetTimeOut  = m_oIniFile.ReadInt ("Main", "NetTimeOut",   m_nNetTimeOut);
 
 	// Read the window pos and size.
 	m_rcLastPos.left   = m_oIniFile.ReadInt("UI", "Left",   0);
