@@ -41,6 +41,7 @@ CAppCmds::CAppCmds()
 		// View menu.
 		CMD_ENTRY(ID_VIEW_CLIENT_CONNS,	OnViewClientConns,	NULL,				-1)
 		CMD_ENTRY(ID_VIEW_DDE_CONVS,	OnViewDDEConvs,		NULL,				-1)
+		CMD_ENTRY(ID_VIEW_CLEAR_TRACE,	OnViewClearTrace,	NULL,				-1)
 		// Options menu.
 		CMD_ENTRY(ID_OPTIONS_GENERAL,	OnOptionsGeneral,	NULL,				-1)
 		CMD_ENTRY(ID_OPTIONS_TRACE,		OnOptionsTrace,		NULL,				-1)
@@ -118,6 +119,23 @@ void CAppCmds::OnViewDDEConvs()
 	CDDEConvsDlg Dlg;
 
 	Dlg.RunModal(App.m_rMainWnd);
+}
+
+/******************************************************************************
+** Method:		OnViewClearTrace()
+**
+** Description:	Clear the trace window.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppCmds::OnViewClearTrace()
+{
+	App.m_AppWnd.m_AppDlg.Clear();
 }
 
 /******************************************************************************
