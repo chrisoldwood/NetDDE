@@ -38,6 +38,7 @@
 #define IDC_FILE_NAME                   1098
 #define IDC_MIN_TO_TRAY                 1101
 #define IDC_TRAY_ICON                   1102
+#define ID_VIEW_CLEAR_TRACE             3068
 #define IDD_MAIN                        5000
 #define IDD_ABOUT                       5001
 #define IDD_TRACE_OPTIONS               5002
