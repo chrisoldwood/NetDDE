@@ -36,6 +36,8 @@ public:
 	//
 	CNetDDEService* Service() const;
 
+	void SetTimeOut(uint nTimeOut);
+
 	//
 	// Methods.
 	//
@@ -67,6 +69,11 @@ protected:
 inline CNetDDEService* CNetDDECltSocket::Service() const
 {
 	return m_pService;
+}
+
+inline void CNetDDECltSocket::SetTimeOut(uint nTimeOut)
+{
+	m_nTimeOut = nTimeOut;
 }
 
 inline void CNetDDECltSocket::QueueResponsePacket(CNetDDEPacket* pPacket)
