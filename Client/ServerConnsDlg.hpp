@@ -51,6 +51,8 @@ protected:
 	//
 	virtual void OnInitDialog();
 	virtual bool OnOk();
+
+	LRESULT OnDblClkServer(NMHDR& oMsgHdr);
 };
 
 /******************************************************************************

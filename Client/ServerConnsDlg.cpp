@@ -32,11 +32,12 @@ CServerConnsDlg::CServerConnsDlg()
 	: CDialog(IDD_SERVER_CONNS)
 {
 	DEFINE_CTRL_TABLE
-		CTRL(IDC_GRID,	&m_lvGrid)
+		CTRL(IDC_GRID, &m_lvGrid)
 	END_CTRL_TABLE
 
-//	DEFINE_CTRLMSG_TABLE
-//	END_CTRLMSG_TABLE
+	DEFINE_CTRLMSG_TABLE
+		NFY_CTRLMSG(IDC_GRID,  NM_DBLCLK,  OnDblClkServer)
+	END_CTRLMSG_TABLE
 }
 
 /******************************************************************************
@@ -91,4 +92,21 @@ void CServerConnsDlg::OnInitDialog()
 bool CServerConnsDlg::OnOk()
 {
 	return true;
+}
+
+/******************************************************************************
+** Method:		OnDblClkServer()
+**
+** Description:	Double-clicked a server. Show the links.
+**
+** Parameters:	rMsgHdr		The WM_NOTIFY msg header.
+**
+** Returns:		0.
+**
+*******************************************************************************
+*/
+
+LRESULT CServerConnsDlg::OnDblClkServer(NMHDR& /*oMsgHdr*/)
+{
+	return 0;
 }
