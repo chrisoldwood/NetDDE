@@ -90,10 +90,6 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\AboutDlg.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\App.rc
 # End Source File
 # Begin Source File
@@ -110,7 +106,11 @@ SOURCE=.\AppWnd.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ConnsDlg.cpp
+SOURCE=.\ClientConnsDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DDEConvsDlg.cpp
 # End Source File
 # Begin Source File
 
@@ -120,13 +120,17 @@ SOURCE=.\NetDDESvrApp.cpp
 
 SOURCE=.\NetDDESvrPipe.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\OptionsDlg.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\AboutDlg.hpp
+SOURCE=..\Shared\AboutDlg.hpp
 # End Source File
 # Begin Source File
 
@@ -146,7 +150,15 @@ SOURCE=.\AppWnd.hpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ConnsDlg.hpp
+SOURCE=.\ClientConnsDlg.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DDEConvsDlg.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\Shared\LinkValue.hpp
 # End Source File
 # Begin Source File
 
@@ -170,7 +182,15 @@ SOURCE=.\NetDDESvrPipe.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\OptionsDlg.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\Shared\TraceOptionsDlg.hpp
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -183,6 +203,26 @@ SOURCE=.\App.ico
 # Begin Source File
 
 SOURCE=.\App.rcv
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetBoth.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetIdle.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetLost.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetRecv.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetSend.ico
 # End Source File
 # Begin Source File
 

@@ -90,10 +90,6 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\AboutDlg.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\App.rc
 # End Source File
 # Begin Source File
@@ -110,20 +106,36 @@ SOURCE=.\AppWnd.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\DDEConvsDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\NetDDECltApp.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\NetDDECltPipe.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\OptionsDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerConnsDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServiceDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServicesDlg.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\AboutDlg.hpp
-# End Source File
 # Begin Source File
 
 SOURCE=.\AppCmds.hpp
@@ -139,6 +151,14 @@ SOURCE=.\AppHeaders.hpp
 # Begin Source File
 
 SOURCE=.\AppWnd.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DDEConvsDlg.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\Shared\LinkValue.hpp
 # End Source File
 # Begin Source File
 
@@ -166,7 +186,31 @@ SOURCE=.\NetDDEService.hpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\NetDDESvcCfg.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OptionsDlg.hpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerConnsDlg.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServiceDlg.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServicesDlg.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\Shared\TraceOptionsDlg.hpp
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -179,6 +223,26 @@ SOURCE=.\App.ico
 # Begin Source File
 
 SOURCE=.\App.rcv
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetBoth.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetIdle.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetLost.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetRecv.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetSend.ico
 # End Source File
 # Begin Source File
 
