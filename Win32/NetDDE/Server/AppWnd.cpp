@@ -104,17 +104,35 @@ void CAppWnd::OnUserMsg(uint /*nMsg*/, WPARAM /*wParam*/, LPARAM lParam)
 	// Icon double-clicked with left button?
 	if (lParam == WM_LBUTTONDBLCLK)
 	{
-		// Restore window, if minimsed.
-		if (!::IsWindowVisible(m_hWnd))
-		{
-			Show(SW_SHOWNORMAL);
-			::SetForegroundWindow(m_hWnd);
-		}
+		Restore();
 	}
 	// Icon clicked with right button?
 	else if ( (lParam == WM_RBUTTONUP) || (lParam == WM_CONTEXTMENU) )
 	{
+		// Required to allow menu to be dismissed.
+		::SetForegroundWindow(m_hWnd);
+
+		CPopupMenu oMenu(IDR_TRAYMENU);
+
+		// Disable relevant commands.
+		oMenu.EnableCmd(ID_TRAY_RESTORE, (IsMinimised() || !IsVisible()));
+
 		// Show context menu.
+		uint nCmdID = oMenu.TrackMenu(*this, CCursor::CurrentPos());
+
+		if (nCmdID != 0)
+		{
+			// Handle command.
+			switch (nCmdID)
+			{
+				case ID_TRAY_RESTORE:	Restore();				break;
+				case ID_TRAY_EXIT:		Close();				break;
+				default:				ASSERT_FALSE();			break;
+			}
+		}
+
+		// Required to allow menu to be dismissed.
+		PostMessage(WM_NULL);
 	}
 }
 
@@ -209,4 +227,26 @@ void CAppWnd::OnClose()
 
 	// Fetch windows final placement.
 	App.m_rcLastPos = Placement();
+}
+
+/******************************************************************************
+** Method:		Restore()
+**
+** Description:	Restore the window from the system tray or taskbar.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppWnd::Restore()
+{
+	// Not already restored?
+	if (!IsVisible() || IsMinimised())
+	{
+		Show(SW_SHOWNORMAL);
+		::SetForegroundWindow(m_hWnd);
+	}
 }

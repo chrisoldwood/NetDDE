@@ -72,6 +72,11 @@ protected:
 	virtual void OnFocus();
 	virtual bool OnQueryClose();
 	virtual void OnClose();
+
+	//
+	// Internal methods.
+	//
+	void Restore();
 };
 
 /******************************************************************************
