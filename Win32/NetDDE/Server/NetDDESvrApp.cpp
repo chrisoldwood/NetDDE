@@ -684,21 +684,6 @@ void CNetDDESvrApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 
 		if (App.m_bTraceNetConns)
 			App.Trace("SOCKET_STATUS: Connection closed from %s", pConnection->Host());
-
-		// Close all DDE conversations.
-		for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
-		{
-			CNetDDEConv* pNetConv = pConnection->m_aoNetConvs[j];
-
-			// Purge link cache, if last reference.
-			if (pNetConv->m_pSvrConv->RefCount() == 1)
-				m_oLinkCache.Purge(pNetConv->m_pSvrConv);
-
-			m_pDDEClient->DestroyConversation(pNetConv->m_pSvrConv);
-		}
-
-		// Delete from collection.
-		m_aoConnections.Delete(m_aoConnections.Find(pConnection));
 	}
 	// Listening socket.
 	else // (pSocket == &m_oSvrSocket)
@@ -708,9 +693,8 @@ void CNetDDESvrApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 		m_AppWnd.Destroy();
 	}
 
-	// Flush value cache, if all connections closed.
-	if ( (m_aoConnections.Size() == 0) && (m_oLinkCache.Size() > 0) )
-		m_oLinkCache.Purge();
+	// Cleanup later.
+	m_MainThread.PostMessage(WM_POLL_SOCKETS);
 }
 
 /******************************************************************************
@@ -1629,6 +1613,10 @@ void CNetDDESvrApp::OnPollSockets()
 			{
 				CNetDDESvrSocket* pConnection = m_aoConnections[i];
 
+				// Ignore, if no longer open.
+				if (!pConnection->IsOpen())
+					continue;
+
 				try
 				{
 					CNetDDEPacket oPacket;
@@ -1663,5 +1651,34 @@ void CNetDDESvrApp::OnPollSockets()
 				}
 			}
 		}
+
+		// For all connections...
+		for (int i = 0; i < m_aoConnections.Size(); ++i)
+		{
+			CNetDDESvrSocket* pConnection = m_aoConnections[i];
+
+			// Connection now closed?
+			if (!pConnection->IsOpen())
+			{
+				// Close all DDE conversations.
+				for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+				{
+					CNetDDEConv* pNetConv = pConnection->m_aoNetConvs[j];
+
+					// Purge link cache, if last reference.
+					if (pNetConv->m_pSvrConv->RefCount() == 1)
+						m_oLinkCache.Purge(pNetConv->m_pSvrConv);
+
+					m_pDDEClient->DestroyConversation(pNetConv->m_pSvrConv);
+				}
+
+				// Delete from collection.
+				m_aoConnections.Delete(m_aoConnections.Find(pConnection));
+			}
+		}
+
+		// Flush value cache, if all connections closed.
+		if ( (m_aoConnections.Size() == 0) && (m_oLinkCache.Size() > 0) )
+			m_oLinkCache.Purge();
 	}
 }
