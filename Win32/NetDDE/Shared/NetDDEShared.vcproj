@@ -4,6 +4,10 @@
 	Version="7.10"
 	Name="NetDDEShared"
 	ProjectGUID="{FF44612A-69E1-42B8-B8B2-E1E3CDF9ADA0}"
+	SccProjectName="SAK"
+	SccAuxPath="SAK"
+	SccLocalPath="SAK"
+	SccProvider="SAK"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -149,6 +153,12 @@
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt">
+		</File>
+		<File
+			RelativePath=".\RelNotes.txt">
+		</File>
+		<File
+			RelativePath=".\TODO.txt">
 		</File>
 	</Files>
 	<Globals>
