@@ -18,8 +18,8 @@
 */
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION		1,0,0,0
-PRODUCTVERSION	1,0,0,0
+FILEVERSION		1,1,0,0
+PRODUCTVERSION	1,1,0,0
 FILEFLAGSMASK	VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
 FILEFLAGS		VS_FF_DEBUG | VS_FF_PRERELEASE
@@ -35,12 +35,12 @@ BEGIN
 		BLOCK "040904E4"
 		BEGIN
 			VALUE "FileDescription",  "Net DDE Client\0"
-			VALUE "FileVersion",      "1.0\0"
+			VALUE "FileVersion",      "1.1\0"
 			VALUE "InternalName",     "NetDDEClient.exe\0"
-			VALUE "LegalCopyright",   "(C) Chris Oldwood 2002\0"
+			VALUE "LegalCopyright",   "(C) Chris Oldwood 2002-2003\0"
 			VALUE "OriginalFilename", "NetDDEClient.exe\0"
 			VALUE "ProductName",      "Net DDE Bridge\0"
-			VALUE "ProductVersion",   "1.0\0"
+			VALUE "ProductVersion",   "1.1\0"
 #ifdef _DEBUG
 			VALUE "Comments",         "Debug Build\0"
 #endif

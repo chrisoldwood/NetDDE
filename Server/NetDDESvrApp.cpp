@@ -33,9 +33,9 @@ CNetDDESvrApp App;
 */
 
 #ifdef _DEBUG
-const char* CNetDDESvrApp::VERSION      = "v1.0 [Debug]";
+const char* CNetDDESvrApp::VERSION      = "v1.1 [Debug]";
 #else
-const char* CNetDDESvrApp::VERSION      = "v1.0";
+const char* CNetDDESvrApp::VERSION      = "v1.1";
 #endif
 
 const char* CNetDDESvrApp::INI_FILE_VER  = "1.0";
