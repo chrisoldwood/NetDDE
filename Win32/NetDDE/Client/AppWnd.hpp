@@ -31,6 +31,7 @@ public:
 	//
 	// Methods.
 	//
+	void ShowTrayIcon(bool bShow);
 
 	//
 	// Members.
@@ -38,6 +39,7 @@ public:
 	CAppDlg		m_AppDlg;
 	CFrameMenu	m_Menu;
 	CStatusBar	m_StatusBar;
+	CTrayIcon	m_oTrayIcon;
 
 protected:
 	//
@@ -52,10 +54,22 @@ protected:
 		IDC_STATUS_BAR = 101
 	};
 
+	// Tray icon IDs.
+	enum
+	{
+		TRAY_ICON_ID = 100,
+	};
+
+	// Tray icon message ID.
+	enum { WM_USER_TRAY_NOTIFY = WM_USER };
+
 	//
 	// Message processors.
 	//
 	virtual void OnCreate(const CRect& rcClient);
+	virtual void OnUserMsg(uint nMsg, WPARAM wParam, LPARAM lParam);
+	virtual void OnResize(int iFlag, const CSize& rNewSize);
+	virtual void OnFocus();
 	virtual bool OnQueryClose();
 };
 
@@ -65,5 +79,13 @@ protected:
 **
 *******************************************************************************
 */
+
+inline void CAppWnd::ShowTrayIcon(bool bShow)
+{
+	if (bShow)
+		m_oTrayIcon.Add(*this, TRAY_ICON_ID, WM_USER_TRAY_NOTIFY, IDI_NET_IDLE, "NetDDE Client");
+	else
+		m_oTrayIcon.Remove();
+}
 
 #endif //APPWND_HPP
