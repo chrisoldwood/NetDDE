@@ -65,12 +65,16 @@ void CAppDlg::OnInitDialog()
 
 void CAppDlg::Trace(const char* pszMsg)
 {
+	m_lbTrace.Redraw(false);
+
 	uint i = m_lbTrace.Add(pszMsg);
 
 	m_lbTrace.CurSel(i);
 
-	if (i >= App.m_nMaxTrace)
-		m_lbTrace.Delete(0);
+//	if (i >= App.m_nMaxTrace)
+//		m_lbTrace.Delete(0);
 
 //	m_lbTrace.Update();
+	m_lbTrace.Redraw(true);
+	m_lbTrace.Invalidate();
 }
