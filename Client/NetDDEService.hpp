@@ -35,9 +35,7 @@ public:
 	//
 	// Members.
 	//
-	CString			m_strService;
-	CString			m_strServer;
-	CString			m_strPipeName;
+	CNetDDESvcCfg	m_oCfg;
 	CNetDDECltPipe 	m_oConnection;
 	HCONV			m_hSvrConv;
 	CConvs			m_aoConvs;
