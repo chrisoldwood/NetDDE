@@ -1087,9 +1087,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 
 void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket)
 {
-	int nPktType = oReqPacket.DataType();
-
-	ASSERT(nPktType == CNetDDEPacket::DDE_START_ADVISE);
+	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_START_ADVISE);
 
 	bool         bResult = false;
 	CDDECltConv* pConv = NULL;
