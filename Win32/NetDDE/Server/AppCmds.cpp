@@ -9,6 +9,7 @@
 */
 
 #include "AppHeaders.hpp"
+#include "ConnsDlg.hpp"
 #include "AboutDlg.hpp"
 
 /******************************************************************************
@@ -29,6 +30,8 @@ CAppCmds::CAppCmds()
 	DEFINE_CMD_TABLE
 		// File menu.
 		CMD_ENTRY(ID_FILE_EXIT,			OnFileExit,			NULL,				-1)
+		// View menu.
+		CMD_ENTRY(ID_VIEW_CONNECTIONS,	OnViewConnections,	NULL,				-1)
 		// Help menu.
 		CMD_ENTRY(ID_HELP_ABOUT,		OnHelpAbout,		NULL,				10)
 	END_CMD_TABLE
@@ -65,6 +68,25 @@ CAppCmds::~CAppCmds()
 void CAppCmds::OnFileExit()
 {
 	App.m_AppWnd.Close();
+}
+
+/******************************************************************************
+** Method:		OnViewConnections()
+**
+** Description:	Show the connection list dialog.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppCmds::OnViewConnections()
+{
+	CConnsDlg Dlg;
+
+	Dlg.RunModal(App.m_rMainWnd);
 }
 
 /******************************************************************************
