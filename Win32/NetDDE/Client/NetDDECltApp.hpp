@@ -129,6 +129,8 @@ protected:
 	virtual void OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink);
 	virtual bool OnAdviseRequest(CDDESvrConv* pConv, CDDELink* pLink, CDDEData& oData);
 	virtual void OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink);
+	virtual bool OnExecute(CDDESvrConv* pConv, const CString& strCmd);
+	virtual bool OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat, const CDDEData& oData);
 
 	//
 	// Message handlers.
