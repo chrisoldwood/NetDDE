@@ -1,3 +1,26 @@
+Version 2.0
+===========
+
+- Changed networking code to use asynchronous sockets instead of polling named pipes.
+- Added support for re-entrancy so that calls from different DDE clients can be interleaved.
+- Added support for simultaneous conversations on same/different topics on the same service.
+- Fixed various bugs relating to the incorrect lifetime of HDDEDATA handles.
+- Added UI for setting the DDE and network time-outs.
+- Added support for detecting and discarding duplicate advises.
+- Added support for XTYP_POKE and XTYP_EXECUTE transaction types.
+- Added tooltip to system tray icon to show number of connections/conversations.
+- Added context menu to the system tray icon to restore or close the application.
+- Fixed bug handling WM_QUERYENDSESSION where the window state was not saved.
+- Changed client to disconnect from server when last conversation termianted.
+- Added support for using a different service name locally.
+- Added code to post an inital advise on advise start.
+- Added dialog to show the current links and values for each conversation.
+- Added support for caching items locally when linked to reduce unecessary requests.
+- Fixed bug where window was restored properly from system tray.
+- Added perforance settings for item formats and requesting values on advise start.
+- Fixed GPF casued by a failed async advise.
+
+
 Version 1.1
 ===========
 
@@ -13,4 +36,4 @@ Version 1.0
 Chris Oldwood 
 (gort@cix.co.uk)
 
-19th June 2003
+22nd November 2004
