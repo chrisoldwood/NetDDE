@@ -78,9 +78,14 @@ void CLinksDlg::OnInitDialog()
 		CDDELink*   pLink  = m_pConv->GetLink(i);
 		CLinkValue* pValue = App.m_oLinkCache.Find(m_pConv, pLink);
 
-		m_lvGrid.InsertItem(i,               pLink->Item());
-		m_lvGrid.ItemText  (i, UPDATE_TIME,  pValue->m_tLastUpdate.ToString());
-		m_lvGrid.ItemText  (i, UPDATE_VALUE, pValue->m_oLastValue.ToString());
+		m_lvGrid.InsertItem(i, pLink->Item());
+
+		// Link been advised?
+		if ((pValue != NULL) && (pValue->m_tLastUpdate != CDateTime::Min()))
+		{
+			m_lvGrid.ItemText(i, UPDATE_TIME,  pValue->m_tLastUpdate.ToString());
+			m_lvGrid.ItemText(i, UPDATE_VALUE, pValue->m_oLastValue.ToString());
+		}
 	}
 }
 
