@@ -337,8 +337,10 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 				// Send disconnect message.
 				pConnection->SendPacket(oPacket);
 			}
-			catch (CException& /*e*/)
+			catch (CPipeException& e)
 			{
+				App.Trace("PIPE_ERROR: %s", e.ErrorText());
+
 				// Pipe disconnected?.
 				pConnection->Close();
 			}
@@ -406,8 +408,10 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 				// Send advise message.
 				pConnection->SendPacket(oPacket);
 			}
-			catch (CException& /*e*/)
+			catch (CPipeException& e)
 			{
+				App.Trace("PIPE_ERROR: %s", e.ErrorText());
+
 				// Pipe disconnected?.
 				pConnection->Close();
 			}
@@ -476,6 +480,8 @@ void CNetDDESvrApp::HandleConnects()
 		// Connection waiting?
 		if (m_pConnection->Accept())
 		{
+			App.Trace("PIPE_STATUS: Connection accepted");
+
 			// Add to pipe collection and reset.
 			m_aoConnections.Add(m_pConnection);
 			m_pConnection = NULL;
@@ -483,6 +489,8 @@ void CNetDDESvrApp::HandleConnects()
 	}
 	catch (CPipeException& e)
 	{
+		App.Trace("PIPE_ERROR: %s", e.ErrorText());
+
 		// Kill background processing.
 		::KillTimer(NULL, m_nTimerID);
 
@@ -529,8 +537,10 @@ void CNetDDESvrApp::HandleRequests()
 				}
 			}
 		}
-		catch (CException& /*e*/)
+		catch (CPipeException& e)
 		{
+			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+
 			// Pipe disconnected?.
 			pConnection->Close();
 		}
