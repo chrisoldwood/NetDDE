@@ -202,14 +202,14 @@ void CAppCmds::OnOptionsServices()
 	CServicesDlg Dlg;
 
 	// Initialise dialog with current service list.
-	for (i = 0; i < App.m_aoServices.Size(); ++i)
+	for (int i = 0; i < App.m_aoServices.Size(); ++i)
 		Dlg.m_aoServices.Add(new CNetDDESvcCfg(App.m_aoServices[i]->m_oCfg));
 
 	// Show config dialog.
 	if ( (Dlg.RunModal(App.m_rMainWnd) == IDOK) && (Dlg.m_bModified) )
 	{
 		// Cleanup all current services.
-		for (i = 0; i < App.m_aoServices.Size(); ++i)
+		for (int i = 0; i < App.m_aoServices.Size(); ++i)
 		{
 			CNetDDEService* pService = App.m_aoServices[i];
 
@@ -222,7 +222,7 @@ void CAppCmds::OnOptionsServices()
 		App.m_aoServices.DeleteAll();
 
 		// Start all new ones.
-		for (i = 0; i < Dlg.m_aoServices.Size(); ++i)
+		for (int i = 0; i < Dlg.m_aoServices.Size(); ++i)
 		{
 			CNetDDESvcCfg*  pSvcCfg  = Dlg.m_aoServices[i];
 			CNetDDEService* pService = new CNetDDEService;
