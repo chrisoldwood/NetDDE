@@ -48,6 +48,7 @@
 #define IDC_PIPE                        1106
 #define IDC_ASYNC_ADVISES               1107
 #define IDC_ASYNC                       1107
+#define IDC_TEXT_ONLY                   1108
 #define IDD_SERVICE                     2037
 #define ID_VIEW_CLEAR_TRACE             3068
 #define IDD_MAIN                        5000
