@@ -77,13 +77,14 @@ IDR_APPMENU MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM SEPARATOR
         MENUITEM "E&xit\tAlt+F4",               ID_FILE_EXIT
     END
     POPUP "&View"
     BEGIN
         MENUITEM "&Server Connections",         ID_VIEW_SERVER_CONNS
         MENUITEM "&DDE Conversations",          ID_VIEW_DDE_CONVS
+        MENUITEM SEPARATOR
+        MENUITEM "&Clear Trace",                ID_VIEW_CLEAR_TRACE
     END
     POPUP "&Options"
     BEGIN
@@ -202,8 +203,8 @@ CAPTION "Services"
 FONT 8, "MS Sans Serif"
 BEGIN
     CONTROL         "List1",IDC_SERVICES,"SysListView32",LVS_REPORT | 
-                    LVS_SINGLESEL | LVS_NOSORTHEADER | WS_BORDER | 
-                    WS_TABSTOP,10,10,150,105,WS_EX_CLIENTEDGE
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | 
+                    WS_BORDER | WS_TABSTOP,10,10,150,105,WS_EX_CLIENTEDGE
     DEFPUSHBUTTON   "OK",IDOK,170,10,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,170,30,50,14
     PUSHBUTTON      "&Add...",IDC_ADD,170,60,50,14
@@ -211,7 +212,7 @@ BEGIN
     PUSHBUTTON      "&Remove",IDC_REMOVE,170,100,50,14
 END
 
-IDD_SERVICE DIALOG DISCARDABLE  0, 0, 177, 101
+IDD_SERVICE DIALOG DISCARDABLE  0, 0, 177, 121
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Service Configuration"
 FONT 8, "MS Sans Serif"
@@ -222,8 +223,10 @@ BEGIN
     EDITTEXT        IDC_SERVER,65,30,100,14,ES_AUTOHSCROLL
     LTEXT           "&Pipe Name:",IDC_STATIC,10,53,50,8
     EDITTEXT        IDC_PIPE,65,50,100,14,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,35,75,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,91,75,50,14
+    CONTROL         "As&ync Advises?",IDC_ASYNC,"Button",BS_AUTOCHECKBOX | 
+                    BS_LEFTTEXT | WS_TABSTOP,10,70,65,10
+    DEFPUSHBUTTON   "OK",IDOK,35,95,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,91,95,50,14
 END
 
 
@@ -296,7 +299,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 170
         TOPMARGIN, 7
-        BOTTOMMARGIN, 94
+        BOTTOMMARGIN, 114
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -368,6 +371,11 @@ BEGIN
     ID_OPTIONS_GENERAL      "Configure the general settings"
     ID_OPTIONS_TRACE        "Configure the trace settings"
     ID_OPTIONS_SERVICES     "Configure the services"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_CLEAR_TRACE     "Clear the trace window"
 END
 
 #endif    // English (U.K.) resources
