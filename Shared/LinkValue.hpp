@@ -31,8 +31,9 @@ public:
 	//
 	// Members.
 	//
-	CString	m_strLink;
-	CBuffer	m_oBuffer;
+	CString		m_strLink;			// Link cache key.
+	CDateTime	m_tLastUpdate;		// Time of last update.
+	CBuffer		m_oLastValue;		// Last update value.
 };
 
 /******************************************************************************
@@ -44,6 +45,7 @@ public:
 
 inline CLinkValue::CLinkValue(const char* pszLink)
 	: m_strLink(pszLink)
+	, m_tLastUpdate(CDateTime::Min())
 {
 	
 }
