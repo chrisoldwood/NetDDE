@@ -185,5 +185,9 @@ SOURCE=.\App.rcv
 SOURCE=.\Toolbar.bmp
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=..\Shared\TODO.txt
+# End Source File
 # End Target
 # End Project
