@@ -53,9 +53,9 @@ CNetDDECltPipe::~CNetDDECltPipe()
 }
 
 /******************************************************************************
-** Method:		WaitForPacket()
+** Method:		ReadResponsePacket()
 **
-** Description:	Wait for a specific packet type.
+** Description:	Read the response packet, waiting if required.
 **				NB: All other packets types are appended to a queue.
 **
 ** Parameters:	oPacket		The packet recieved.
@@ -66,7 +66,7 @@ CNetDDECltPipe::~CNetDDECltPipe()
 *******************************************************************************
 */
 
-void CNetDDECltPipe::WaitForPacket(CNetDDEPacket& oPacket, uint nType)
+void CNetDDECltPipe::ReadResponsePacket(CNetDDEPacket& oPacket, uint nType)
 {
 	// Until read.
 	for(;;)
@@ -78,7 +78,9 @@ void CNetDDECltPipe::WaitForPacket(CNetDDEPacket& oPacket, uint nType)
 			if (oPacket.DataType() == nType)
 				return;
 
-			// Append to queue.
+			ASSERT(oPacket.DataType() >= CNetDDEPacket::NETDDE_SERVER_DISCONNECT);
+
+			// Append to notification queue.
 			m_aoPackets.Add(new CNetDDEPacket(oPacket));
 		}
 
@@ -91,7 +93,6 @@ void CNetDDECltPipe::WaitForPacket(CNetDDEPacket& oPacket, uint nType)
 **
 ** Description:	Gets the next notification packet either from the packet queue
 **				or by reading directly from the pipe.
-**				NB: Caller takes ownership of the packet.
 **
 ** Parameters:	None.
 **
@@ -100,29 +101,24 @@ void CNetDDECltPipe::WaitForPacket(CNetDDEPacket& oPacket, uint nType)
 *******************************************************************************
 */
 
-CNetDDEPacket* CNetDDECltPipe::ReadNotifyPacket()
+bool CNetDDECltPipe::ReadNotifyPacket(CNetDDEPacket& oPacket)
 {
-	CNetDDEPacket* pPacket = NULL;
-
 	// Packet queue not empty.
 	if (m_aoPackets.Size())
 	{
-		pPacket = m_aoPackets[0];
-		m_aoPackets.Remove(0);
-	}
+		oPacket = *m_aoPackets[0];
 
-	// Packet queue was empty AND pipe not empty?
-	if ( (pPacket == NULL) && (Available() > 0) )
+		m_aoPackets.Delete(0);
+
+		return true;
+	}
+	// Check pipe.
+	else if (Available() > 0)
 	{
-		pPacket = new CNetDDEPacket;
-
 		// Try and read a packet.
-		if (!RecvPacket(*pPacket))
-		{
-			delete pPacket;
-			pPacket = NULL;
-		}
+		if (RecvPacket(oPacket))
+			return true;
 	}
 
-	return pPacket;
+	return false;
 }
