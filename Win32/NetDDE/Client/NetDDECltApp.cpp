@@ -53,6 +53,8 @@ const int   CNetDDECltApp::DEF_TRACE_LINES       = 100;
 const bool  CNetDDECltApp::DEF_TRACE_TO_FILE     = false;
 const char* CNetDDECltApp::DEF_TRACE_FILE        = "NetDDEClient.log";
 
+const uint  CNetDDECltApp::WM_POST_INITIAL_UPDATES = WM_APP + 1;
+
 // Background processing re-entrancy flag.
 bool CNetDDECltApp::g_bInBgProcessing = false;
 
@@ -71,6 +73,7 @@ bool CNetDDECltApp::g_bInBgProcessing = false;
 CNetDDECltApp::CNetDDECltApp()
 	: CApp(m_AppWnd, m_AppCmds)
 	, m_pDDEServer(CDDEServer::Instance())
+	, m_bPostedAdviseMsg(false)
 	, m_nTimerID(0)
 	, m_bTrayIcon(DEF_TRAY_ICON)
 	, m_bMinToTray(DEF_MIN_TO_TRAY)
@@ -87,8 +90,6 @@ CNetDDECltApp::CNetDDECltApp()
 	, m_nPktsRecv(0)
 	, m_dwTickCount(::GetTickCount())
 {
-	// Expect around 1000 links.
-	m_oLinksData.Reserve(1000);
 }
 
 /******************************************************************************
@@ -229,13 +230,8 @@ bool CNetDDECltApp::OnClose()
 	m_pDDEServer->RemoveListener(this);
 	m_pDDEServer->Uninitialise();
 
-	CString			strLink;
-	CLinkValue*		pLinkValue = NULL;
-	CLinksDataIter	oIter(App.m_oLinksData);
-
-	// Empty the link value cache.
-	while (oIter.Next(strLink, pLinkValue))
-		delete pLinkValue;
+	// Empty the link cache.
+	m_oLinkCache.Clear();
 
 	// Save settings.
 	SaveConfig();
@@ -347,8 +343,11 @@ void CNetDDECltApp::LoadConfig()
 				pService->m_oCfg.m_strService    = strService;
 				pService->m_oCfg.m_strServer     = strServer;
 				pService->m_oCfg.m_strPipeName   = strPipeName;
-				pService->m_oCfg.m_bAsyncAdvises = m_oIniFile.ReadBool(strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
-				pService->m_oCfg.m_bTextOnly     = m_oIniFile.ReadBool(strSection, "TextOnly",     pService->m_oCfg.m_bTextOnly    );
+				pService->m_oCfg.m_bAsyncAdvises = m_oIniFile.ReadBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
+				pService->m_oCfg.m_bTextOnly     = m_oIniFile.ReadBool  (strSection, "TextOnly",     pService->m_oCfg.m_bTextOnly    );
+				pService->m_oCfg.m_strInitialVal = m_oIniFile.ReadString(strSection, "InitialValue", pService->m_oCfg.m_strInitialVal);
+				pService->m_oCfg.m_strFailedVal  = m_oIniFile.ReadString(strSection, "FailedValue",  pService->m_oCfg.m_strFailedVal );
+				pService->m_oCfg.m_bReqInitalVal = m_oIniFile.ReadBool  (strSection, "ReqInitValue", pService->m_oCfg.m_bReqInitalVal);
 
 				m_aoServices.Add(pService);
 			}
@@ -412,6 +411,9 @@ void CNetDDECltApp::SaveConfig()
 		m_oIniFile.WriteString(strSection, "Pipe",         pService->m_oCfg.m_strPipeName  );
 		m_oIniFile.WriteBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
 		m_oIniFile.WriteBool  (strSection, "TextOnly",     pService->m_oCfg.m_bTextOnly    );
+		m_oIniFile.WriteString(strSection, "InitialValue", pService->m_oCfg.m_strInitialVal);
+		m_oIniFile.WriteString(strSection, "FailedValue",  pService->m_oCfg.m_strFailedVal );
+		m_oIniFile.WriteBool  (strSection, "ReqInitValue", pService->m_oCfg.m_bReqInitalVal);
 	}
 
 	// Write the trace settings.
@@ -695,6 +697,21 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 		if ( (pService->m_oCfg.m_bTextOnly) && (nFormat != CF_TEXT) )
 			return false;
 
+		CDDELink* pLink = pConv->FindLink(pszItem, nFormat);
+
+		// Already linked to item?
+		if (pLink != NULL)
+		{
+			// Service request using link cache.
+			CLinkValue* pValue = m_oLinkCache.Find(pConv, pLink);
+
+			ASSERT(pValue != NULL);
+
+			oData.SetBuffer(pValue->m_oLastValue);
+
+			return true;
+		}
+
 		try
 		{
 			// Create conversation message.
@@ -797,6 +814,7 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 			oReqStream.Write(&pService->m_hSvrConv, sizeof(HCONV));
 			oReqStream << pszItem;
 			oReqStream << (uint32) nFormat;
+			oReqStream << pService->m_oCfg.m_bReqInitalVal;
 
 			oReqStream.Close();
 
@@ -872,10 +890,21 @@ void CNetDDECltApp::OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink)
 	// Add link to service links' list.
 	pService->m_aoLinks.Add(pLink);
 
+	// Set the initial link value.
+	if ((m_oLinkCache.Find(pConv, pLink)) == NULL)
+		m_oLinkCache.Create(pConv, pLink, pService->m_oCfg.m_strInitialVal);
+
 	// If using "Async Advises" ensure we process the incoming 
-	// DDE_ADVISE notifications to avoid write deadlock.
+	// DDE_ADVISE notifications to avoid write deadlock on the server.
 	if (pService->m_oCfg.m_bAsyncAdvises)
 		OnTimer(m_nTimerID);
+
+	// Post message to send inital values.
+	if (!m_bPostedAdviseMsg)
+	{
+		m_MainThread.PostMessage(WM_POST_INITIAL_UPDATES);
+		m_bPostedAdviseMsg = true;
+	}
 }
 
 /******************************************************************************
@@ -895,17 +924,12 @@ void CNetDDECltApp::OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink)
 
 bool CNetDDECltApp::OnAdviseRequest(CDDESvrConv* pConv, CDDELink* pLink, CDDEData& oData)
 {
-	CString     strLink;
-	CLinkValue* pLinkValue = NULL;
-
-	strLink.Format("%s%s%s%u", pConv->Service(), pConv->Topic(), pLink->Item(), pLink->Format());
-
 	// Fetch link data from cache.
-	m_oLinksData.Find(strLink, pLinkValue);
+	CLinkValue* pLinkValue = m_oLinkCache.Find(pConv, pLink);
 
 	ASSERT(pLinkValue != NULL);
 
-	oData.SetBuffer(pLinkValue->m_oBuffer);
+	oData.SetBuffer(pLinkValue->m_oLastValue);
 
 	return (pLinkValue != NULL);
 }
@@ -1241,23 +1265,17 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 			// Post advise, if it's the link that has been updated.
 			if ( (pLink->Item() == strItem) && (pLink->Format() == nFormat) )
 			{
-				CString     strLink;
-				CLinkValue* pLinkValue = NULL;
-
-				strLink.Format("%s%s%s%u", pConv->Service(), pConv->Topic(), pLink->Item(), pLink->Format());
+				CLinkValue* pValue = NULL;
 
 				// Find the links' value cache.
-				if (!m_oLinksData.Find(strLink, pLinkValue))
-				{
-					pLinkValue = new CLinkValue(strLink);
+				if ((pValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
+					pValue = m_oLinkCache.Create(pConv, pLink);
 
-					m_oLinksData.Add(strLink, pLinkValue);
-				}
+				ASSERT(pValue != NULL);
 
-				ASSERT(pLinkValue != NULL);
-
-				// Cache links' value.
-				pLinkValue->m_oBuffer = oData;
+				// Update links' value.
+				pValue->m_oLastValue  = oData;
+				pValue->m_tLastUpdate = CDateTime::Current();
 
 				// Notify DDE Client of advise.
 				CDDESvrConv* pConv = static_cast<CDDESvrConv*>(pLink->Conversation());
@@ -1315,6 +1333,26 @@ void CNetDDECltApp::UpdateStats()
 		m_nPktsRecv   = 0;
 		m_dwTickCount = ::GetTickCount();
 	}
+}
+
+/******************************************************************************
+** Method:		OnPostInitalUpdates()
+**
+** Description:	Post inital values for all new DDE links.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDECltApp::OnPostInitalUpdates()
+{
+	TRACE("OnPostInitalUpdates()\n");
+
+	// Reset 'posted' flag.
+	m_bPostedAdviseMsg = false;
 }
 
 /******************************************************************************
@@ -1441,4 +1479,22 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 
 	// Reset the server conversation handle.
 	pService->m_hSvrConv = NULL;
+}
+
+/******************************************************************************
+** Method:		OnThreadMsg()
+**
+** Description:	Message handler for general thread messages.
+**
+** Parameters:	Standard thread message parameters.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+void CNetDDECltApp::OnThreadMsg(UINT nMsg, WPARAM /*wParam*/, LPARAM /*lParam*/)
+{
+	// Forward to real handler.
+	if (nMsg == WM_POST_INITIAL_UPDATES)
+		OnPostInitalUpdates();
 }

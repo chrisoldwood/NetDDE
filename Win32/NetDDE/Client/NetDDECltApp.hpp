@@ -24,8 +24,6 @@ class CNetDDECltApp : public CApp, public CDefDDEServerListener
 public:
 	// Template shorthands.
 	typedef TPtrArray<CNetDDEService> CServices;
-	typedef TMap<CString, CLinkValue*> CLinksData;
-	typedef TMapIter<CString, CLinkValue*> CLinksDataIter;
 
 	//
 	// Constructors/Destructor.
@@ -41,7 +39,8 @@ public:
 
 	CDDEServer*	m_pDDEServer;		// The DDE Server.
 	CServices	m_aoServices;		// The DDE services to bridge.
-	CLinksData	m_oLinksData;		// Cache of links data.
+	CLinkCache 	m_oLinkCache;		// Cache of links values.
+	bool		m_bPostedAdviseMsg;	// Posted WM_POST_INITAL_UPDATES?
 
 	uint		m_nTimerID;			// The background timer ID.
 
@@ -100,6 +99,7 @@ protected:
 	//
 	static const char* INI_FILE_VER;
 	static const uint  BG_TIMER_FREQ;
+
 	static const bool  DEF_TRAY_ICON;
 	static const bool  DEF_MIN_TO_TRAY;
 	static const bool  DEF_TRACE_CONVS;
@@ -111,6 +111,8 @@ protected:
 	static const int   DEF_TRACE_LINES;
 	static const bool  DEF_TRACE_TO_FILE;
 	static const char* DEF_TRACE_FILE;
+
+	static const uint  WM_POST_INITIAL_UPDATES;
 
 	//
 	// IDDEClientListener methods.
@@ -125,9 +127,10 @@ protected:
 	virtual void OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink);
 
 	//
-	// The backgound timer methods.
+	// Message handlers.
 	//
 	virtual void OnTimer(uint nTimerID);
+	virtual void OnThreadMsg(UINT nMsg, WPARAM wParam, LPARAM lParam);
 
 	// Background processing re-entrancy flag.
 	static bool g_bInBgProcessing;
@@ -138,6 +141,7 @@ protected:
 	void HandleNotifications();
 	void HandleDisconnects();
 	void UpdateStats();
+	void OnPostInitalUpdates();
 
 	//
 	// Connection handlers.
