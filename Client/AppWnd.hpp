@@ -41,6 +41,11 @@ public:
 	CStatusBar	m_StatusBar;
 	CTrayIcon	m_oTrayIcon;
 
+	//
+	// Constants.
+	//
+	static const char* WNDCLASS_NAME;
+
 protected:
 	//
 	// Internal members.
@@ -62,6 +67,12 @@ protected:
 
 	// Tray icon message ID.
 	enum { WM_USER_TRAY_NOTIFY = WM_USER };
+
+	//
+	// Window creation template methods.
+	//
+	virtual void GetClassParams(WNDCLASS& rParams);
+	virtual void GetCreateParams(WNDCREATE& rParams);
 
 	//
 	// Message processors.

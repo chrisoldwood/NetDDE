@@ -16,6 +16,15 @@
 #endif
 
 /******************************************************************************
+**
+** Constants.
+**
+*******************************************************************************
+*/
+
+const char* CAppWnd::WNDCLASS_NAME = "NetDDEClient";
+
+/******************************************************************************
 ** Method:		Default constructor.
 **
 ** Description:	.
@@ -46,6 +55,48 @@ CAppWnd::CAppWnd()
 
 CAppWnd::~CAppWnd()
 {
+}
+
+/******************************************************************************
+** Method:		GetClassParams()
+**
+** Description:	Template method to get the window class data.
+**
+** Parameters:	rParams		The class structure to fill.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppWnd::GetClassParams(WNDCLASS& rParams)
+{
+	// Get base class settings.
+	CDlgFrame::GetClassParams(rParams);
+
+	// Override any settings.
+	rParams.lpszClassName = WNDCLASS_NAME;
+}
+
+/******************************************************************************
+** Method:		GetCreateParams()
+**
+** Description:	Template method to get the window creation data.
+**
+** Parameters:	rParams		The create structure to fill.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppWnd::GetCreateParams(WNDCREATE& rParams)
+{
+	// Get base class settings.
+	CDlgFrame::GetCreateParams(rParams);
+
+	// Override any settings.
+	rParams.pszClassName = WNDCLASS_NAME;
 }
 
 /******************************************************************************
