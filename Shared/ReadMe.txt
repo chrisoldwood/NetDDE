@@ -1,4 +1,4 @@
-NetDDE v1.0
+NetDDE v1.1
 ===========
 
 1) Installation.
@@ -27,4 +27,4 @@ Web:   http://www.cix.co.uk/~gort
 
 Chris Oldwood 
 
-4th March 2003
+19th June 2003
