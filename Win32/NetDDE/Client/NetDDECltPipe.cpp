@@ -78,7 +78,7 @@ void CNetDDECltPipe::ReadResponsePacket(CNetDDEPacket& oPacket, uint nType)
 			if (oPacket.DataType() == nType)
 				return;
 
-			ASSERT(oPacket.DataType() >= CNetDDEPacket::NETDDE_SERVER_DISCONNECT);
+			ASSERT(oPacket.DataType() & CNetDDEPacket::ASYNC_PACKET);
 
 			// Append to notification queue.
 			m_aoPackets.Add(new CNetDDEPacket(oPacket));

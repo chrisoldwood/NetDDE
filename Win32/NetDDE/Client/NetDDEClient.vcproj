@@ -406,6 +406,9 @@
 				RelativePath="NetDDECltPipe.hpp">
 			</File>
 			<File
+				RelativePath=".\NetDDEConv.hpp">
+			</File>
+			<File
 				RelativePath="NetDDEService.hpp">
 			</File>
 			<File
