@@ -164,6 +164,9 @@
 			RelativePath=".\RelNotes.txt">
 		</File>
 		<File
+			RelativePath=".\Setup.ini">
+		</File>
+		<File
 			RelativePath=".\TODO.txt">
 		</File>
 	</Files>
