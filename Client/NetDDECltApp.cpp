@@ -249,6 +249,9 @@ bool CNetDDECltApp::OnClose()
 
 		// Disconnect from server.
 		ServerDisconnect(pService);
+
+		// Cleanup.
+		pService->m_aoNetConvs.DeleteAll();
 	}
 
 	// Unnitialise the DDE client.
