@@ -123,7 +123,7 @@ BEGIN
     CTEXT           "v1.0 Beta",IDC_VERSION,40,20,70,8,SS_CENTERIMAGE
     CTEXT           "Freeware",IDC_STATIC,40,30,70,8,SS_CENTERIMAGE
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,10,50,99,1
-    CTEXT           "(C) Chris Oldwood 2002-2003",IDC_STATIC,10,60,100,10,
+    CTEXT           "(C) Chris Oldwood 2002-2004",IDC_STATIC,10,60,100,10,
                     SS_CENTERIMAGE
     CTEXT           "gort@cix.co.uk",IDC_EMAIL,10,70,100,10,SS_NOTIFY | 
                     SS_CENTERIMAGE
