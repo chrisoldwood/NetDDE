@@ -180,7 +180,7 @@ bool CNetDDECltApp::OnOpen()
 
 		try
 		{
-			App.Trace("DDE_STATUS: Registering service: %s", pService->m_oCfg.m_strLocName);
+			App.Trace("DDE_STATUS: Registering service: %s [%s]", pService->m_oCfg.m_strLocName, pService->m_oCfg.m_strServer);
 
 			// Register the DDE service name.
 			m_pDDEServer->Register(pService->m_oCfg.m_strLocName);
@@ -231,7 +231,7 @@ bool CNetDDECltApp::OnClose()
 	m_pDDEServer->Uninitialise();
 
 	// Empty the link cache.
-	m_oLinkCache.Clear();
+	m_oLinkCache.Purge();
 
 	// Save settings.
 	SaveConfig();
@@ -1110,6 +1110,172 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 }
 
 /******************************************************************************
+** Method:		OnExecute()
+**
+** Description:	Execute a command.
+**
+** Parameters:	pConv		The conversation.
+**				oData		The command.
+**
+** Returns:		true or false.
+**
+*******************************************************************************
+*/
+
+bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
+{
+	bool bResult = false;
+
+	CNetDDEService* pService = FindService(pConv->Service());
+
+	// Valid service name?
+	if ( (pService != NULL) && (pService->m_oConnection.IsOpen()) )
+	{
+		CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
+
+		ASSERT(pNetConv != NULL);
+
+		try
+		{
+			// Create conversation message.
+			CBuffer    oBuffer;
+			CMemStream oReqStream(oBuffer);
+
+			oReqStream.Create();
+
+			oReqStream.Write(&pNetConv->m_hSvrConv, sizeof(HCONV));
+			oReqStream << pNetConv->m_nSvrConvID;
+			oReqStream << strCmd;
+
+			oReqStream.Close();
+
+			CNetDDEPacket oPacket(CNetDDEPacket::DDE_EXECUTE, oBuffer);
+
+			if (App.m_bTraceRequests)
+				App.Trace("DDE_EXECUTE: %s %s [%s]", pConv->Service(), pConv->Topic(), strCmd);
+
+			// Send it.
+			pService->m_oConnection.SendPacket(oPacket);
+
+			// Wait for response.
+			pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_EXECUTE);
+
+			CMemStream oRspStream(oPacket.Buffer());
+
+			oRspStream.Open();
+			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
+
+			// Get result.
+			oRspStream >> bResult;
+
+			oRspStream.Close();
+		}
+		catch (CPipeException& e)
+		{
+			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+
+			// Pipe disconnected?
+			pService->m_oConnection.Close();
+		}
+
+		// Update stats.
+		++m_nPktsSent;
+		++m_nPktsRecv;
+	}
+
+	return bResult;
+}
+
+/******************************************************************************
+** Method:		OnPoke()
+**
+** Description:	Poke a value into an item.
+**
+** Parameters:	pConv		The conversation.
+**				pszItem		The item being poked.
+**				nFormat		The data format.
+**				oData		The data.
+**
+** Returns:		true or false.
+**
+*******************************************************************************
+*/
+
+bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat, const CDDEData& oData)
+{
+	// Custom formats not supported.
+	if (nFormat >= 0xC000)
+		return false;
+
+	bool bResult = false;
+
+	CNetDDEService* pService = FindService(pConv->Service());
+
+	// Valid service name?
+	if ( (pService != NULL) && (pService->m_oConnection.IsOpen()) )
+	{
+		// Service only supports CF_TEXT?
+		if ( (pService->m_oCfg.m_bTextOnly) && (nFormat != CF_TEXT) )
+			return false;
+
+		CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
+
+		ASSERT(pNetConv != NULL);
+
+		try
+		{
+			// Create conversation message.
+			CBuffer    oBuffer;
+			CMemStream oReqStream(oBuffer);
+
+			oReqStream.Create();
+
+			oReqStream.Write(&pNetConv->m_hSvrConv, sizeof(HCONV));
+			oReqStream << pNetConv->m_nSvrConvID;
+			oReqStream << pszItem;
+			oReqStream << (uint32) nFormat;
+			oReqStream << oData.GetBuffer();
+
+			oReqStream.Close();
+
+			CNetDDEPacket oPacket(CNetDDEPacket::DDE_POKE, oBuffer);
+
+			if (App.m_bTraceRequests)
+				App.Trace("DDE_POKE: %s %s %s %s [%s]", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat), oData.GetString());
+
+			// Send it.
+			pService->m_oConnection.SendPacket(oPacket);
+
+			// Wait for response.
+			pService->m_oConnection.ReadResponsePacket(oPacket, CNetDDEPacket::DDE_POKE);
+
+			CMemStream oRspStream(oPacket.Buffer());
+
+			oRspStream.Open();
+			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
+
+			// Get result.
+			oRspStream >> bResult;
+
+			oRspStream.Close();
+		}
+		catch (CPipeException& e)
+		{
+			App.Trace("PIPE_ERROR: %s", e.ErrorText());
+
+			// Pipe disconnected?
+			pService->m_oConnection.Close();
+		}
+
+		// Update stats.
+		++m_nPktsSent;
+		++m_nPktsRecv;
+	}
+
+	return bResult;
+}
+
+/******************************************************************************
 ** Method:		OnTimer()
 **
 ** Description:	The timer has gone off, process background tasks.
@@ -1249,6 +1415,10 @@ void CNetDDECltApp::HandleDisconnects()
 			pService->m_aoNetConvs.DeleteAll();
 		}
 	}
+
+	// Flush link cache, if all connections closed.
+	if ( (m_pDDEServer->GetNumConversations() == 0) && (m_oLinkCache.Size() > 0) )
+		m_oLinkCache.Purge();
 }
 
 /******************************************************************************
@@ -1739,8 +1909,6 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 
 	// Close the connection.
 	pService->m_oConnection.Close();
-
-	ASSERT(pService->m_aoNetConvs.Size() == 0);
 }
 
 /******************************************************************************
