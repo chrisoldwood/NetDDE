@@ -83,6 +83,8 @@ BEGIN
     BEGIN
         MENUITEM "&Client Connections",         ID_VIEW_CLIENT_CONNS
         MENUITEM "&DDE Conversations",          ID_VIEW_DDE_CONVS
+        MENUITEM SEPARATOR
+        MENUITEM "&Clear Trace",                ID_VIEW_CLEAR_TRACE
     END
     POPUP "&Options"
     BEGIN
@@ -318,6 +320,11 @@ STRINGTABLE DISCARDABLE
 BEGIN
     ID_OPTIONS_POPUP        "Settings options"
     ID_OPTIONS_TRACE        "Configure the trace settings"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_CLEAR_TRACE     "Clear the trace window"
 END
 
 #endif    // English (U.K.) resources
