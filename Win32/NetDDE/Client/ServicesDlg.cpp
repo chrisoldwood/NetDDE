@@ -82,13 +82,16 @@ void CServicesDlg::OnInitDialog()
 	{
 		CNetDDESvcCfg* pService = m_aoServices[i];
 
-		m_lvServices.InsertItem(i,    pService->m_strService, pService);
+		m_lvServices.InsertItem(i,    pService->m_strService);
 		m_lvServices.ItemText  (i, 1, pService->m_strServer);
+		m_lvServices.ItemPtr   (i,    pService);
 	}
 
-	// Select 1st vy default.
+	// Select 1st by default.
 	if (m_lvServices.ItemCount() > 0)
 		m_lvServices.Select(0);
+
+	UpdateButtons();
 }
 
 /******************************************************************************
@@ -128,6 +131,7 @@ void CServicesDlg::OnAdd()
 	Dlg.m_strService = "";
 	Dlg.m_strServer  = "";
 	Dlg.m_strPipe    = NETDDE_PIPE_DEFAULT;
+	Dlg.m_bAsync     = false;
 
 	// Show config dialog.
 	if (Dlg.RunModal(*this) != IDOK)
@@ -139,15 +143,21 @@ void CServicesDlg::OnAdd()
 	pService->m_strService    = Dlg.m_strService;
 	pService->m_strServer     = Dlg.m_strServer;
 	pService->m_strPipeName   = Dlg.m_strPipe;
-	pService->m_bAsyncAdvises = false;
+	pService->m_bAsyncAdvises = Dlg.m_bAsync;
 
 	m_aoServices.Add(pService);
 
 	// Add service to view.
 	int i = m_lvServices.ItemCount();
 
-	m_lvServices.InsertItem(i,    pService->m_strService, pService);
+	m_lvServices.InsertItem(i,    pService->m_strService);
 	m_lvServices.ItemText  (i, 1, pService->m_strServer);
+	m_lvServices.ItemPtr   (i,    pService);
+
+	// Make new service selection.
+	m_lvServices.Select(i);
+
+	UpdateButtons();
 
 	m_bModified = true;
 }
@@ -180,10 +190,23 @@ void CServicesDlg::OnEdit()
 	Dlg.m_strService = pService->m_strService;
 	Dlg.m_strServer  = pService->m_strServer;
 	Dlg.m_strPipe    = pService->m_strPipeName;
+	Dlg.m_bAsync     = pService->m_bAsyncAdvises;
 
 	// Show config dialog.
 	if (Dlg.RunModal(*this) != IDOK)
 		return;
+
+	// Update service config.
+	pService->m_strService    = Dlg.m_strService;
+	pService->m_strServer     = Dlg.m_strServer;
+	pService->m_strPipeName   = Dlg.m_strPipe;
+	pService->m_bAsyncAdvises = Dlg.m_bAsync;
+
+	// Update UI.
+	m_lvServices.ItemText(nSel, 0, pService->m_strService);
+	m_lvServices.ItemText(nSel, 1, pService->m_strServer);
+
+	UpdateButtons();
 
 	m_bModified = true;
 }
@@ -214,5 +237,34 @@ void CServicesDlg::OnRemove()
 	m_aoServices.Delete(m_aoServices.Find(pService));
 	m_lvServices.DeleteItem(nSel);
 
+	// Update selection.
+	if (nSel == m_lvServices.ItemCount())
+		nSel--;
+
+	m_lvServices.Select(nSel);
+
+	UpdateButtons();
+
 	m_bModified = true;
+}
+
+/******************************************************************************
+** Method:		UpdateButtons()
+**
+** Description:	Update the state of the action buttons.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CServicesDlg::UpdateButtons()
+{
+	bool bAnyServices = (m_lvServices.ItemCount() > 0);
+
+	Control(IDC_ADD).Enable(true);
+	Control(IDC_EDIT).Enable(bAnyServices);
+	Control(IDC_REMOVE).Enable(bAnyServices);
 }

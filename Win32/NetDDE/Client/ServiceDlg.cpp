@@ -28,8 +28,9 @@ CServiceDlg::CServiceDlg()
 {
 	DEFINE_CTRL_TABLE
 		CTRL(IDC_SERVICE, &m_ebService)
-		CTRL(IDC_SERVER,  &m_ebServer)
-		CTRL(IDC_PIPE,    &m_ebPipe)
+		CTRL(IDC_SERVER,  &m_ebServer )
+		CTRL(IDC_PIPE,    &m_ebPipe   )
+		CTRL(IDC_ASYNC,   &m_ckAsync  )
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
@@ -54,6 +55,7 @@ void CServiceDlg::OnInitDialog()
 	m_ebService.Text(m_strService);
 	m_ebServer.Text(m_strServer);
 	m_ebPipe.Text(m_strPipe);
+	m_ckAsync.Check(m_bAsync);
 }
 
 /******************************************************************************
@@ -96,6 +98,7 @@ bool CServiceDlg::OnOk()
 	m_strService = m_ebService.Text();
 	m_strServer  = m_ebServer.Text();
 	m_strPipe    = m_ebPipe.Text();
+	m_bAsync     = m_ckAsync.IsChecked();
 
 	return true;
 }
