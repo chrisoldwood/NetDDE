@@ -106,7 +106,10 @@ void CAppWnd::OnUserMsg(uint /*nMsg*/, WPARAM /*wParam*/, LPARAM lParam)
 	{
 		// Restore window, if minimsed.
 		if (!::IsWindowVisible(m_hWnd))
+		{
 			Show(SW_SHOWNORMAL);
+			::SetForegroundWindow(m_hWnd);
+		}
 	}
 	// Icon clicked with right button?
 	else if ( (lParam == WM_RBUTTONUP) || (lParam == WM_CONTEXTMENU) )
