@@ -29,13 +29,14 @@ CServicesDlg::CServicesDlg()
 	, m_bModified(false)
 {
 	DEFINE_CTRL_TABLE
-		CTRL(IDC_SERVICES,	&m_lvServices)
+		CTRL(IDC_GRID,	&m_lvServices)
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
-		CMD_CTRLMSG(IDC_ADD,    BN_CLICKED, OnAdd)
-		CMD_CTRLMSG(IDC_EDIT,   BN_CLICKED, OnEdit)
-		CMD_CTRLMSG(IDC_REMOVE, BN_CLICKED, OnRemove)
+		CMD_CTRLMSG(IDC_ADD,      BN_CLICKED, OnAdd)
+		CMD_CTRLMSG(IDC_EDIT,     BN_CLICKED, OnEdit)
+		CMD_CTRLMSG(IDC_REMOVE,   BN_CLICKED, OnRemove)
+		NFY_CTRLMSG(IDC_SERVICES, NM_DBLCLK,  OnDblClkServices)
 	END_CTRLMSG_TABLE
 }
 
@@ -128,11 +129,14 @@ void CServicesDlg::OnAdd()
 	CServiceDlg Dlg;
 
 	// Initialise with default values.
-	Dlg.m_strService = "";
-	Dlg.m_strServer  = "";
-	Dlg.m_strPipe    = NETDDE_PIPE_DEFAULT;
-	Dlg.m_bAsync     = false;
-	Dlg.m_bTextOnly  = false;
+	Dlg.m_strService    = "";
+	Dlg.m_bTextOnly     = false;
+	Dlg.m_strServer     = "";
+	Dlg.m_strPipe       = NETDDE_PIPE_DEFAULT;
+	Dlg.m_strDefaultVal = "#PNDG";
+	Dlg.m_bReqInitVal   = false;
+	Dlg.m_bAsyncAdvises = false;
+	Dlg.m_strFailedVal  = "#LINK";
 
 	// Show config dialog.
 	if (Dlg.RunModal(*this) != IDOK)
@@ -142,10 +146,13 @@ void CServicesDlg::OnAdd()
 
 	// Save service config and add to collection.
 	pService->m_strService    = Dlg.m_strService;
+	pService->m_bTextOnly     = Dlg.m_bTextOnly;
 	pService->m_strServer     = Dlg.m_strServer;
 	pService->m_strPipeName   = Dlg.m_strPipe;
-	pService->m_bAsyncAdvises = Dlg.m_bAsync;
-	pService->m_bTextOnly     = Dlg.m_bTextOnly;
+	pService->m_strInitialVal = Dlg.m_strDefaultVal;
+	pService->m_bReqInitalVal = Dlg.m_bReqInitVal;
+	pService->m_bAsyncAdvises = Dlg.m_bAsyncAdvises;
+	pService->m_strFailedVal  = Dlg.m_strFailedVal;
 
 	m_aoServices.Add(pService);
 
@@ -189,11 +196,14 @@ void CServicesDlg::OnEdit()
 	CServiceDlg Dlg;
 
 	// Initialise with current config.
-	Dlg.m_strService = pService->m_strService;
-	Dlg.m_strServer  = pService->m_strServer;
-	Dlg.m_strPipe    = pService->m_strPipeName;
-	Dlg.m_bAsync     = pService->m_bAsyncAdvises;
-	Dlg.m_bTextOnly  = pService->m_bTextOnly;
+	Dlg.m_strService    = pService->m_strService;
+	Dlg.m_bTextOnly     = pService->m_bTextOnly;
+	Dlg.m_strServer     = pService->m_strServer;
+	Dlg.m_strPipe       = pService->m_strPipeName;
+	Dlg.m_strDefaultVal = pService->m_strInitialVal;
+	Dlg.m_bReqInitVal   = pService->m_bReqInitalVal;
+	Dlg.m_bAsyncAdvises = pService->m_bAsyncAdvises;
+	Dlg.m_strFailedVal  = pService->m_strFailedVal;
 
 	// Show config dialog.
 	if (Dlg.RunModal(*this) != IDOK)
@@ -201,10 +211,13 @@ void CServicesDlg::OnEdit()
 
 	// Update service config.
 	pService->m_strService    = Dlg.m_strService;
+	pService->m_bTextOnly     = Dlg.m_bTextOnly;
 	pService->m_strServer     = Dlg.m_strServer;
 	pService->m_strPipeName   = Dlg.m_strPipe;
-	pService->m_bAsyncAdvises = Dlg.m_bAsync;
-	pService->m_bTextOnly     = Dlg.m_bTextOnly;
+	pService->m_strInitialVal = Dlg.m_strDefaultVal;
+	pService->m_bReqInitalVal = Dlg.m_bReqInitVal;
+	pService->m_bAsyncAdvises = Dlg.m_bAsyncAdvises;
+	pService->m_strFailedVal  = Dlg.m_strFailedVal;
 
 	// Update UI.
 	m_lvServices.ItemText(nSel, 0, pService->m_strService);
@@ -271,4 +284,25 @@ void CServicesDlg::UpdateButtons()
 	Control(IDC_ADD).Enable(true);
 	Control(IDC_EDIT).Enable(bAnyServices);
 	Control(IDC_REMOVE).Enable(bAnyServices);
+}
+
+/******************************************************************************
+** Method:		OnDblClkServices()
+**
+** Description:	Double-clicked a service. Edit it.
+**
+** Parameters:	rMsgHdr		The WM_NOTIFY msg header.
+**
+** Returns:		0.
+**
+*******************************************************************************
+*/
+
+LRESULT CServicesDlg::OnDblClkServices(NMHDR& /*oMsgHdr*/)
+{
+	// If a selection, edit it.
+	if (m_lvServices.IsSelection())
+		OnEdit();
+
+	return 0;
 }
