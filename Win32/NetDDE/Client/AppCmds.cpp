@@ -232,7 +232,7 @@ void CAppCmds::OnOptionsServices()
 
 			try
 			{
-				App.Trace("DDE_STATUS: Registering service: %s", pService->m_oCfg.m_strLocName);
+				App.Trace("DDE_STATUS: Registering service: %s [%s]", pService->m_oCfg.m_strLocName, pService->m_oCfg.m_strServer);
 
 				// Register the DDE service name.
 				App.m_pDDEServer->Register(pService->m_oCfg.m_strLocName);
