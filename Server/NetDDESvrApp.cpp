@@ -34,8 +34,8 @@ const char* CNetDDESvrApp::VERSION      = "v1.0";
 #endif
 
 const char* CNetDDESvrApp::INI_FILE_VER  = "1.0";
-const uint  CNetDDESvrApp::BG_TIMER_FREQ = 100;
-const uint  CNetDDESvrApp::DEF_MAX_TRACE = 100;
+const uint  CNetDDESvrApp::BG_TIMER_FREQ = 10;
+const uint  CNetDDESvrApp::DEF_MAX_TRACE = 25;
 
 // Background processing re-entrancy flag.
 bool CNetDDESvrApp::g_bInBgProcessing = false;
@@ -58,6 +58,8 @@ CNetDDESvrApp::CNetDDESvrApp()
 	, m_pConnection(NULL)
 	, m_nTimerID(0)
 	, m_nMaxTrace(DEF_MAX_TRACE)
+	, m_bLogTrace(true)
+	, m_strLogFile(CPath::ApplicationDir(), "NetDDEServer.log")
 {
 
 }
@@ -97,7 +99,11 @@ bool CNetDDESvrApp::OnOpen()
 
 	// Load settings.
 	LoadConfig();
-	
+
+	// Clear the log file.
+	m_fLogFile.Create(m_strLogFile);
+	m_fLogFile.Close();
+
 	try
 	{
 		// Initialise the DDE client.
@@ -220,6 +226,15 @@ void CNetDDESvrApp::Trace(const char* pszMsg, ...)
 
 	// Send to trace window.	
 	m_AppWnd.m_AppDlg.Trace(/*strTime +*/ strMsg);
+
+	// Write trace to log file.
+	if (m_bLogTrace)
+	{
+		m_fLogFile.Open(m_strLogFile, GENERIC_WRITE);
+		m_fLogFile.Seek(0, FILE_END);
+		m_fLogFile.WriteLine(strMsg);
+		m_fLogFile.Close();
+	}
 }
 
 /******************************************************************************
@@ -243,7 +258,8 @@ void CNetDDESvrApp::LoadConfig()
 	m_strPipeName = m_oIniFile.ReadString("Server", "Pipe", NETDDE_PIPE_DEFAULT);
 
 	// Read the trace settings.
-	m_nMaxTrace = m_oIniFile.ReadInt("UI", "MaxTrace", m_nMaxTrace);
+	m_nMaxTrace = m_oIniFile.ReadInt ("Trace", "MaxTrace", m_nMaxTrace);
+	m_bLogTrace = m_oIniFile.ReadBool("Trace", "LogTrace", m_bLogTrace);
 
 	// Read the window pos and size.
 	m_rcLastPos.left   = m_oIniFile.ReadInt("UI", "Left",   0);
@@ -270,7 +286,8 @@ void CNetDDESvrApp::SaveConfig()
 	m_oIniFile.WriteString("Version", "Version", INI_FILE_VER);
 
 	// Write the trace settings.
-	m_oIniFile.WriteInt("UI", "MaxTrace", m_nMaxTrace);
+	m_oIniFile.WriteInt ("Trace", "MaxTrace", m_nMaxTrace);
+	m_oIniFile.WriteBool("Trace", "LogTrace", m_bLogTrace);
 
 	// Write the window pos and size.
 	m_oIniFile.WriteInt("UI", "Left",   m_rcLastPos.left  );
@@ -344,6 +361,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 
 void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 {
+	ASSERT(pLink != NULL);
 	ASSERT(pData != NULL);
 
 	HCONV      hConv = pLink->Conversation()->Handle();
@@ -361,6 +379,19 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 
 	CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
 
+	CBuffer* pBuffer = NULL;
+
+	// Allocate a cache for the link data, if required.
+	if (!m_oLinksData.Find(pLink, pBuffer))
+	{
+		pBuffer = new CBuffer();
+
+		m_oLinksData.Add(pLink, pBuffer);
+	}
+
+	// Cache link data.
+	*pBuffer = oBuffer;
+
 	// Notify all NetDDEClients...
 	for (int i = 0; i < m_aoConnections.Size(); ++i)
 	{
@@ -370,7 +401,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 		{
 			try
 			{
-				App.Trace("DDE_ADVISE: %s", pLink->Item());
+				App.Trace("DDE_ADVISE: %s %s", pLink->Item(), CClipboard::FormatName(pLink->Format()));
 
 				// Send advise message.
 				pConnection->SendPacket(oPacket);
@@ -578,6 +609,11 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrPipe& oConnection, CNetDDEPa
 
 	App.Trace("NETDDE_CLIENT_CONNECT: %u %s %s %s", nProtocol, strService, strComputer, strUser);
 
+	// Save connection details.
+	oConnection.Service(strService);
+	oConnection.Computer(strComputer);
+	oConnection.User(strUser);
+
 	// Send response message.
 	CNetDDEPacket oRspPacket(CNetDDEPacket::NETDDE_CLIENT_CONNECT, NULL, 0);
 
@@ -659,17 +695,14 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 
 	try
 	{
-		if (strService == "TWIN")
-			strService = "ZZNET";
-
 		// Call DDE to create the conversation.
-//		CDDECltConv* pConv = m_pDDEClient->CreateConversation(strService, strTopic);
+		CDDECltConv* pConv = m_pDDEClient->CreateConversation(strService, strTopic);
 
 		bResult = true;
-		hConv   = (HCONV)0x12345678; //pConv->Handle();
+		hConv   = pConv->Handle();
 
 		// Attach to the connection.
-//		oConnection.AddConversation(pConv);
+		oConnection.AddConversation(pConv);
 	}
 	catch (CDDEException& /*e*/)
 	{
@@ -726,6 +759,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrPipe& oConnection, CNetDD
 
 	try
 	{
+		// Locate the conversation.
 		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
 		if (pConv != NULL)
@@ -794,17 +828,18 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oRe
 
 	oStream.Close();
 
-	App.Trace("DDE_REQUEST: 0x%p %s %u", hConv, strItem, nFormat);
+	App.Trace("DDE_REQUEST: %s %s", strItem, CClipboard::FormatName(nFormat));
 
 	try
 	{
-//		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
+		// Locate the conversation.
+		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
-//		if (pConv != NULL)
+		if (pConv != NULL)
 		{
-//			oData = pConv->Request(strItem, nFormat);
+			// Call DDE to make the request.
+			oData = pConv->Request(strItem, nFormat);
 
-			if (nFormat == CF_TEXT)
 			bResult = true;
 		}
 	}
@@ -818,7 +853,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oRe
 	oRspStream.Create();
 
 	oRspStream << bResult;
-//	oRspStream << oData.GetBuffer();
+	oRspStream << oData.GetBuffer();
 	oRspStream << "DDE_REQUEST";
 
 	oRspStream.Close();
@@ -847,7 +882,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_START_ADVISE);
 
 	bool      bResult = false;
-//	CDDELink* pLink = NULL;
+	CDDELink* pLink = NULL;
 
 	HCONV	 hConv;
 	CString  strItem;
@@ -865,17 +900,21 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 
 	oStream.Close();
 
-	App.Trace("DDE_START_ADVISE: 0x%p %s %u", hConv, strItem, nFormat);
+	App.Trace("DDE_START_ADVISE: %s %s", strItem, CClipboard::FormatName(nFormat));
 
 	try
 	{
-//		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
+		// Locate the conversation.
+		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
-//		if (pConv != NULL)
+		if (pConv != NULL)
 		{
-//			pLink = pConv->CreateLink(strItem, nFormat);
+			// Call DDE to create the link.
+			pLink = pConv->CreateLink(strItem, nFormat);
 
-			if (nFormat == CF_TEXT)
+			// Attach to the connection.
+			oConnection.AddLink(pLink);
+
 			bResult = true;
 		}
 	}
@@ -898,27 +937,32 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 	oConnection.SendPacket(oRspPacket);
 
 	// Link established?
-	if (bResult) //(pLink != NULL)
+	if (bResult)
 	{
-		CBuffer    oBuffer;
-		CBuffer    oData("Advise", strlen("Advise")+1);
-		CMemStream oStream(oBuffer);
+		CBuffer* pBuffer = NULL;
 
-		oStream.Create();
+		// Is links' last data cached?
+		if (m_oLinksData.Find(pLink, pBuffer))
+		{
+			CBuffer    oBuffer;
+			CMemStream oStream(oBuffer);
 
-		oStream.Write(&hConv, sizeof(hConv));
-		oStream << strItem;
-		oStream << nFormat;
-		oStream << oData;
+			oStream.Create();
 
-		oStream.Close();
+			oStream.Write(&hConv, sizeof(hConv));
+			oStream << strItem;
+			oStream << nFormat;
+			oStream << *pBuffer;
 
-		CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
+			oStream.Close();
 
-		App.Trace("DDE_ADVISE: %s %u", strItem, nFormat);
+			CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
 
-		// Send links' last advise value.
-		oConnection.SendPacket(oPacket);
+			App.Trace("DDE_ADVISE: %s %u", strItem, nFormat);
+
+			// Send links' last advise data.
+			oConnection.SendPacket(oPacket);
+		}
 	}
 }
 
@@ -957,17 +1001,22 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& 
 
 	oStream.Close();
 
-	App.Trace("DDE_STOP_ADVISE: 0x%p %s %u", hConv, strItem, nFormat);
+	App.Trace("DDE_STOP_ADVISE: %s %s", strItem, CClipboard::FormatName(nFormat));
 
 	try
 	{
+		// Locate the conversation.
 		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
 		if (pConv != NULL)
 		{
 			CDDELink* pLink = pConv->FindLink(strItem, nFormat);
 
+			// Call DDE to destroy the link.
 			pConv->DestroyLink(pLink);
+
+			// Detach from the connection.
+			oConnection.RemoveLink(pLink);
 
 			bResult = true;
 		}

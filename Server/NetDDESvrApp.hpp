@@ -24,6 +24,7 @@ class CNetDDESvrApp : public CApp, public CDefDDEClientListener
 public:
 	// Template shorthands.
 	typedef TPtrArray<CNetDDESvrPipe> CPipes;
+	typedef TMap<CDDELink*, CBuffer*> CLinksData;
 
 	//
 	// Constructors/Destructor.
@@ -41,10 +42,14 @@ public:
 	CString			m_strPipeName;		// The server pipe name.
 	CPipes			m_aoConnections;	// The client connections.
 	CNetDDESvrPipe*	m_pConnection;		// The waiting server connection.
+	CLinksData		m_oLinksData;		// Cache of links' data.
 
 	uint			m_nTimerID;			// The background timer ID.
 
 	uint			m_nMaxTrace;		// Maximum lines of trace.
+	bool			m_bLogTrace;		// Log trace to file flag.
+	CPath			m_strLogFile;		// The log file path.
+	CFile			m_fLogFile;			// Trace log file.
 
 	CRect			m_rcLastPos;		// Main window position.
 
