@@ -3,3 +3,9 @@
 - Make conv handle for topic, not service.
 
 - Support sockets.
+
+- Show result codes in trace.
+
+- List links.
+
+- Fix restoring window from system tray.
