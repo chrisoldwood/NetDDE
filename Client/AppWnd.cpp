@@ -96,10 +96,10 @@ void CAppWnd::OnCreate(const CRect& rcClient)
 *******************************************************************************
 */
 
-void CAppWnd::OnUserMsg(uint nMsg, WPARAM wParam, LPARAM lParam)
+void CAppWnd::OnUserMsg(uint /*nMsg*/, WPARAM /*wParam*/, LPARAM lParam)
 {
-	ASSERT(nMsg   == WM_USER_TRAY_NOTIFY);
-	ASSERT(wParam == TRAY_ICON_ID);
+//	ASSERT(nMsg   == WM_USER_TRAY_NOTIFY);
+//	ASSERT(wParam == TRAY_ICON_ID);
 
 	// Icon double-clicked with left button?
 	if (lParam == WM_LBUTTONDBLCLK)

@@ -560,12 +560,10 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnTimer(uint nTimerID)
+void CNetDDESvrApp::OnTimer(uint /*nTimerID*/)
 {
 	try
 	{
-		ASSERT(nTimerID == m_nTimerID);
-
 		// Guard against re-entrancy.
 		if (!g_bInBgProcessing)
 		{
@@ -691,7 +689,7 @@ void CNetDDESvrApp::HandleRequests()
 					case CNetDDEPacket::DDE_START_ADVISE:			OnDDEStartAdvise(*pConnection, oPacket);			break;
 					case CNetDDEPacket::DDE_STOP_ADVISE:			OnDDEStopAdvise(*pConnection, oPacket);				break;
 					case CNetDDEPacket::DDE_START_ADVISE_ASYNC:		OnDDEStartAdvise(*pConnection, oPacket);			break;
-					default:										ASSERT(false);										break;
+					default:										ASSERT_FALSE();										break;
 				}
 
 				// If discconnect received, stop polling.

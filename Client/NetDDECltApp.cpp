@@ -971,12 +971,10 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 *******************************************************************************
 */
 
-void CNetDDECltApp::OnTimer(uint nTimerID)
+void CNetDDECltApp::OnTimer(uint /*nTimerID*/)
 {
 	try
 	{
-		ASSERT(nTimerID == m_nTimerID);
-
 		// Guard against re-entrancy.
 		if (!g_bInBgProcessing)
 		{
@@ -1044,7 +1042,7 @@ void CNetDDECltApp::HandleNotifications()
 					case CNetDDEPacket::NETDDE_SERVER_DISCONNECT:	OnNetDDEServerDisconnect(*pService, oPacket);	break;
 					case CNetDDEPacket::DDE_DISCONNECT:				OnDDEDisconnect(*pService, oPacket);			break;
 					case CNetDDEPacket::DDE_ADVISE:					OnDDEAdvise(*pService, oPacket);				break;
-					default:										ASSERT(false);									break;
+					default:										ASSERT_FALSE();									break;
 				}
 
 				// Update stats.
@@ -1111,7 +1109,7 @@ void CNetDDECltApp::HandleDisconnects()
 *******************************************************************************
 */
 
-void CNetDDECltApp::OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPacket& oNfyPacket)
+void CNetDDECltApp::OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPacket& /*oNfyPacket*/)
 {
 	if (m_bTraceNetConns)
 		App.Trace("NETDDE_SERVER_DISCONNECT: %s", oService.m_oCfg.m_strServer);
@@ -1133,7 +1131,7 @@ void CNetDDECltApp::OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPa
 *******************************************************************************
 */
 
-void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& oService, CNetDDEPacket& oNfyPacket)
+void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket& oNfyPacket)
 {
 	ASSERT(oNfyPacket.DataType() == CNetDDEPacket::DDE_DISCONNECT);
 
