@@ -117,6 +117,9 @@ protected:
 	//
 	// IDDEClientListener methods.
 	//
+	virtual bool OnWildConnect(CStrArray& astrServices, CStrArray& astrTopics);
+	virtual bool OnWildConnectService(const char* pszService, CStrArray& astrTopics);
+	virtual bool OnWildConnectTopic(const char* pszTopic, CStrArray& astrServices);
 	virtual bool OnConnect(const char* pszService, const char* pszTopic);
 	virtual void OnConnectConfirm(CDDESvrConv* pConv);
 	virtual void OnDisconnect(CDDESvrConv* pConv);

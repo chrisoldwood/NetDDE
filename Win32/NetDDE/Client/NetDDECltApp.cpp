@@ -180,14 +180,14 @@ bool CNetDDECltApp::OnOpen()
 
 		try
 		{
-			App.Trace("DDE_STATUS: Registering service: %s", pService->m_oCfg.m_strService);
+			App.Trace("DDE_STATUS: Registering service: %s", pService->m_oCfg.m_strLocName);
 
 			// Register the DDE service name.
-			m_pDDEServer->Register(pService->m_oCfg.m_strService);
+			m_pDDEServer->Register(pService->m_oCfg.m_strLocName);
 		}
 		catch (CException& e)
 		{
-			AlertMsg("Failed to register DDE service: %s\n\n%s", pService->m_oCfg.m_strService, e.ErrorText());
+			AlertMsg("Failed to register DDE service: %s\n\n%s", pService->m_oCfg.m_strLocName, e.ErrorText());
 		}
 	}
 
@@ -220,7 +220,7 @@ bool CNetDDECltApp::OnClose()
 		CNetDDEService* pService = m_aoServices[i];
 
 		// Unregister the service name.
-		m_pDDEServer->Unregister(pService->m_oCfg.m_strService);
+		m_pDDEServer->Unregister(pService->m_oCfg.m_strLocName);
 
 		// Disconnect from server.
 		ServerDisconnect(pService);
@@ -330,17 +330,19 @@ void CNetDDECltApp::LoadConfig()
 		// Entry valid?
 		if (strSection != "")
 		{
-			CString strService  = m_oIniFile.ReadString(strSection, "Service", "");
-			CString strServer   = m_oIniFile.ReadString(strSection, "Server",  "");
-			CString strPipeName = m_oIniFile.ReadString(strSection, "Pipe",    NETDDE_PIPE_DEFAULT);
+			CString strRemName  = m_oIniFile.ReadString(strSection, "RemoteName", "");
+			CString strLocName  = m_oIniFile.ReadString(strSection, "LocalName",  "");
+			CString strServer   = m_oIniFile.ReadString(strSection, "Server",     "");
+			CString strPipeName = m_oIniFile.ReadString(strSection, "Pipe",       NETDDE_PIPE_DEFAULT);
 
 			// Section valid?
-			if ( (strService != "") && (strServer != "") && (strPipeName != "") )
+			if ( (strRemName != "") && (strLocName != "") && (strServer != "") && (strPipeName != "") )
 			{
 				// Add to collection.
 				CNetDDEService* pService = new CNetDDEService;
 
-				pService->m_oCfg.m_strService    = strService;
+				pService->m_oCfg.m_strRemName    = strRemName;
+				pService->m_oCfg.m_strLocName    = strLocName;
 				pService->m_oCfg.m_strServer     = strServer;
 				pService->m_oCfg.m_strPipeName   = strPipeName;
 				pService->m_oCfg.m_bAsyncAdvises = m_oIniFile.ReadBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
@@ -401,12 +403,13 @@ void CNetDDECltApp::SaveConfig()
 		CNetDDEService* pService = m_aoServices[i];
 
 		CString strEntry;
-		CString strSection = pService->m_oCfg.m_strService;
+		CString strSection = pService->m_oCfg.m_strRemName;
 
 		strEntry.Format("Service[%d]", i);
 
 		m_oIniFile.WriteString("Services", strEntry,       strSection);
-		m_oIniFile.WriteString(strSection, "Service",      pService->m_oCfg.m_strService   );
+		m_oIniFile.WriteString(strSection, "RemoteName",   pService->m_oCfg.m_strRemName   );
+		m_oIniFile.WriteString(strSection, "LocalName",    pService->m_oCfg.m_strLocName   );
 		m_oIniFile.WriteString(strSection, "Server",       pService->m_oCfg.m_strServer    );
 		m_oIniFile.WriteString(strSection, "Pipe",         pService->m_oCfg.m_strPipeName  );
 		m_oIniFile.WriteBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
@@ -441,9 +444,9 @@ void CNetDDECltApp::SaveConfig()
 /******************************************************************************
 ** Method:		FindService()
 **
-** Description:	Finds the NetDDEService by name.
+** Description:	Finds the NetDDEService by its local name.
 **
-** Parameters:	pszService	The service name.
+** Parameters:	pszService	The local service name.
 **
 ** Returns:		The service or NULL.
 **
@@ -458,7 +461,7 @@ CNetDDEService* CNetDDECltApp::FindService(const char* pszService) const
 		CNetDDEService* pService = m_aoServices[i];
 
 		// Valid service name?
-		if (pService->m_oCfg.m_strService == pszService)
+		if (pService->m_oCfg.m_strLocName == pszService)
 			return pService;
 	}
 
@@ -490,6 +493,50 @@ CNetDDEService* CNetDDECltApp::FindService(HCONV hSvrConv) const
 	}
 
 	return NULL;
+}
+
+/******************************************************************************
+** Methods:		OnWildConnect*()
+**
+** Description:	Multiple connection request from a DDE Client. The DDE Client
+**				will create a connection for each returned service & topic.
+**
+** Parameters:	pszService		The service name.
+**				pszTopic		The topic name.
+**				astrServices	The returned list of service names.
+**				astrTopics		The returned list of topic names.
+**
+** Returns:		true or false.
+**
+*******************************************************************************
+*/
+
+bool CNetDDECltApp::OnWildConnect(CStrArray& /*astrServices*/, CStrArray& /*astrTopics*/)
+{
+	if (m_bTraceConvs)
+		App.Trace("DDE_WILDCONNECT (ignored)");
+
+	return false;
+}
+
+bool CNetDDECltApp::OnWildConnectService(const char* pszService, CStrArray& /*astrTopics*/)
+{
+	ASSERT(pszService != NULL);
+
+	if (m_bTraceConvs)
+		App.Trace("DDE_WILDCONNECT_SERVICE: %s (ignored)", pszService);
+
+	return false;
+}
+
+bool CNetDDECltApp::OnWildConnectTopic(const char* pszTopic, CStrArray& /*astrServices*/)
+{
+	ASSERT(pszTopic != NULL);
+
+	if (m_bTraceConvs)
+		App.Trace("DDE_WILDCONNECT_TOPIC: %s (ignored)", pszTopic);
+
+	return false;
 }
 
 /******************************************************************************
@@ -526,7 +573,7 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 
 			oReqStream.Create();
 
-			oReqStream << pszService;
+			oReqStream << pService->m_oCfg.m_strRemName;
 			oReqStream << pszTopic;
 
 			oReqStream.Close();
@@ -1248,7 +1295,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 		else
 			strData = CClipboard::FormatName(nFormat);
 
-		App.Trace("DDE_ADVISE: %s %s [%s]", oService.m_oCfg.m_strService, strItem, strData);
+		App.Trace("DDE_ADVISE: %s %s [%s]", oService.m_oCfg.m_strLocName, strItem, strData);
 	}
 
 	// Find the service for the conversation handle.
@@ -1394,7 +1441,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	oReqStream.Create();
 
 	oReqStream << NETDDE_PROTOCOL;
-	oReqStream << pService->m_oCfg.m_strService;
+	oReqStream << pService->m_oCfg.m_strRemName;
 	oReqStream << CSysInfo::ComputerName();
 	oReqStream << CSysInfo::UserName();
 
@@ -1404,7 +1451,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_CLIENT_CONNECT, oBuffer);
 
 	if (m_bTraceNetConns)
-		App.Trace("NETDDE_CLIENT_CONNECT: %u %s %s %s", NETDDE_PROTOCOL, pService->m_oCfg.m_strService, CSysInfo::ComputerName(), CSysInfo::UserName());
+		App.Trace("NETDDE_CLIENT_CONNECT: %u %s %s %s", NETDDE_PROTOCOL, pService->m_oCfg.m_strRemName, CSysInfo::ComputerName(), CSysInfo::UserName());
 
 	pService->m_oConnection.SendPacket(oPacket);
 
@@ -1454,7 +1501,7 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 
 		oStream.Create();
 
-		oStream << pService->m_oCfg.m_strService;
+		oStream << pService->m_oCfg.m_strRemName;
 		oStream << CSysInfo::ComputerName();
 
 		oStream.Close();
@@ -1463,7 +1510,7 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 		CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_CLIENT_DISCONNECT, oBuffer);
 
 		if (m_bTraceNetConns)
-			App.Trace("NETDDE_CLIENT_DISCONNECT: %s %s", pService->m_oCfg.m_strService, CSysInfo::ComputerName());
+			App.Trace("NETDDE_CLIENT_DISCONNECT: %s %s", pService->m_oCfg.m_strRemName, CSysInfo::ComputerName());
 
 		pService->m_oConnection.SendPacket(oPacket);
 
