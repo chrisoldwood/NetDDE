@@ -1128,6 +1128,10 @@ void CNetDDECltApp::HandleNotifications()
 
 				// Update stats.
 				++m_nPktsRecv;
+
+				// If disconnect received, stop polling.
+				if (!pService->m_oConnection.IsOpen())
+					break;
 			}
 		}
 		catch (CPipeException& e)
@@ -1228,14 +1232,14 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 
 	oStream.Close();
 
-	if (m_bTraceConvs)
-		App.Trace("DDE_DISCONNECT:");
-
 	// Find the service for the conversation handle.
 	CNetDDEService* pService = FindService(hSvrConv);
 
 	if (pService != NULL)
 	{
+		if (m_bTraceConvs)
+			App.Trace("DDE_DISCONNECT: %s", pService->m_oCfg.m_strRemName);
+
 		// Cleanup all client conversations...
 		for (int j = 0; j < pService->m_aoConvs.Size(); ++j)
 		{
@@ -1248,6 +1252,10 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 		// Discard conversations and links.
 		pService->m_aoConvs.RemoveAll();
 		pService->m_aoLinks.RemoveAll();
+
+		// Close connection, if last conversation.
+		if (pService->m_aoConvs.Size() == 0)
+			ServerDisconnect(pService);
 	}
 }
 
