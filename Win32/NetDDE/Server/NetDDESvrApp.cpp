@@ -506,7 +506,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	ASSERT(pLinkValue != NULL);
 
 	// Cache links' value.
-	pLinkValue->m_oBuffer = pData->GetBuffer();
+	pLinkValue->m_oLastValue = pData->GetBuffer();
 
 	// Notify all NetDDEClients...
 	for (int i = 0; i < m_aoConnections.Size(); ++i)
@@ -1156,7 +1156,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 			oStream.Write(&hConv, sizeof(hConv));
 			oStream << strItem;
 			oStream << nFormat;
-			oStream << pLinkValue->m_oBuffer;
+			oStream << pLinkValue->m_oLastValue;
 
 			oStream.Close();
 
@@ -1173,7 +1173,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket&
 				CString strData;
 
 				if (nFormat == CF_TEXT)
-					strData = (const char*)(const void*)pLinkValue->m_oBuffer.Buffer();
+					strData = pLinkValue->m_oLastValue.ToString();
 				else
 					strData = CClipboard::FormatName(nFormat);
 
