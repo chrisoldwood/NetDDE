@@ -10,6 +10,7 @@
 
 #include "AppHeaders.hpp"
 #include "DDEConvsDlg.hpp"
+#include "LinksDlg.hpp"
 
 #ifdef _DEBUG
 // For memory leak detection.
@@ -32,11 +33,13 @@ CDDEConvsDlg::CDDEConvsDlg()
 	: CDialog(IDD_DDE_CONVS)
 {
 	DEFINE_CTRL_TABLE
-		CTRL(IDC_GRID,	&m_lvGrid)
+		CTRL(IDC_GRID, &m_lvGrid)
 	END_CTRL_TABLE
 
-//	DEFINE_CTRLMSG_TABLE
-//	END_CTRLMSG_TABLE
+	DEFINE_CTRLMSG_TABLE
+		CMD_CTRLMSG(IDC_LINKS, BN_CLICKED, OnViewLinks)
+		NFY_CTRLMSG(IDC_GRID,  NM_DBLCLK,  OnDblClkConv)
+	END_CTRLMSG_TABLE
 }
 
 /******************************************************************************
@@ -76,6 +79,7 @@ void CDDEConvsDlg::OnInitDialog()
 		m_lvGrid.InsertItem(i,             pConv->Service());
 		m_lvGrid.ItemText  (i, TOPIC_NAME, pConv->Topic());
 		m_lvGrid.ItemText  (i, LINK_COUNT, itoa(pConv->NumLinks(), szValue, 10));
+		m_lvGrid.ItemData  (i, (LPARAM)pConv->Handle());
 	}
 }
 
@@ -94,4 +98,64 @@ void CDDEConvsDlg::OnInitDialog()
 bool CDDEConvsDlg::OnOk()
 {
 	return true;
+}
+
+/******************************************************************************
+** Method:		OnViewLinks()
+**
+** Description:	Links button pressed. Show all links for the selected
+**				conversation.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CDDEConvsDlg::OnViewLinks()
+{
+	// Ignore, if not selection.
+	if (!m_lvGrid.IsSelection())
+		return;
+
+	// Get the selected conversation.
+	HCONV hConv = (HCONV) m_lvGrid.ItemData(m_lvGrid.Selection());
+
+	// Find the conversation.
+	CDDESvrConv* pConv = App.m_pDDEServer->FindConversation(hConv);
+
+	if (pConv == NULL)
+	{
+		AlertMsg("The conversation has been terminated.");
+		return;
+	}
+
+	CLinksDlg Dlg;
+
+	Dlg.m_pConv = pConv;
+
+	// Show dialog.
+	Dlg.RunModal(*this);
+}
+
+/******************************************************************************
+** Method:		OnDblClkConv()
+**
+** Description:	Double-clicked a conversation. Show the links.
+**
+** Parameters:	rMsgHdr		The WM_NOTIFY msg header.
+**
+** Returns:		0.
+**
+*******************************************************************************
+*/
+
+LRESULT CDDEConvsDlg::OnDblClkConv(NMHDR& /*oMsgHdr*/)
+{
+	// If a selection, show links.
+	if (m_lvGrid.IsSelection())
+		OnViewLinks();
+
+	return 0;
 }
