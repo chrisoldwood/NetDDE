@@ -24,7 +24,8 @@ class CNetDDECltApp : public CApp, public CDefDDEServerListener
 public:
 	// Template shorthands.
 	typedef TPtrArray<CNetDDEService> CServices;
-	typedef TMap<CDDELink*, CBuffer*> CLinksData;
+	typedef TMap<CString, CLinkValue*> CLinksData;
+	typedef TMapIter<CString, CLinkValue*> CLinksDataIter;
 
 	//
 	// Constructors/Destructor.
@@ -44,11 +45,29 @@ public:
 
 	uint		m_nTimerID;			// The background timer ID.
 
-	uint		m_nMaxTrace;		// Maximum lines of trace.
+	bool		m_bTrayIcon;		// Show system tray indicator?
+	bool		m_bMinToTray;		// Minimise to system tray?
+
+	bool		m_bTraceConvs;		// Trace conversation create/destroy?
+	bool		m_bTraceRequests;	// Trace requests?
+	bool		m_bTraceAdvises;	// Trace advise start/stop?
+	bool		m_bTraceUpdates;	// Trace advise updates?
+	bool		m_bTraceNetConns;	// Trace net connections?
+	bool		m_bTraceToWindow;	// Trace output to window?
+	int			m_nTraceLines;		// Trace lines in window.
+	bool		m_bTraceToFile;		// Trace output to file?
+	CString		m_strTraceFile;		// Trace filename.
+
+	CPath		m_strTracePath;		// The trace file path.
+	CFile		m_fTraceFile;		// Trace file.
 
 	CRect		m_rcLastPos;		// Main window position.
 
 	CIniFile	m_oIniFile;			// .INI FIle
+
+	uint		m_nPktsSent;		// Packets sent in last second.
+	uint		m_nPktsRecv;		// Packets recieved in last second;
+	DWORD		m_dwTickCount;		// Status update previous tick count.
 
 	//
 	// Methods.
@@ -81,7 +100,17 @@ protected:
 	//
 	static const char* INI_FILE_VER;
 	static const uint  BG_TIMER_FREQ;
-	static const uint  DEF_MAX_TRACE;
+	static const bool  DEF_TRAY_ICON;
+	static const bool  DEF_MIN_TO_TRAY;
+	static const bool  DEF_TRACE_CONVS;
+	static const bool  DEF_TRACE_REQUESTS;
+	static const bool  DEF_TRACE_ADVISES;
+	static const bool  DEF_TRACE_UPDATES;
+	static const bool  DEF_TRACE_NET_CONNS;
+	static const bool  DEF_TRACE_TO_WINDOW;
+	static const int   DEF_TRACE_LINES;
+	static const bool  DEF_TRACE_TO_FILE;
+	static const char* DEF_TRACE_FILE;
 
 	//
 	// IDDEClientListener methods.
@@ -107,6 +136,14 @@ protected:
 	// Background processing methods.
 	//
 	void HandleNotifications();
+	void HandleDisconnects();
+	void UpdateStats();
+
+	//
+	// Connection handlers.
+	//
+	void ServerConnect(CNetDDEService* pService);
+	void ServerDisconnect(CNetDDEService* pService);
 
 	//
 	// Packet handlers.
