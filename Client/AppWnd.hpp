@@ -71,6 +71,7 @@ protected:
 	virtual void OnResize(int iFlag, const CSize& rNewSize);
 	virtual void OnFocus();
 	virtual bool OnQueryClose();
+	virtual void OnClose();
 };
 
 /******************************************************************************

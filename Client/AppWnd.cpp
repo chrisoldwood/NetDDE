@@ -171,12 +171,42 @@ void CAppWnd::OnFocus()
 
 bool CAppWnd::OnQueryClose()
 {
+	int nConvs = App.m_pDDEServer->GetNumConversations();
+
+	// Warn user if still in use.
+	if (nConvs > 0)
+	{
+		CString strMsg;
+
+		strMsg.Format("There are %d client(s) still connected.\n\nAre you sure you want to close it?", nConvs);
+
+		// Abort if NO or CANCEL.
+		if (QueryMsg(strMsg) != IDYES)
+			return false;
+	}
+
+	return true;
+}
+
+/******************************************************************************
+** Method:		OnClose()
+**
+** Description:	The main window is closing.
+**				NB: Called from WM_CLOSE or WM_ENDSESSION.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CAppWnd::OnClose()
+{
 	// Remove the tray icon.
 	if (m_oTrayIcon.IsVisible())
 		ShowTrayIcon(false);
 
 	// Fetch windows final placement.
 	App.m_rcLastPos = Placement();
-
-	return true;
 }
