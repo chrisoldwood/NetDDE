@@ -72,8 +72,11 @@ IDR_APPMENU MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM SEPARATOR
         MENUITEM "E&xit\tAlt+F4",               ID_FILE_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Connections",                ID_VIEW_CONNECTIONS
     END
     POPUP "&Help"
     BEGIN
@@ -115,6 +118,17 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,35,100,50,15
 END
 
+IDD_CONNECTIONS DIALOGEX 0, 0, 237, 186
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Connections"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Close",IDCANCEL,95,165,50,14
+    CONTROL         "List1",IDC_GRID,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_SORTASCENDING | LVS_NOSORTHEADER | 
+                    WS_BORDER | WS_TABSTOP,5,5,225,150,WS_EX_CLIENTEDGE
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -138,6 +152,14 @@ BEGIN
     IDD_ABOUT, DIALOG
     BEGIN
         BOTTOMMARGIN, 106
+    END
+
+    IDD_CONNECTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 230
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 179
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -188,6 +210,18 @@ BEGIN
     ID_HELP_POPUP           "Help options"
     ID_HELP_CONTENTS        "Displays the help contents page\nHelp"
     ID_HELP_ABOUT           "Show Net DDE Server version\nAbout"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_POPUP           "View options"
+    ID_VIEW_CONNECTIONS     "View the connections to the server\nConnections"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_POPUP           "File options"
+    ID_FILE_EXIT            "Close the application\nClose"
 END
 
 #endif    // English (U.K.) resources
