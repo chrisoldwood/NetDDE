@@ -1032,7 +1032,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oRe
 	uint32   nConvID;
 	CString  strItem;
 	uint32   nFormat;
-	CDDEData oData(m_pDDEClient);
+	CBuffer  oBuffer;
 
 	// Decode message.
 	CMemStream oStream(oReqPacket.Buffer());
@@ -1058,7 +1058,9 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oRe
 		if (pConv != NULL)
 		{
 			// Call DDE to make the request.
-			oData = pConv->Request(strItem, nFormat);
+			CDDEData oData = pConv->Request(strItem, nFormat);
+
+			oBuffer = oData.GetBuffer();
 
 			bResult = true;
 		}
@@ -1073,7 +1075,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oRe
 	oRspStream.Create();
 
 	oRspStream << bResult;
-	oRspStream << oData.GetBuffer();
+	oRspStream << oBuffer;
 
 	oRspStream.Close();
 
