@@ -33,6 +33,18 @@ public:
 	~CNetDDESvrPipe();
 
 	//
+	// Properties.
+	//
+	const CString& Service() const;
+	void Service(const CString& strService);
+
+	const CString& Computer() const;
+	void Computer(const CString& strComputer);
+
+	const CString& User() const;
+	void User(const CString& strUser);
+
+	//
 	// Conversation methods.
 	//
 	void AddConversation(CDDECltConv* pConv);
@@ -53,8 +65,11 @@ protected:
 	//
 	// Members.
 	//
-	CConvs	m_aoConvs;	// DDE Conversation list.
-	CLinks	m_aoLinks;	// DDE links list.
+	CString	m_strService;	// DDE Service name.
+	CString	m_strComputer;	// Computer name.
+	CString m_strUser;		// User name.
+	CConvs	m_aoConvs;		// DDE Conversation list.
+	CLinks	m_aoLinks;		// DDE links list.
 };
 
 /******************************************************************************
@@ -63,5 +78,35 @@ protected:
 **
 *******************************************************************************
 */
+
+inline const CString& CNetDDESvrPipe::Service() const
+{
+	return m_strService;
+}
+
+inline void CNetDDESvrPipe::Service(const CString& strService)
+{
+	m_strService = strService;
+}
+
+inline const CString& CNetDDESvrPipe::Computer() const
+{
+	return m_strComputer;
+}
+
+inline void CNetDDESvrPipe::Computer(const CString& strComputer)
+{
+	m_strComputer = strComputer;
+}
+
+inline const CString& CNetDDESvrPipe::User() const
+{
+	return m_strUser;
+}
+
+inline void CNetDDESvrPipe::User(const CString& strUser)
+{
+	m_strUser = strUser;
+}
 
 #endif // NETDDESVRPIPE_HPP
