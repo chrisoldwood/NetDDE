@@ -80,15 +80,15 @@ void CNetDDECltSocket::Close()
 ** Description:	Read the response packet, waiting if required.
 **				NB: All other packets types are appended to a queue.
 **
-** Parameters:	oPacket		The packet recieved.
-**				nType		The type of packet expected.
+** Parameters:	oPacket		The packet received.
+**				nPacketID	The packet ID expected.
 **
 ** Returns:		Nothing.
 **
 *******************************************************************************
 */
 
-void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nType)
+void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nPacketID)
 {
 	DWORD dwStartTime = ::GetTickCount();
 
@@ -98,14 +98,17 @@ void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nType)
 		// Any response packets received?
 		if (m_aoPackets.Size())
 		{
-			ASSERT(m_aoPackets.Size() == 1);
-
 			// Find our response.
 			for (int i = 0; i < m_aoPackets.Size(); ++i)
 			{
-				if (m_aoPackets[i]->DataType() == nType)
+				CNetDDEPacket* pPacket = m_aoPackets[i];
+
+				ASSERT(pPacket->PacketID() != CNetDDEPacket::ASYNC_PACKET_ID);
+
+				// Packet ID we're after?
+				if (pPacket->PacketID() == nPacketID)
 				{
-					oPacket = *m_aoPackets[i];
+					oPacket = *pPacket;
 
 					m_aoPackets.Delete(i);
 
@@ -120,5 +123,5 @@ void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nType)
 		::Sleep(1);
 	}
 
-	throw CSocketException(CSocketException::E_RECV_FAILED, WAIT_TIMEOUT);
+	throw CSocketException(CSocketException::E_WAIT_FAILED, WSAETIMEDOUT);
 }
