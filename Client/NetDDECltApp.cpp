@@ -270,6 +270,9 @@ void CNetDDECltApp::Trace(const char* pszMsg, ...)
 	// Prepend date and time.
 	strMsg = CDateTime::Current().ToString() + " " + strMsg;
 
+	// Convert all non-printable chars.
+	strMsg.RepCtrlChars();
+
 	// Send to trace window.	
 	if (m_bTraceToWindow)
 	{
@@ -292,9 +295,9 @@ void CNetDDECltApp::Trace(const char* pszMsg, ...)
 		}
 		catch (CFileException& e)
 		{
-			AlertMsg("Failed to write to trace file:\n\n%s", e.ErrorText());
-
 			m_bTraceToFile = false;
+
+			AlertMsg("Failed to write to trace file:\n\n%s", e.ErrorText());
 		}
 	}
 }
@@ -532,6 +535,29 @@ CNetDDEService* CNetDDECltApp::FindService(CDDESvrConv* pConv) const
 	}
 
 	return NULL;
+}
+
+/******************************************************************************
+** Method:		Disconnect()
+**
+** Description:	Terminate the client-side DDE conversation prematurely.
+**
+** Parameters:	pConv	The client side conversation.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CNetDDECltApp::Disconnect(CDDESvrConv* pConv)
+{
+	ASSERT(pConv != NULL);
+
+	// Fake a client-side disconnection.
+	OnDisconnect(pConv);
+
+	// Cleanup.
+	m_pDDEServer->DestroyConversation(pConv);
 }
 
 /******************************************************************************
@@ -1314,7 +1340,7 @@ void CNetDDECltApp::OnTimer(uint /*nTimerID*/)
 
 		FatalMsg("Unexpected Exception: %s", e.ErrorText());
 
-		m_AppWnd.Close();
+		m_AppWnd.Destroy();
 	}
 	catch (...)
 	{
@@ -1322,7 +1348,7 @@ void CNetDDECltApp::OnTimer(uint /*nTimerID*/)
 
 		FatalMsg("Unhandled Exception.");
 
-		m_AppWnd.Close();
+		m_AppWnd.Destroy();
 	}
 }
 
