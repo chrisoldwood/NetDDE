@@ -1,11 +1,9 @@
-- Support custom data formats.
-
 - Make conv handle for topic, not service.
 
 - Support sockets.
 
-- Show result codes in trace.
+- Send inital values on links.
 
-- List links.
+- Option for Request Inital Value when advising.
 
-- Fix restoring window from system tray.
+- Fix ref counting in server side conversation.
