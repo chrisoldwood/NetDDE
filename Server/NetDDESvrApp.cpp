@@ -43,6 +43,9 @@ const uint  CNetDDESvrApp::BG_TIMER_FREQ =  1;
 
 const bool  CNetDDESvrApp::DEF_TRAY_ICON         = true;
 const bool  CNetDDESvrApp::DEF_MIN_TO_TRAY       = false;
+const uint  CNetDDESvrApp::DEF_NET_TIMEOUT       = 30000;
+const uint  CNetDDESvrApp::DEF_DDE_TIMEOUT       = 30000;
+const bool  CNetDDESvrApp::DEF_DISCARD_DUPS      = true;
 const bool  CNetDDESvrApp::DEF_TRACE_CONVS       = true;
 const bool  CNetDDESvrApp::DEF_TRACE_REQUESTS    = false;
 const bool  CNetDDESvrApp::DEF_TRACE_ADVISES     = false;
@@ -76,6 +79,9 @@ CNetDDESvrApp::CNetDDESvrApp()
 	, m_nTimerID(0)
 	, m_bTrayIcon(DEF_TRAY_ICON)
 	, m_bMinToTray(DEF_MIN_TO_TRAY)
+	, m_nNetTimeOut(DEF_NET_TIMEOUT)
+	, m_nDDETimeOut(DEF_DDE_TIMEOUT)
+	, m_bDiscardDups(DEF_DISCARD_DUPS)
 	, m_bTraceConvs(DEF_TRACE_CONVS)
 	, m_bTraceRequests(DEF_TRACE_REQUESTS)
 	, m_bTraceAdvises(DEF_TRACE_ADVISES)
@@ -338,9 +344,12 @@ void CNetDDESvrApp::LoadConfig()
 	m_bTraceToFile   = m_oIniFile.ReadBool  ("Trace", "ToFile",         m_bTraceToFile  );
 	m_strTraceFile   = m_oIniFile.ReadString("Trace", "FileName",       m_strTraceFile  );
 
-	// Read the UI settings.
-	m_bTrayIcon  = m_oIniFile.ReadBool("UI", "TrayIcon",  m_bTrayIcon );
-	m_bMinToTray = m_oIniFile.ReadBool("UI", "MinToTray", m_bMinToTray);
+	// Read the general settings.
+	m_bTrayIcon    = m_oIniFile.ReadBool("Main", "TrayIcon",     m_bTrayIcon   );
+	m_bMinToTray   = m_oIniFile.ReadBool("Main", "MinToTray",    m_bMinToTray  );
+	m_nNetTimeOut  = m_oIniFile.ReadInt ("Main", "NetTimeOut",   m_nNetTimeOut );
+	m_nDDETimeOut  = m_oIniFile.ReadInt ("Main", "DDETimeOut",   m_nDDETimeOut );
+	m_bDiscardDups = m_oIniFile.ReadBool("Main", "NoDuplicates", m_bDiscardDups);
 
 	// Read the window pos and size.
 	m_rcLastPos.left   = m_oIniFile.ReadInt("UI", "Left",   0);
@@ -377,9 +386,12 @@ void CNetDDESvrApp::SaveConfig()
 	m_oIniFile.WriteBool  ("Trace", "ToFile",         m_bTraceToFile  );
 	m_oIniFile.WriteString("Trace", "FileName",       m_strTraceFile  );
 
-	// Write the UI settings.
-	m_oIniFile.WriteBool("UI", "TrayIcon",  m_bTrayIcon );
-	m_oIniFile.WriteBool("UI", "MinToTray", m_bMinToTray);
+	// Write the general settings.
+	m_oIniFile.WriteBool("Main", "TrayIcon",     m_bTrayIcon   );
+	m_oIniFile.WriteBool("Main", "MinToTray",    m_bMinToTray  );
+	m_oIniFile.WriteInt ("Main", "NetTimeOut",   m_nNetTimeOut );
+	m_oIniFile.WriteInt ("Main", "DDETimeOut",   m_nDDETimeOut );
+	m_oIniFile.WriteBool("Main", "NoDuplicates", m_bDiscardDups);
 
 	// Write the window pos and size.
 	m_oIniFile.WriteInt("UI", "Left",   m_rcLastPos.left  );
@@ -493,7 +505,8 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	CLinkValue* pValue = m_oLinkCache.Find(pConv, pLink);
 
 	// Discard duplicate updates.
-	if ((pValue != NULL) && (pValue->m_oLastValue == oData))
+	if ((App.m_bDiscardDups) && (pValue != NULL)
+	 && (pValue->m_oLastValue == oData))
 	{
 		if (App.m_bTraceUpdates)
 			App.Trace("DDE_ADVISE: %s %s (ignored)", pConv->Service(), pLink->Item());
@@ -923,6 +936,9 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDE
 
 		// Attach to the connection.
 		oConnection.m_aoNetConvs.Add(new CNetDDEConv(pConv, nConvID));
+
+		// Apply settings.
+		pConv->SetTimeOut(App.m_nDDETimeOut);
 	}
 	catch (CDDEException& /*e*/)
 	{
@@ -1512,12 +1528,17 @@ void CNetDDESvrApp::UpdateStats()
 			nIconID = IDI_NET_SEND;
 		else if (m_nPktsRecv > 0) 
 			nIconID = IDI_NET_RECV;
+		else if (m_aoConnections.Size() == 0)
+			nIconID = IDI_NET_LOST;
 
 		// Format tooltip.
 		CString strTip = "NetDDE Server";
 
-		strTip += "\nConversations: " + CStrCvt::FormatInt(m_pDDEClient->GetNumConversations());
-		strTip += "\nConnections: "   + CStrCvt::FormatInt(m_aoConnections.Size());
+		if (m_aoConnections.Size() > 0)
+		{
+			strTip += "\nConnections: "   + CStrCvt::FormatInt(m_aoConnections.Size());
+			strTip += "\nConversations: " + CStrCvt::FormatInt(m_pDDEClient->GetNumConversations());
+		}
 
 		// Update tray icon.
 		if (m_AppWnd.m_oTrayIcon.IsVisible())
