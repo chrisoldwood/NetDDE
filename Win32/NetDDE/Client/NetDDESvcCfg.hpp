@@ -35,6 +35,7 @@ public:
 	CString	m_strServer;		// Host name.
 	CString	m_strPipeName;		// Named Pipe name.
 	bool	m_bAsyncAdvises;	// Use Async advises?
+	bool	m_bTextOnly;		// Only supports CF_TEXT?
 };
 
 /******************************************************************************
@@ -46,6 +47,7 @@ public:
 
 inline CNetDDESvcCfg::CNetDDESvcCfg()
 	: m_bAsyncAdvises(false)
+	, m_bTextOnly(false)
 {
 }
 
