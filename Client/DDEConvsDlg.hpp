@@ -50,6 +50,9 @@ protected:
 	//
 	virtual void OnInitDialog();
 	virtual bool OnOk();
+
+	void    OnViewLinks();
+	LRESULT OnDblClkConv(NMHDR& oMsgHdr);
 };
 
 /******************************************************************************
