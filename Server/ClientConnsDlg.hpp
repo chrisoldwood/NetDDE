@@ -48,10 +48,17 @@ protected:
 	};
 
 	//
+	// Internal methods.
+	//
+	void Refresh();
+
+	//
 	// Message handlers.
 	//
 	virtual void OnInitDialog();
 	virtual bool OnOk();
+
+	void OnCloseConnection();
 };
 
 /******************************************************************************
