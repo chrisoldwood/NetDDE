@@ -64,23 +64,8 @@ void CDDEConvsDlg::OnInitDialog()
 	m_lvGrid.InsertColumn(TOPIC_NAME,   "Topic",   125, LVCFMT_LEFT );
 	m_lvGrid.InsertColumn(LINK_COUNT,   "Links",    70, LVCFMT_RIGHT);
 
-	CDDECltConvs aoConvs;
-
-	// Get the list of conversations.
-	App.m_pDDEClient->GetAllConversations(aoConvs);
-
-	// Load grid data.
-	for (int i = 0; i < aoConvs.Size(); ++i)
-	{
-		char szValue[50];
-
-		CDDECltConv* pConv = aoConvs[i];
-
-		m_lvGrid.InsertItem(i,             pConv->Service());
-		m_lvGrid.ItemText  (i, TOPIC_NAME, pConv->Topic());
-		m_lvGrid.ItemText  (i, LINK_COUNT, itoa(pConv->NumLinks(), szValue, 10));
-		m_lvGrid.ItemData  (i, (LPARAM)pConv->Handle());
-	}
+	// Populate.
+	Refresh();
 }
 
 /******************************************************************************
@@ -98,6 +83,42 @@ void CDDEConvsDlg::OnInitDialog()
 bool CDDEConvsDlg::OnOk()
 {
 	return true;
+}
+
+/******************************************************************************
+** Method:		Refresh()
+**
+** Description:	Refresh the list of conversations.
+**
+** Parameters:	None.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CDDEConvsDlg::Refresh()
+{
+	// Clear old contents.
+	m_lvGrid.DeleteAllItems();
+
+	CDDECltConvs aoConvs;
+
+	// Get the list of conversations.
+	App.m_pDDEClient->GetAllConversations(aoConvs);
+
+	// Load grid data.
+	for (int i = 0; i < aoConvs.Size(); ++i)
+	{
+		char szValue[50];
+
+		CDDECltConv* pConv = aoConvs[i];
+
+		m_lvGrid.InsertItem(i,             pConv->Service());
+		m_lvGrid.ItemText  (i, TOPIC_NAME, pConv->Topic());
+		m_lvGrid.ItemText  (i, LINK_COUNT, itoa(pConv->NumLinks(), szValue, 10));
+		m_lvGrid.ItemData  (i, (LPARAM)pConv->Handle());
+	}
 }
 
 /******************************************************************************
@@ -137,6 +158,9 @@ void CDDEConvsDlg::OnViewLinks()
 
 	// Show dialog.
 	Dlg.RunModal(*this);
+
+	// Re-populate.
+	Refresh();
 }
 
 /******************************************************************************
