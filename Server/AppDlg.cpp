@@ -10,6 +10,11 @@
 
 #include "AppHeaders.hpp"
 
+#ifdef _DEBUG
+// For memory leak detection.
+#define new DBGCRT_NEW
+#endif
+
 /******************************************************************************
 ** Method:		Default constructor.
 **
@@ -67,14 +72,16 @@ void CAppDlg::Trace(const char* pszMsg)
 {
 	m_lbTrace.Redraw(false);
 
-	uint i = m_lbTrace.Add(pszMsg);
+	int i = m_lbTrace.Add(pszMsg);
 
-	m_lbTrace.CurSel(i);
+	// Scroll trace, if at bottom.
+	if (m_lbTrace.CurSel() == (i-1))
+		m_lbTrace.CurSel(i);
 
-//	if (i >= App.m_nMaxTrace)
-//		m_lbTrace.Delete(0);
+	// Delete expired trace lines.
+	while (m_lbTrace.Count() > App.m_nTraceLines)
+		m_lbTrace.Delete(0);
 
-//	m_lbTrace.Update();
 	m_lbTrace.Redraw(true);
 	m_lbTrace.Invalidate();
 }
