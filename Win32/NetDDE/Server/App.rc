@@ -62,6 +62,11 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_APPICON             ICON    DISCARDABLE     "App.ico"
+IDI_NET_LOST            ICON    DISCARDABLE     "NetLost.ico"
+IDI_NET_IDLE            ICON    DISCARDABLE     "NetIdle.ico"
+IDI_NET_SEND            ICON    DISCARDABLE     "NetSend.ico"
+IDI_NET_RECV            ICON    DISCARDABLE     "NetRecv.ico"
+IDI_NET_BOTH            ICON    DISCARDABLE     "NetBoth.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -76,11 +81,17 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        MENUITEM "&Connections",                ID_VIEW_CONNECTIONS
+        MENUITEM "&Client Connections",         ID_VIEW_CLIENT_CONNS
+        MENUITEM "&DDE Conversations",          ID_VIEW_DDE_CONVS
+    END
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "&General...",                 ID_OPTIONS_GENERAL
+        MENUITEM "&Trace...",                   ID_OPTIONS_TRACE
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About NetDDEServer",         ID_HELP_ABOUT
+        MENUITEM "&About NetDDE Server",        ID_HELP_ABOUT
     END
 END
 
@@ -105,11 +116,11 @@ CAPTION "About NetDDEServer"
 FONT 8, "MS Sans Serif"
 BEGIN
     ICON            IDR_APPICON,IDC_STATIC,10,15,20,20
-    CTEXT           "Net DDE Server",IDC_STATIC,40,10,70,10,SS_CENTERIMAGE
+    CTEXT           "NetDDE Server",IDC_STATIC,40,10,70,10,SS_CENTERIMAGE
     CTEXT           "v1.0 Beta",IDC_VERSION,40,20,70,8,SS_CENTERIMAGE
     CTEXT           "Freeware",IDC_STATIC,40,30,70,8,SS_CENTERIMAGE
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,10,50,99,1
-    CTEXT           "(C) Chris Oldwood 2002",IDC_STATIC,10,60,100,10,
+    CTEXT           "(C) Chris Oldwood 2002-2003",IDC_STATIC,10,60,100,10,
                     SS_CENTERIMAGE
     CTEXT           "gort@cix.co.uk",IDC_EMAIL,10,70,100,10,SS_NOTIFY | 
                     SS_CENTERIMAGE
@@ -118,15 +129,69 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,35,100,50,15
 END
 
-IDD_CONNECTIONS DIALOGEX 0, 0, 237, 186
+IDD_CLIENT_CONNS DIALOGEX 0, 0, 312, 186
 STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Connections"
+CAPTION "Client Connections"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Close",IDCANCEL,130,165,50,14
+    CONTROL         "List1",IDC_GRID,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_NOSORTHEADER | WS_BORDER | 
+                    WS_TABSTOP,5,5,300,150,WS_EX_CLIENTEDGE
+END
+
+IDD_TRACE_OPTIONS DIALOG DISCARDABLE  0, 0, 217, 156
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Trace Options"
 FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Messages",IDC_STATIC,5,5,205,60
+    CONTROL         "Create/Destroy &Conversations",IDC_CONVERSATIONS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,20,115,10
+    CONTROL         "&Requests",IDC_REQUESTS,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,135,20,70,10
+    CONTROL         "Start/Stop Ad&vises",IDC_ADVISES,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,35,115,10
+    CONTROL         "Advise &Updates",IDC_UPDATES,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,135,35,70,10
+    CONTROL         "&Net Connections",IDC_CONNECTIONS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,50,115,10
+    GROUPBOX        "Output",IDC_STATIC,5,70,205,55
+    CONTROL         "&Window",IDC_WINDOW,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,15,87,42,10
+    LTEXT           "Ma&x Lines:",IDC_STATIC,95,88,35,8
+    EDITTEXT        IDC_MAX_LINES,135,86,65,14,ES_AUTOHSCROLL
+    CONTROL         "&File",IDC_FILE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    15,107,27,10
+    LTEXT           "File&name:",IDC_STATIC,95,108,31,8
+    EDITTEXT        IDC_FILE_NAME,135,105,65,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,55,135,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,111,135,50,15
+END
+
+IDD_DDE_CONVS DIALOGEX 0, 0, 237, 186
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "DDE Conversations"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Close",IDCANCEL,95,165,50,14
     CONTROL         "List1",IDC_GRID,"SysListView32",LVS_REPORT | 
-                    LVS_SINGLESEL | LVS_SORTASCENDING | LVS_NOSORTHEADER | 
-                    WS_BORDER | WS_TABSTOP,5,5,225,150,WS_EX_CLIENTEDGE
+                    LVS_SINGLESEL | LVS_NOSORTHEADER | WS_BORDER | 
+                    WS_TABSTOP,5,5,225,150,WS_EX_CLIENTEDGE
+END
+
+IDD_OPTIONS DIALOG DISCARDABLE  0, 0, 137, 90
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Interface",IDC_STATIC,5,5,125,55
+    CONTROL         "&Show Status In System Tray",IDC_TRAY_ICON,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,20,105,10
+    CONTROL         "&Minimise To System Tray",IDC_MIN_TO_TRAY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,15,40,105,10
+    DEFPUSHBUTTON   "OK",IDOK,15,70,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,71,70,50,14
 END
 
 
@@ -154,12 +219,36 @@ BEGIN
         BOTTOMMARGIN, 106
     END
 
-    IDD_CONNECTIONS, DIALOG
+    IDD_CLIENT_CONNS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 305
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 179
+    END
+
+    IDD_TRACE_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 210
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 149
+    END
+
+    IDD_DDE_CONVS, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 230
         TOPMARGIN, 7
         BOTTOMMARGIN, 179
+    END
+
+    IDD_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 130
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 83
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -209,19 +298,26 @@ STRINGTABLE DISCARDABLE
 BEGIN
     ID_HELP_POPUP           "Help options"
     ID_HELP_CONTENTS        "Displays the help contents page\nHelp"
-    ID_HELP_ABOUT           "Show Net DDE Server version\nAbout"
+    ID_HELP_ABOUT           "Show NetDDE Server version\nAbout"
 END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
     ID_VIEW_POPUP           "View options"
-    ID_VIEW_CONNECTIONS     "View the connections to the server\nConnections"
+    ID_VIEW_CLIENT_CONNS    "Shows the client connections"
+    ID_VIEW_DDE_CONVS       "Shows the DDE conversations"
 END
 
 STRINGTABLE DISCARDABLE 
 BEGIN
     ID_FILE_POPUP           "File options"
     ID_FILE_EXIT            "Close the application\nClose"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_OPTIONS_POPUP        "Settings options"
+    ID_OPTIONS_TRACE        "Configure the trace settings"
 END
 
 #endif    // English (U.K.) resources
