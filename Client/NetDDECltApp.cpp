@@ -1600,7 +1600,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 			CString strData;
 
 			if (nFormat == CF_TEXT)
-				strData = (const char*)(const void*)oData.Buffer();
+				strData = oData.ToString();
 			else
 				strData = CClipboard::FormatName(nFormat);
 
