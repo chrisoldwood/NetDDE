@@ -2,6 +2,12 @@
 
 - Make conv handle for topic, not service.
 
-- Send disconnect to client when server connection lost.
+- Change WaitForPacket() to not use polling.
 
-- Trap all server<->client read/write errors and log.
+- Add config options for server connections.
+
+- Support sockets.
+
+- Multiplex server connections.
+
+- Clear trace.
