@@ -56,6 +56,7 @@ protected:
 	// Message processors.
 	//
 	virtual void OnCreate(const CRect& rcClient);
+	virtual bool OnQueryClose();
 };
 
 /******************************************************************************
