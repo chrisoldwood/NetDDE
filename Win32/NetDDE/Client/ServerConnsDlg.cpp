@@ -70,7 +70,7 @@ void CServerConnsDlg::OnInitDialog()
 
 		CNetDDEService* pConnection = App.m_aoServices[i];
 
-		m_lvGrid.InsertItem(i,                pConnection->m_oCfg.m_strService);
+		m_lvGrid.InsertItem(i,                pConnection->m_oCfg.m_strRemName);
 		m_lvGrid.ItemText  (i, COMPUTER_NAME, pConnection->m_oCfg.m_strServer);
 		m_lvGrid.ItemText  (i, CONV_COUNT,    itoa(pConnection->m_aoConvs.Size(), szValue, 10));
 		m_lvGrid.ItemText  (i, LINK_COUNT,    itoa(pConnection->m_aoLinks.Size(), szValue, 10));

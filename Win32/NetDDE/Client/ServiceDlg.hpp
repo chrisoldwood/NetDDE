@@ -30,7 +30,8 @@ public:
 	//
 	// Members.
 	//
-	CString	m_strService;
+	CString	m_strRemName;
+	CString	m_strLocName;
 	bool	m_bTextOnly;
 	CString	m_strServer;
 	CString	m_strPipe;
@@ -43,7 +44,8 @@ protected:
 	//
 	// Controls.
 	//
-	CEditBox	m_ebService;
+	CEditBox	m_ebRemName;
+	CEditBox	m_ebLocName;
 	CCheckBox	m_ckTextOnly;
 	CEditBox	m_ebServer;
 	CEditBox	m_ebPipe;
@@ -59,6 +61,7 @@ protected:
 	virtual bool OnOk();
 
 	void OnClickedAsync();
+	void OnClickedReqVal();
 };
 
 /******************************************************************************
