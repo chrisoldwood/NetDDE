@@ -47,7 +47,7 @@ CLinkCache::CLinkCache()
 
 CLinkCache::~CLinkCache()
 {
-	Clear();
+	Purge();
 }
 
 /******************************************************************************
@@ -106,9 +106,49 @@ CLinkValue* CLinkCache::Find(const CDDEConv* pConv, const CDDELink* pLink) const
 }
 
 /******************************************************************************
-** Method:		Clear()
+** Method:		Purge()
 **
-** Description:	Clear the cache.
+** Description:	Clear the entries relating to the conversation from the cache.
+**
+** Parameters:	pConv	The conversation.
+**
+** Returns:		Nothing.
+**
+*******************************************************************************
+*/
+
+void CLinkCache::Purge(const CDDEConv* pConv)
+{
+	CStrArray astrLinks;
+
+	// Format the cache entry prefix for the conversation.
+	CString strPrefix = CString::Fmt("%s|%s!", pConv->Service(), pConv->Topic());
+	int     nLength   = strPrefix.Length();
+
+	CString		strLink;
+	CLinkValue* pLinkValue = NULL;
+	CLinksIter	oIter(m_oLinks);
+
+	// Find all links for the conversation...
+	while (oIter.Next(strLink, pLinkValue))
+	{
+		if (strnicmp(strLink, strPrefix, nLength) == 0)
+		{
+			// Delete value, but remember key.
+			astrLinks.Add(strLink);
+			delete pLinkValue;
+		}
+	}
+
+	// Purge all matching links...
+	for (int i = 0; i < astrLinks.Size(); ++i)
+		m_oLinks.Remove(astrLinks[i]);
+}
+
+/******************************************************************************
+** Method:		Purge()
+**
+** Description:	Clear the entire cache.
 **
 ** Parameters:	None.
 **
@@ -117,7 +157,7 @@ CLinkValue* CLinkCache::Find(const CDDEConv* pConv, const CDDELink* pLink) const
 *******************************************************************************
 */
 
-void CLinkCache::Clear()
+void CLinkCache::Purge()
 {
 	CString		strLink;
 	CLinkValue* pLinkValue = NULL;
@@ -144,9 +184,5 @@ void CLinkCache::Clear()
 
 CString CLinkCache::FormatKey(const CDDEConv* pConv, const CDDELink* pLink)
 {
-	CString strKey;
-
-	strKey.Format("%s%s%s%u", pConv->Service(), pConv->Topic(), pLink->Item(), pLink->Format());
-
-	return strKey;
+	return CString::Fmt("%s|%s!%s%u", pConv->Service(), pConv->Topic(), pLink->Item(), pLink->Format());
 }

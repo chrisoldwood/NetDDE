@@ -2,8 +2,6 @@
 
 - Send multiple advises in a single packet.
 
-- Detect and ignore duplicate advises (CBuffer ==).
+- Configurable DDE and pipe time-outs.
 
-- Flush link cache when no connections.
-
-- Added Execute and Poke support.
+- Configurable option for detecting duplicates.

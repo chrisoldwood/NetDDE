@@ -64,6 +64,8 @@ public:
 		DDE_REQUEST					= (SYNC_PACKET | 0x0022),
 		DDE_START_ADVISE			= (SYNC_PACKET | 0x0023),
 		DDE_STOP_ADVISE				= (SYNC_PACKET | 0x0024),
+		DDE_EXECUTE					= (SYNC_PACKET | 0x0025),
+		DDE_POKE					= (SYNC_PACKET | 0x0026),
 
 		// Server -> Client DDE notification packets.
 		NETDDE_SERVER_DISCONNECT	= (ASYNC_PACKET | 0x0030),
