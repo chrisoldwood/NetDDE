@@ -31,12 +31,10 @@
 
 #include "Resource.h"
 
+// Shared classes.
+#include "NetDDEShared.hpp"
+
 // App data classes.
-#include "LinkValue.hpp"
-#include "LinkCache.hpp"
-#include "NetDDEDefs.hpp"
-#include "NetDDEPacket.hpp"
-#include "NetDDEPipe.hpp"
 #include "NetDDECltPipe.hpp"
 #include "NetDDESvcCfg.hpp"
 #include "NetDDEService.hpp"
