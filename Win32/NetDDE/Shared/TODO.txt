@@ -6,14 +6,6 @@
 
 - Configurable option for detecting duplicates.
 
-- Don't query if shutting down through unhandled exception.
+- Add server support for disconnecting NetDDE clients.
 
-- Fix Trace to handle embeded CRLFs.
-
-- Log when duplicates are ignored.
-
-- Add support for disconnecting clients.
-
-- Log when request returned from cache.
-
-- System try menu for restoring and closing.
+- System tray menu for restoring and closing.
