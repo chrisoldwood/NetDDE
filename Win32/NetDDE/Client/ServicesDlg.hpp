@@ -49,9 +49,10 @@ protected:
 	virtual void OnInitDialog();
 	virtual bool OnOk();
 
-	void OnAdd();
-	void OnEdit();
-	void OnRemove();
+	void    OnAdd();
+	void    OnEdit();
+	void    OnRemove();
+	LRESULT OnDblClkServices(NMHDR& oMsgHdr);
 
 	//
 	// Internal methods.
