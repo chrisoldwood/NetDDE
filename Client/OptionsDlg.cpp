@@ -80,6 +80,10 @@ bool COptionsDlg::OnOk()
 	App.m_bMinToTray  = m_ckMinToTray.IsChecked();
 	App.m_nNetTimeOut = m_ebNetTimeOut.IntValue();
 
+	// Update the service timeouts.
+	for (int i = 0; i < App.m_aoServices.Size(); ++i)
+		App.m_aoServices[i]->m_oConnection.SetTimeOut(App.m_nNetTimeOut);
+
 	return true;
 }
 
