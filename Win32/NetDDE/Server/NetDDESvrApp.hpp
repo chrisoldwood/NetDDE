@@ -32,7 +32,7 @@ public:
 	~CNetDDESvrApp();
 
 	//
-	// Members
+	// Members.
 	//
 	CAppWnd			m_AppWnd;			// Main window.
 	CAppCmds		m_AppCmds;			// Command handler.
@@ -43,6 +43,17 @@ public:
 	CNetDDESvrPipe*	m_pConnection;		// The waiting server connection.
 
 	uint			m_nTimerID;			// The background timer ID.
+
+	uint			m_nMaxTrace;		// Maximum lines of trace.
+
+	CRect			m_rcLastPos;		// Main window position.
+
+	CIniFile		m_oIniFile;			// .INI FIle
+
+	//
+	// Methods.
+	//
+	void Trace(const char* pszMsg, ...);
 
 	//
 	// Constants.
@@ -57,11 +68,6 @@ protected:
 	virtual	bool OnClose();
 
 	//
-	// Preferences.
-	//
-	CIniFile	m_oIniFile;		// .INI FIle
-
-	//
 	// Internal methods.
 	//
 	void LoadConfig();
@@ -72,18 +78,18 @@ protected:
 	//
 	static const char* INI_FILE_VER;
 	static const uint  BG_TIMER_FREQ;
+	static const uint  DEF_MAX_TRACE;
 
 	//
 	// IDDEClientListener methods.
 	//
-	virtual void OnDisconnect(CDDEConv* pConv);
+	virtual void OnDisconnect(CDDECltConv* pConv);
 	virtual void OnAdvise(CDDELink* pLink, const CDDEData* pData);
 
 	//
 	// The backgound timer methods.
 	//
-	void OnTimer();
-	static void CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT nTimerID, DWORD dwTime);
+	virtual void OnTimer(uint nTimerID);
 
 	// Background processing re-entrancy flag.
 	static bool g_bInBgProcessing;
@@ -93,9 +99,18 @@ protected:
 	//
 	void HandleConnects();
 	void HandleRequests();
-	void HandleAdvises();
 	void HandleDisconnects();
-	void ProcessPacket(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+
+	//
+	// Packet handlers.
+	//
+	void OnNetDDEClientConnect(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+	void OnNetDDEClientDisconnect(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDECreateConversation(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEDestroyConversation(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDERequest(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEStartAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
+	void OnDDEStopAdvise(CNetDDESvrPipe& oConnection, CNetDDEPacket& oReqPacket);
 };
 
 /******************************************************************************
