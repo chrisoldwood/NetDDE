@@ -52,6 +52,8 @@
 #define IDC_BAD_ADVISE_VAL              1110
 #define IDC_LINKS                       1110
 #define IDC_REQ_VALUE                   1111
+#define IDC_BUTTON1                     1111
+#define IDC_DISCONNECT                  1111
 #define IDC_LOCAL_NAME                  1112
 #define IDD_SERVICE                     2037
 #define IDD_LINKS                       2038
@@ -72,7 +74,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        2039
 #define _APS_NEXT_COMMAND_VALUE         3069
-#define _APS_NEXT_CONTROL_VALUE         1111
+#define _APS_NEXT_CONTROL_VALUE         1112
 #define _APS_NEXT_SYMED_VALUE           104
 #endif
 #endif
