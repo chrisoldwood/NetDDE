@@ -6,4 +6,6 @@
 
 - Option for Request Inital Value when advising.
 
-- Fix ref counting in server side conversation.
+- Fix multiple client-side conversations bug (protocol change). 
+
+- Add DDE links dialog to server.
