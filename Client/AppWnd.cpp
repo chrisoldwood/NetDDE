@@ -74,3 +74,23 @@ void CAppWnd::OnCreate(const CRect& rcClient)
 	// Call base class.
 	CDlgFrame::OnCreate(rcClient);
 }
+
+/******************************************************************************
+** Method:		OnQueryClose()
+**
+** Description:	Check if the app can close.
+**
+** Parameters:	None.
+**
+** Returns:		true or false.
+**
+*******************************************************************************
+*/
+
+bool CAppWnd::OnQueryClose()
+{
+	// Fetch windows final placement.
+	App.m_rcLastPos = Placement();
+
+	return true;
+}
