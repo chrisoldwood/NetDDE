@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
-// Used by App.rc
+// Microsoft Visual C++ generated include file.
+// Used by NetDDESvr.rc
 //
 #define IDR_APPICON                     2
 #define IDR_APPMENU                     3
@@ -38,6 +38,8 @@
 #define IDC_FILE_NAME                   1098
 #define IDC_MIN_TO_TRAY                 1101
 #define IDC_TRAY_ICON                   1102
+#define IDC_LINKS                       1110
+#define IDD_LINKS                       2038
 #define ID_VIEW_CLEAR_TRACE             3068
 #define IDD_MAIN                        5000
 #define IDD_ABOUT                       5001
