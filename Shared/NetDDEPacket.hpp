@@ -60,6 +60,7 @@ public:
 		DDE_REQUEST					= 0x0022,
 		DDE_START_ADVISE			= 0x0023,
 		DDE_STOP_ADVISE				= 0x0024,
+		DDE_START_ADVISE_ASYNC		= 0x0025,
 
 		// Server -> Client DDE notification packets.
 		NETDDE_SERVER_DISCONNECT	= 0x0030,
