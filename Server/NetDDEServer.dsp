@@ -110,6 +110,10 @@ SOURCE=.\AppWnd.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ConnsDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\NetDDESvrApp.cpp
 # End Source File
 # Begin Source File
@@ -139,6 +143,10 @@ SOURCE=.\AppHeaders.hpp
 # Begin Source File
 
 SOURCE=.\AppWnd.hpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ConnsDlg.hpp
 # End Source File
 # Begin Source File
 
