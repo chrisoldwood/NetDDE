@@ -10,6 +10,11 @@
 
 #include "AppHeaders.hpp"
 
+#ifdef _DEBUG
+// For memory leak detection.
+#define new DBGCRT_NEW
+#endif
+
 /******************************************************************************
 ** Method:		Constructor.
 **
@@ -77,7 +82,7 @@ void CNetDDECltPipe::WaitForPacket(CNetDDEPacket& oPacket, uint nType)
 			m_aoPackets.Add(new CNetDDEPacket(oPacket));
 		}
 
-		::Sleep(0);
+		::Sleep(1);
 	}
 }
 
