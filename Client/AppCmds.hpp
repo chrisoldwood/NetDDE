@@ -35,6 +35,15 @@ public:
 	// File menu.
 	void OnFileExit();
 
+	// View menu.
+	void OnViewServerConns();
+	void OnViewDDEConvs();
+
+	// Options menu.
+	void OnOptionsGeneral();
+	void OnOptionsTrace();
+	void OnOptionsServices();
+
 	// Help menu.
 	void OnHelpAbout();
 
