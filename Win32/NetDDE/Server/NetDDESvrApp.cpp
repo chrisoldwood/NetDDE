@@ -275,6 +275,9 @@ void CNetDDESvrApp::Trace(const char* pszMsg, ...)
 	// Prepend date and time.
 	strMsg = CDateTime::Current().ToString() + " " + strMsg;
 
+	// Convert all non-printable chars.
+	strMsg.RepCtrlChars();
+
 	// Send to trace window.	
 	if (m_bTraceToWindow)
 	{
@@ -297,9 +300,9 @@ void CNetDDESvrApp::Trace(const char* pszMsg, ...)
 		}
 		catch (CFileException& e)
 		{
-			AlertMsg("Failed to write to trace file:\n\n%s", e.ErrorText());
-
 			m_bTraceToFile = false;
+
+			AlertMsg("Failed to write to trace file:\n\n%s", e.ErrorText());
 		}
 	}
 }
@@ -491,7 +494,12 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 
 	// Discard duplicate updates.
 	if ((pValue != NULL) && (pValue->m_oLastValue == oData))
+	{
+		if (App.m_bTraceUpdates)
+			App.Trace("DDE_ADVISE: %s %s (ignored)", pConv->Service(), pLink->Item());
+
 		return;
+	}
 
 	// Create a cache entry, if a new link.
 	if (pValue == NULL)
@@ -596,7 +604,7 @@ void CNetDDESvrApp::OnTimer(uint /*nTimerID*/)
 
 		FatalMsg("Unexpected Exception: %s", e.ErrorText());
 
-		m_AppWnd.Close();
+		m_AppWnd.Destroy();
 	}
 	catch (...)
 	{
@@ -604,7 +612,7 @@ void CNetDDESvrApp::OnTimer(uint /*nTimerID*/)
 
 		FatalMsg("Unhandled Exception.");
 
-		m_AppWnd.Close();
+		m_AppWnd.Destroy();
 	}
 }
 
