@@ -32,6 +32,7 @@
 #include "Resource.h"
 
 // App data classes.
+#include "LinkValue.hpp"
 #include "NetDDEDefs.hpp"
 #include "NetDDEPacket.hpp"
 #include "NetDDEPipe.hpp"
