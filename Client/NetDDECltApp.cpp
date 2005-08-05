@@ -1068,8 +1068,8 @@ void CNetDDECltApp::OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink)
 
 	// If we're not requesting an inital value, send the default one.
 	if (!pService->m_oCfg.m_bReqInitalVal)
-	{
-		pNetConv->m_loNewLinks.AddToTail(pLink);
+	{							  
+		pNetConv->m_oNewLinks.push_back(pLink);
 
 		if (!m_bPostedAdviseMsg)
 		{
@@ -1825,14 +1825,15 @@ void CNetDDECltApp::OnPostInitalUpdates()
 		// For all NetDDE conversations...
 		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 		{
+			// Template shorthands.
+			typedef CNetDDEConv::CLinkList::const_iterator CIter;
+
 			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
-			CLinkIter    oIter(pNetConv->m_loNewLinks);
-			CDDELink*    pLink = NULL;
-
 			// Post update on all new links...
-			while (oIter.Next(pLink))
+			for (CIter oIter = pNetConv->m_oNewLinks.begin(); oIter != pNetConv->m_oNewLinks.end(); ++oIter)
 			{
+				CDDELink*    pLink = *oIter;
 				CDDESvrConv* pConv = static_cast<CDDESvrConv*>(pLink->Conversation());
 
 				if (!pConv->PostLinkUpdate(pLink))
@@ -1842,7 +1843,7 @@ void CNetDDECltApp::OnPostInitalUpdates()
 			}
 
 			// Clear new links list.
-			pNetConv->m_loNewLinks.RemoveAll();
+			pNetConv->m_oNewLinks.clear();
 		}
 	}
 

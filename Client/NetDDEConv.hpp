@@ -33,7 +33,7 @@ public:
 	
 public:
 	// Template shorthands.
-	typedef TList<CDDELink*> CLinkList;
+	typedef std::list<CDDELink*> CLinkList;
 
 	//
 	// Members.
@@ -42,7 +42,7 @@ public:
 	uint32			m_nSvrConvID;	// The server side conversation ID;
 	CDDESvrConv*	m_pCltConv;		// The client side conversation.
 	CLinks			m_aoLinks;		// The active links.
-	CLinkList		m_loNewLinks;	// The list of new links.
+	CLinkList		m_oNewLinks;	// The list of new links.
 };
 
 /******************************************************************************
