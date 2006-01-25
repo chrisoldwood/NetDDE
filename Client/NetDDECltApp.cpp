@@ -1814,9 +1814,6 @@ void CNetDDECltApp::UpdateStats()
 
 void CNetDDECltApp::OnPostInitalUpdates()
 {
-	// Template shorthands.
-	typedef TListIter<CDDELink*> CLinkIter;
-
 	// For all services...
 	for (int i = 0; i < m_aoServices.Size(); ++i)
 	{
