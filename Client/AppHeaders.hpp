@@ -19,8 +19,9 @@
 *******************************************************************************
 */
 
-#include "wcl.hpp"		// Windows C++ library and core headers.
-#include "ncl.hpp"		// Network & Comms library headers.
+#include <Core/Common.hpp>		// Core library common headers.
+#include <WCL/wcl.hpp>			// Windows C++ library.
+#include <NCL/ncl.hpp>			// Network & Comms library.
 
 /******************************************************************************
 **
