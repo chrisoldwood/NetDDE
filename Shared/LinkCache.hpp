@@ -12,6 +12,9 @@
 #ifndef LINKCACHE_HPP
 #define LINKCACHE_HPP
 
+#include <Legacy/TMap.hpp>
+#include <Legacy/TMapIter.hpp>
+
 /******************************************************************************
 ** 
 ** The cache of link values.
