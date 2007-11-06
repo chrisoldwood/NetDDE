@@ -1,42 +1,29 @@
-/******************************************************************************
-** (C) Chris Oldwood
-**
-** MODULE:		NETDDESHARED.HPP
-** COMPONENT:	The Application.
-** DESCRIPTION:	Wrapper to include all the shared application headers.
-**
-*******************************************************************************
-*/
+////////////////////////////////////////////////////////////////////////////////
+//! \file   Common.hpp
+//! \brief  Wrapper include file for the most common header files.
+//! \author Chris Oldwood
 
 // Check for previous inclusion
-#ifndef NETDDESHARED_HPP
-#define NETDDESHARED_HPP
+#ifndef APP_COMMON_HPP
+#define APP_COMMON_HPP
 
-/******************************************************************************
-**
-** System headers.
-**
-*******************************************************************************
-*/
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+// Application documentation.
+//
+
+////////////////////////////////////////////////////////////////////////////////
+// System headers.
 
 #include <Core/Common.hpp>		// Core library common headers.
-#include <WCL/wcl.hpp>			// Windows C++ library.
-#include <NCL/ncl.hpp>			// Network & Comms library.
+#include <WCL/Common.hpp>		// Windows C++ library common headers.
 
-/******************************************************************************
-**
-** Application specific headers.
-**
-*******************************************************************************
-*/
+////////////////////////////////////////////////////////////////////////////////
+// Application common headers.
 
 #include "Resource.h"
 
-// Data classes.
-#include "LinkValue.hpp"
-#include "LinkCache.hpp"
-#include "NetDDEDefs.hpp"
-#include "NetDDEPacket.hpp"
-#include "NetDDESocket.hpp"
-
-#endif //NETDDESHARED_HPP
+#endif // APP_COMMON_HPP
