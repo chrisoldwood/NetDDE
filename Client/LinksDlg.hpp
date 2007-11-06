@@ -12,6 +12,15 @@
 #ifndef LINKSDLG_HPP
 #define LINKSDLG_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#include <WCL/CommonUI.hpp>
+
+// Forward declarations.
+class CDDESvrConv;
+
 /******************************************************************************
 ** 
 ** The dialog used to display the links for a conversation.

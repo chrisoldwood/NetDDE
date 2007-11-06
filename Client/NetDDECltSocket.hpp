@@ -12,6 +12,14 @@
 #ifndef NETDDECLTSOCKET_HPP
 #define NETDDECLTSOCKET_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#include <NCL/TCPCltSocket.hpp>
+#include "NetDDESocket.hpp"
+#include <Legacy/TArray.hpp>
+
 // Forward declarations;
 class CNetDDEService;
 

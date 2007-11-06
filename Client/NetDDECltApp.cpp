@@ -8,12 +8,23 @@
 *******************************************************************************
 */
 
-#include "AppHeaders.hpp"
-
-#ifdef _DEBUG
-// For memory leak detection.
-#define new DBGCRT_NEW
-#endif
+#include "Common.hpp"
+#include "NetDDECltApp.hpp"
+#include <NCL/DDEServer.hpp>
+#include <WCL/FileException.hpp>
+#include <NCL/WinSock.hpp>
+#include <NCL/SocketException.hpp>
+#include "NetDDEService.hpp"
+#include <WCL/DateTime.hpp>
+#include "NetDDEDefs.hpp"
+#include <WCL/MemStream.hpp>
+#include "NetDDEPacket.hpp"
+#include <NCL/DDESvrConv.hpp>
+#include <NCL/DDEData.hpp>
+#include "LinkValue.hpp"
+#include <WCL/Clipboard.hpp>
+#include <WCL/StrCvt.hpp>
+#include <WCL/SysInfo.hpp>
 
 /******************************************************************************
 **

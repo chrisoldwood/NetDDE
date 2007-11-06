@@ -8,8 +8,10 @@
 *******************************************************************************
 */
 
-#include "AppHeaders.hpp"
+#include "Common.hpp"
 #include "OptionsDlg.hpp"
+#include "NetDDECltApp.hpp"
+#include "NetDDEService.hpp"
 
 /******************************************************************************
 ** Method:		Default constructor.

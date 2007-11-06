@@ -12,6 +12,25 @@
 #ifndef NETDDECLTAPP_HPP
 #define NETDDECLTAPP_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#include <WCL/App.hpp>
+#include <NCL/DefDDEServerListener.hpp>
+#include <NCL/IClientSocketListener.hpp>
+#include <Legacy/TArray.hpp>
+#include <WCL/File.hpp>
+#include <WCL/IniFile.hpp>
+#include "AppWnd.hpp"
+#include "AppCmds.hpp"
+#include "LinkCache.hpp"
+
+// Forward declarations.
+class CNetDDEService;
+class CNetDDEPacket;
+class CDDEServer;
+
 /******************************************************************************
 ** 
 ** The application class.

@@ -8,18 +8,18 @@
 *******************************************************************************
 */
 
-#include "AppHeaders.hpp"
+#include "Common.hpp"
+#include "AppCmds.hpp"
+#include "NetDDECltApp.hpp"
 #include "ServerConnsDlg.hpp"
 #include "DDEConvsDlg.hpp"
 #include "OptionsDlg.hpp"
 #include "TraceOptionsDlg.hpp"
 #include "ServicesDlg.hpp"
 #include "AboutDlg.hpp"
-
-#ifdef _DEBUG
-// For memory leak detection.
-#define new DBGCRT_NEW
-#endif
+#include "NetDDEService.hpp"
+#include <NCL/DDEServer.hpp>
+#include <WCL/Exception.hpp>
 
 /******************************************************************************
 ** Method:		Constructor.

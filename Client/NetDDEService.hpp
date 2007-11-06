@@ -12,6 +12,15 @@
 #ifndef NETDDESERVICE_HPP
 #define NETDDESERVICE_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#include <Legacy/TArray.hpp>
+#include "NetDDESvcCfg.hpp"
+#include "NetDDECltSocket.hpp"
+#include "NetDDEConv.hpp"
+
 // Template shorthands.
 typedef TPtrArray<CNetDDEConv> CNetConvs;
 

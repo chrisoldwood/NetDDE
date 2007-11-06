@@ -12,6 +12,10 @@
 #ifndef NETDDECONV_HPP
 #define NETDDECONV_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
 // Template shorthands.
 typedef TPtrArray<CDDELink> CLinks;
 
