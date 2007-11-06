@@ -12,6 +12,13 @@
 #ifndef TRACEOPTIONSDLG_HPP
 #define TRACEOPTIONSDLG_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#include <WCL/CommonUI.hpp>
+#include "NetDDESvrApp.hpp"
+
 /******************************************************************************
 ** 
 ** The dialog used to configure the trace settings.

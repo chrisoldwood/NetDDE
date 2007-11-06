@@ -12,6 +12,19 @@
 #ifndef NETDDESVRSOCKET_HPP
 #define NETDDESVRSOCKET_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#include <NCL/TCPCltSocket.hpp>
+#include "NetDDESocket.hpp"
+#include <Legacy/TArray.hpp>
+
+// Forward declarations;
+class CDDECltConv;
+class CNetDDEConv;
+class CDDELink;
+
 // Template shorthands.
 typedef TPtrArray<CNetDDEConv> CNetConvs;
 

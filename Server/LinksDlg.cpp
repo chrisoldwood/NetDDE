@@ -8,13 +8,12 @@
 *******************************************************************************
 */
 
-#include "AppHeaders.hpp"
+#include "Common.hpp"
 #include "LinksDlg.hpp"
-
-#ifdef _DEBUG
-// For memory leak detection.
-#define new DBGCRT_NEW
-#endif
+#include "NetDDESvrApp.hpp"
+#include <NCL/DDECltConv.hpp>
+#include <NCL/DDELink.hpp>
+#include "LinkValue.hpp"
 
 /******************************************************************************
 ** Method:		Default constructor.

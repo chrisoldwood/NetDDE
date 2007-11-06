@@ -12,8 +12,17 @@
 #ifndef LINKCACHE_HPP
 #define LINKCACHE_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
 #include <Legacy/TMap.hpp>
 #include <Legacy/TMapIter.hpp>
+
+// Forward declarations.
+class CLinkValue;
+class CDDEConv;
+class CDDELink;
 
 /******************************************************************************
 ** 

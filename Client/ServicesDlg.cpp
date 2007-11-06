@@ -8,9 +8,11 @@
 *******************************************************************************
 */
 
-#include "AppHeaders.hpp"
+#include "Common.hpp"
 #include "ServicesDlg.hpp"
 #include "ServiceDlg.hpp"
+#include "NetDDESvcCfg.hpp"
+#include "NetDDEDefs.hpp"
 
 /******************************************************************************
 ** Method:		Default constructor.

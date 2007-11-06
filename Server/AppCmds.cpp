@@ -8,17 +8,13 @@
 *******************************************************************************
 */
 
-#include "AppHeaders.hpp"
+#include "Common.hpp"
+#include "AppCmds.hpp"
 #include "ClientConnsDlg.hpp"
 #include "DDEConvsDlg.hpp"
 #include "OptionsDlg.hpp"
 #include "TraceOptionsDlg.hpp"
 #include "AboutDlg.hpp"
-
-#ifdef _DEBUG
-// For memory leak detection.
-#define new DBGCRT_NEW
-#endif
 
 /******************************************************************************
 ** Method:		Constructor.

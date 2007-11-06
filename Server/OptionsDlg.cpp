@@ -8,8 +8,9 @@
 *******************************************************************************
 */
 
-#include "AppHeaders.hpp"
+#include "Common.hpp"
 #include "OptionsDlg.hpp"
+#include "NetDDESvrApp.hpp"
 
 /******************************************************************************
 ** Method:		Default constructor.

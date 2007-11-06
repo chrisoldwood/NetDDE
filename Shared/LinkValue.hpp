@@ -12,6 +12,13 @@
 #ifndef LINKVALUE_HPP
 #define LINKVALUE_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#include <WCL/DateTime.hpp>
+#include <WCL/Buffer.hpp>
+
 /******************************************************************************
 ** 
 ** The class used to store an links last value.

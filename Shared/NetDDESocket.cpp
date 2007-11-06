@@ -8,12 +8,10 @@
 *******************************************************************************
 */
 
-#include "NetDDEShared.hpp"
-
-#ifdef _DEBUG
-// For memory leak detection.
-#define new DBGCRT_NEW
-#endif
+#include "Common.hpp"
+#include "NetDDESocket.hpp"
+#include <NCL/Socket.hpp>
+#include "NetDDEPacket.hpp"
 
 /******************************************************************************
 ** Method:		Constructor.

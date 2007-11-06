@@ -12,6 +12,14 @@
 #ifndef NETDDESOCKET_HPP
 #define NETDDESOCKET_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+// Forward declarations.
+class CSocket;
+class CNetDDEPacket;
+
 /******************************************************************************
 ** 
 ** The mixin class for NetDDE client/server sockets.

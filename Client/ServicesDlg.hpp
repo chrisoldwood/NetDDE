@@ -12,6 +12,16 @@
 #ifndef SERVICESDLG_HPP
 #define SERVICESDLG_HPP
 
+#if _MSC_VER > 1000
+#pragma once
+#endif
+
+#include <WCL/CommonUI.hpp>
+#include <Legacy/TArray.hpp>
+
+// Forward declarations.
+class CNetDDESvcCfg;
+
 // Template shorthands.
 typedef TPtrArray<CNetDDESvcCfg> CSvcConfigs;
 

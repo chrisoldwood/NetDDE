@@ -8,12 +8,12 @@
 *******************************************************************************
 */
 
-#include "NetDDEShared.hpp"
-
-#ifdef _DEBUG
-// For memory leak detection.
-#define new DBGCRT_NEW
-#endif
+#include "Common.hpp"
+#include "LinkCache.hpp"
+#include "LinkValue.hpp"
+#include <WCL/StrArray.hpp>
+#include <NCL/DDEConv.hpp>
+#include <NCL/DDELink.hpp>
 
 /******************************************************************************
 ** Method:		Constructor.
