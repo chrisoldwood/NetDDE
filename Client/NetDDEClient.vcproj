@@ -23,19 +23,22 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="../Shared;../../Lib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="TRUE"
+				ExceptionHandling="FALSE"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="TRUE"
 				RuntimeLibrary="1"
 				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="AppHeaders.hpp"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough="Common.hpp"
 				PrecompiledHeaderFile=".\Debug/NetDDEClient.pch"
 				AssemblerListingLocation=".\Debug/"
 				ObjectFile=".\Debug/"
@@ -97,17 +100,20 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/EHa"
 				Optimization="2"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="../Shared;../../Lib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="TRUE"
+				ExceptionHandling="FALSE"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="AppHeaders.hpp"
+				UsePrecompiledHeader="3"
+				PrecompiledHeaderThrough="Common.hpp"
 				PrecompiledHeaderFile=".\Release/NetDDEClient.pch"
 				AssemblerListingLocation=".\Release/"
 				ObjectFile=".\Release/"
@@ -204,6 +210,21 @@
 				RelativePath=".\OptionsDlg.cpp">
 			</File>
 			<File
+				RelativePath=".\pch.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="ServerConnsDlg.cpp">
 			</File>
 			<File
@@ -226,10 +247,10 @@
 				RelativePath="AppDlg.hpp">
 			</File>
 			<File
-				RelativePath="AppHeaders.hpp">
+				RelativePath="AppWnd.hpp">
 			</File>
 			<File
-				RelativePath="AppWnd.hpp">
+				RelativePath=".\Common.hpp">
 			</File>
 			<File
 				RelativePath="DDEConvsDlg.hpp">
