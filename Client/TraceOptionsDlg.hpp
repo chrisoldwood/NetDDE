@@ -116,7 +116,7 @@ inline void CTraceOptionsDlg::OnInitDialog()
 	m_ckTraceUpdates.Check(App.m_bTraceUpdates);
 	m_ckTraceNetConns.Check(App.m_bTraceNetConns);
 	m_ckTraceToWindow.Check(App.m_bTraceToWindow);
-	m_ebTraceLines.Text(itoa(App.m_nTraceLines, szValue, 10));
+	m_ebTraceLines.Text(_itoa(App.m_nTraceLines, szValue, 10));
 	m_ckTraceToFile.Check(App.m_bTraceToFile);
 	m_ebTraceFile.Text(App.m_strTraceFile);
 }

@@ -33,16 +33,16 @@ CAppCmds::CAppCmds()
 	// Define the command table.
 	DEFINE_CMD_TABLE
 		// File menu.
-		CMD_ENTRY(ID_FILE_EXIT,			OnFileExit,			NULL,				-1)
+		CMD_ENTRY(ID_FILE_EXIT,			&CAppCmds::OnFileExit,			NULL,	-1)
 		// View menu.
-		CMD_ENTRY(ID_VIEW_CLIENT_CONNS,	OnViewClientConns,	NULL,				-1)
-		CMD_ENTRY(ID_VIEW_DDE_CONVS,	OnViewDDEConvs,		NULL,				-1)
-		CMD_ENTRY(ID_VIEW_CLEAR_TRACE,	OnViewClearTrace,	NULL,				-1)
+		CMD_ENTRY(ID_VIEW_CLIENT_CONNS,	&CAppCmds::OnViewClientConns,	NULL,	-1)
+		CMD_ENTRY(ID_VIEW_DDE_CONVS,	&CAppCmds::OnViewDDEConvs,		NULL,	-1)
+		CMD_ENTRY(ID_VIEW_CLEAR_TRACE,	&CAppCmds::OnViewClearTrace,	NULL,	-1)
 		// Options menu.
-		CMD_ENTRY(ID_OPTIONS_GENERAL,	OnOptionsGeneral,	NULL,				-1)
-		CMD_ENTRY(ID_OPTIONS_TRACE,		OnOptionsTrace,		NULL,				-1)
+		CMD_ENTRY(ID_OPTIONS_GENERAL,	&CAppCmds::OnOptionsGeneral,	NULL,	-1)
+		CMD_ENTRY(ID_OPTIONS_TRACE,		&CAppCmds::OnOptionsTrace,		NULL,	-1)
 		// Help menu.
-		CMD_ENTRY(ID_HELP_ABOUT,		OnHelpAbout,		NULL,				10)
+		CMD_ENTRY(ID_HELP_ABOUT,		&CAppCmds::OnHelpAbout,			NULL,	10)
 	END_CMD_TABLE
 }
 

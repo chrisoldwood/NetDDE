@@ -35,8 +35,8 @@ CDDEConvsDlg::CDDEConvsDlg()
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
-		CMD_CTRLMSG(IDC_LINKS, BN_CLICKED, OnViewLinks)
-		NFY_CTRLMSG(IDC_GRID,  NM_DBLCLK,  OnDblClkConv)
+		CMD_CTRLMSG(IDC_LINKS, BN_CLICKED, &CDDEConvsDlg::OnViewLinks)
+		NFY_CTRLMSG(IDC_GRID,  NM_DBLCLK,  &CDDEConvsDlg::OnDblClkConv)
 	END_CTRLMSG_TABLE
 }
 
@@ -114,7 +114,7 @@ void CDDEConvsDlg::Refresh()
 
 		m_lvGrid.InsertItem(i,             pConv->Service());
 		m_lvGrid.ItemText  (i, TOPIC_NAME, pConv->Topic());
-		m_lvGrid.ItemText  (i, LINK_COUNT, itoa(pConv->NumLinks(), szValue, 10));
+		m_lvGrid.ItemText  (i, LINK_COUNT, _itoa(pConv->NumLinks(), szValue, 10));
 		m_lvGrid.ItemData  (i, (LPARAM)pConv->Handle());
 	}
 

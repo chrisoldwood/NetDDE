@@ -34,7 +34,7 @@ CServerConnsDlg::CServerConnsDlg()
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
-		NFY_CTRLMSG(IDC_GRID,  NM_DBLCLK,  OnDblClkServer)
+		NFY_CTRLMSG(IDC_GRID,  NM_DBLCLK,  &CServerConnsDlg::OnDblClkServer)
 	END_CTRLMSG_TABLE
 }
 

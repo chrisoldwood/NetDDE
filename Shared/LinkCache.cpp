@@ -132,7 +132,7 @@ void CLinkCache::Purge(const CDDEConv* pConv)
 	// Find all links for the conversation...
 	while (oIter.Next(strLink, pLinkValue))
 	{
-		if (strnicmp(strLink, strPrefix, nLength) == 0)
+		if (_strnicmp(strLink, strPrefix, nLength) == 0)
 		{
 			// Delete value, but remember key.
 			astrLinks.Add(strLink);
