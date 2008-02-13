@@ -87,7 +87,7 @@ void CNetDDESvrSocket::Close()
 CNetDDEConv* CNetDDESvrSocket::FindNetConv(CDDECltConv* pConv, uint32 nConvID) const
 {
 	// For all conversations...
-	for (int j = 0; j < m_aoNetConvs.Size(); ++j)
+	for (size_t j = 0; j < m_aoNetConvs.Size(); ++j)
 	{
 		CNetDDEConv* pNetConv = m_aoNetConvs[j];
 
@@ -117,7 +117,7 @@ bool CNetDDESvrSocket::IsLinkUsed(CDDELink* pLink) const
 	CDDEConv* pConv = pLink->Conversation();
 
 	// For all conversations...
-	for (int i = 0; i < m_aoNetConvs.Size(); ++i)
+	for (size_t i = 0; i < m_aoNetConvs.Size(); ++i)
 	{
 		CNetDDEConv* pNetConv = m_aoNetConvs[i];
 

@@ -58,8 +58,8 @@ public:
 inline CNetDDESvcCfg::CNetDDESvcCfg()
 	: m_bAsyncAdvises(false)
 	, m_bTextOnly(false)
-	, m_strInitialVal("#PNDG")
-	, m_strFailedVal("#LINK")
+	, m_strInitialVal(TXT("#PNDG"))
+	, m_strFailedVal(TXT("#LINK"))
 	, m_bReqInitalVal(false)
 {
 }

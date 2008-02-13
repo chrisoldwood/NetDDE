@@ -82,11 +82,11 @@ void CAppDlg::Clear()
 *******************************************************************************
 */
 
-void CAppDlg::Trace(const char* pszMsg)
+void CAppDlg::Trace(const tchar* pszMsg)
 {
 	m_lbTrace.Redraw(false);
 
-	int i = m_lbTrace.Add(pszMsg);
+	size_t i = m_lbTrace.Add(pszMsg);
 
 	// Scroll trace, if at bottom.
 	if (m_lbTrace.CurSel() == (i-1))

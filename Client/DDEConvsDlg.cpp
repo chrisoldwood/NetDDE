@@ -14,6 +14,7 @@
 #include "NetDDECltApp.hpp"
 #include <NCL/DDEServer.hpp>
 #include <NCL/DDESvrConv.hpp>
+#include <WCL/StrCvt.hpp>
 
 /******************************************************************************
 ** Method:		Default constructor.
@@ -59,9 +60,9 @@ void CDDEConvsDlg::OnInitDialog()
 	m_lvGrid.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvGrid.InsertColumn(SERVICE_NAME, "Service", 125, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(TOPIC_NAME,   "Topic",   125, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(LINK_COUNT,   "Links",    70, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(SERVICE_NAME, TXT("Service"), 125, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(TOPIC_NAME,   TXT("Topic"),   125, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(LINK_COUNT,   TXT("Links"),    70, LVCFMT_RIGHT);
 
 	// Populate.
 	Refresh();
@@ -107,16 +108,14 @@ void CDDEConvsDlg::Refresh()
 	App.m_pDDEServer->GetAllConversations(aoConvs);
 
 	// Load grid data.
-	for (int i = 0; i < aoConvs.Size(); ++i)
+	for (size_t i = 0; i < aoConvs.Size(); ++i)
 	{
-		char szValue[50];
-
 		CDDESvrConv* pConv = aoConvs[i];
 
 		m_lvGrid.InsertItem(i,             pConv->Service());
 		m_lvGrid.ItemText  (i, TOPIC_NAME, pConv->Topic());
-		m_lvGrid.ItemText  (i, LINK_COUNT, _itoa(pConv->NumLinks(), szValue, 10));
-		m_lvGrid.ItemData  (i, (LPARAM)pConv->Handle());
+		m_lvGrid.ItemText  (i, LINK_COUNT, CStrCvt::FormatUInt(pConv->NumLinks()));
+		m_lvGrid.ItemData  (i,             reinterpret_cast<LPARAM>(pConv->Handle()));
 	}
 
 	// Select 1st by default.
@@ -151,7 +150,7 @@ void CDDEConvsDlg::OnViewLinks()
 
 	if (pConv == NULL)
 	{
-		AlertMsg("The conversation has been terminated.");
+		AlertMsg(TXT("The conversation has been terminated."));
 		return;
 	}
 
@@ -192,7 +191,7 @@ void CDDEConvsDlg::OnCloseConv()
 
 	if (pConv == NULL)
 	{
-		AlertMsg("The conversation has already been terminated.");
+		AlertMsg(TXT("The conversation has already been terminated."));
 		return;
 	}
 

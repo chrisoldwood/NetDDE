@@ -56,13 +56,13 @@ void CServerConnsDlg::OnInitDialog()
 	m_lvGrid.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvGrid.InsertColumn(SERVICE_NAME,  "Service",  100, LVCFMT_LEFT);
-	m_lvGrid.InsertColumn(COMPUTER_NAME, "Computer", 100, LVCFMT_LEFT);
-	m_lvGrid.InsertColumn(CONV_COUNT,    "Convs",     70, LVCFMT_RIGHT);
-	m_lvGrid.InsertColumn(LINK_COUNT,    "Links",     70, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(SERVICE_NAME,  TXT("Service"),  100, LVCFMT_LEFT);
+	m_lvGrid.InsertColumn(COMPUTER_NAME, TXT("Computer"), 100, LVCFMT_LEFT);
+	m_lvGrid.InsertColumn(CONV_COUNT,    TXT("Convs"),     70, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(LINK_COUNT,    TXT("Links"),     70, LVCFMT_RIGHT);
 
 	// Load grid data.
-	for (int i = 0; i < App.m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < App.m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pConnection = App.m_aoServices[i];
 
@@ -72,7 +72,7 @@ void CServerConnsDlg::OnInitDialog()
 			int nLinks = 0;
 
 			// Sum links for all conversations.
-			for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+			for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
 				nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.Size();
 
 			int n = m_lvGrid.ItemCount();

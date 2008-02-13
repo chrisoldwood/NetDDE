@@ -38,7 +38,7 @@ public:
 	// Methods.
 	//
 	void Clear();
-	void Trace(const char* pszMsg);
+	void Trace(const tchar* pszMsg);
 
 	//
 	// Members.

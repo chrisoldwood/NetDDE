@@ -63,7 +63,7 @@ void CServiceDlg::OnInitDialog()
 {
 	// Replace local name, if same as remote name.
 	if (m_strLocName == m_strRemName)
-		m_strLocName = "";
+		m_strLocName = TXT("");
 
 	// Initialise controls.
 	m_ebRemName.Text(m_strRemName);
@@ -98,21 +98,21 @@ bool CServiceDlg::OnOk()
 	// Validate control values.
 	if (m_ebRemName.TextLength() == 0)
 	{
-		AlertMsg("Please provide the remote DDE Service name.");
+		AlertMsg(TXT("Please provide the remote DDE Service name."));
 		m_ebRemName.Focus();
 		return false;
 	}
 
 	if (m_ebServer.TextLength() == 0)
 	{
-		AlertMsg("Please provide the NetDDE Server Hostname.");
+		AlertMsg(TXT("Please provide the NetDDE Server Hostname."));
 		m_ebServer.Focus();
 		return false;
 	}
 
 	if (m_ebPort.TextLength() == 0)
 	{
-		AlertMsg("Please provide the NetDDE Server Port Number.");
+		AlertMsg(TXT("Please provide the NetDDE Server Port Number."));
 		m_ebPort.Focus();
 		return false;
 	}
@@ -129,7 +129,7 @@ bool CServiceDlg::OnOk()
 	m_strFailedVal  = m_ebFailedVal.Text();
 
 	// Set local name, if not already.
-	if (m_strLocName == "")
+	if (m_strLocName == TXT(""))
 		m_strLocName = m_strRemName;
 
 	return true;

@@ -76,8 +76,8 @@ inline CAboutDlg::CAboutDlg()
 	END_CTRL_TABLE
 
 	// Set the URL label protocols.
-	m_txtEmail.Protocol("mailto:");
-	m_txtWebSite.Protocol("http://");
+	m_txtEmail.Protocol(TXT("mailto:"));
+	m_txtWebSite.Protocol(TXT("http://"));
 }
 
 /******************************************************************************

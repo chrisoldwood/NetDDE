@@ -74,7 +74,7 @@ inline CNetDDEService::~CNetDDEService()
 inline CNetDDEConv* CNetDDEService::FindNetConv(CDDESvrConv* pConv) const
 {
 	// For all service conversations.
-	for (int j = 0; j < m_aoNetConvs.Size(); ++j)
+	for (size_t j = 0; j < m_aoNetConvs.Size(); ++j)
 	{
 		CNetDDEConv* pNetConv = m_aoNetConvs[j];
 

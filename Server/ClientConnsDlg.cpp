@@ -57,11 +57,11 @@ void CClientConnsDlg::OnInitDialog()
 	m_lvGrid.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvGrid.InsertColumn(COMPUTER_NAME, "Computer", 100, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(USER_NAME,     "User",     100, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(SERVICE_NAME,  "Service",  100, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(CONV_COUNT,    "Convs",     70, LVCFMT_RIGHT);
-	m_lvGrid.InsertColumn(LINK_COUNT,    "Links",     70, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(COMPUTER_NAME, TXT("Computer"), 100, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(USER_NAME,     TXT("User"),     100, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(SERVICE_NAME,  TXT("Service"),  100, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(CONV_COUNT,    TXT("Convs"),     70, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(LINK_COUNT,    TXT("Links"),     70, LVCFMT_RIGHT);
 
 	// Populate.
 	Refresh();
@@ -85,7 +85,7 @@ void CClientConnsDlg::Refresh()
 	m_lvGrid.DeleteAllItems();
 
 	// Load grid data.
-	for (int i = 0; i < App.m_aoConnections.Size(); ++i)
+	for (size_t i = 0; i < App.m_aoConnections.Size(); ++i)
 	{
 		CNetDDESvrSocket* pConnection = App.m_aoConnections[i];
 
@@ -96,7 +96,7 @@ void CClientConnsDlg::Refresh()
 		int nLinks = 0;
 
 		// Sum links for all conversations.
-		for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+		for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
 			nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.Size();
 
 		int n = m_lvGrid.ItemCount();
@@ -149,7 +149,7 @@ void CClientConnsDlg::OnCloseConnection()
 	if (!m_lvGrid.IsSelection())
 		return;
 
-	CNetDDESvrSocket* pConnection = (CNetDDESvrSocket*) m_lvGrid.ItemPtr(m_lvGrid.Selection());
+	CNetDDESvrSocket* pConnection = static_cast<CNetDDESvrSocket*>(m_lvGrid.ItemPtr(m_lvGrid.Selection()));
 
 	// Close connection, if still active.
 	if ((App.m_aoConnections.Find(pConnection) != -1) && (pConnection->IsOpen()))

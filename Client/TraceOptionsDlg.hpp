@@ -18,6 +18,7 @@
 
 #include <WCL/CommonUI.hpp>
 #include "NetDDECltApp.hpp"
+#include <WCL/StrCvt.hpp>
 
 /******************************************************************************
 ** 
@@ -107,8 +108,6 @@ inline CTraceOptionsDlg::CTraceOptionsDlg()
 
 inline void CTraceOptionsDlg::OnInitDialog()
 {
-	char szValue[50];
-
 	// Initialise controls.
 	m_ckTraceConvs.Check(App.m_bTraceConvs);
 	m_ckTraceRequests.Check(App.m_bTraceRequests);
@@ -116,7 +115,7 @@ inline void CTraceOptionsDlg::OnInitDialog()
 	m_ckTraceUpdates.Check(App.m_bTraceUpdates);
 	m_ckTraceNetConns.Check(App.m_bTraceNetConns);
 	m_ckTraceToWindow.Check(App.m_bTraceToWindow);
-	m_ebTraceLines.Text(_itoa(App.m_nTraceLines, szValue, 10));
+	m_ebTraceLines.Text(CStrCvt::FormatUInt(App.m_nTraceLines));
 	m_ckTraceToFile.Check(App.m_bTraceToFile);
 	m_ebTraceFile.Text(App.m_strTraceFile);
 }
@@ -142,7 +141,7 @@ inline bool CTraceOptionsDlg::OnOk()
 	App.m_bTraceUpdates    = m_ckTraceUpdates.IsChecked();
 	App.m_bTraceNetConns   = m_ckTraceNetConns.IsChecked();
 	App.m_bTraceToWindow   = m_ckTraceToWindow.IsChecked();
-	App.m_nTraceLines      = atoi(m_ebTraceLines.Text());
+	App.m_nTraceLines      = CStrCvt::ParseUInt(m_ebTraceLines.Text());
 	App.m_bTraceToFile     = m_ckTraceToFile.IsChecked();
 	App.m_strTraceFile     = m_ebTraceFile.Text();
 

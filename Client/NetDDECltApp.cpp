@@ -44,13 +44,13 @@ CNetDDECltApp App;
 */
 
 #ifdef _DEBUG
-const char* CNetDDECltApp::VERSION      = "v2.0 [Debug]";
+const tchar* CNetDDECltApp::VERSION = TXT("v2.0 [Debug]");
 #else
-const char* CNetDDECltApp::VERSION      = "v2.0";
+const tchar* CNetDDECltApp::VERSION = TXT("v2.0");
 #endif
 
-const char* CNetDDECltApp::INI_FILE_VER  = "1.0";
-const uint  CNetDDECltApp::BG_TIMER_FREQ =  1000;
+const tchar* CNetDDECltApp::INI_FILE_VER  = TXT("1.0");
+const uint   CNetDDECltApp::BG_TIMER_FREQ =  1000;
 
 const bool  CNetDDECltApp::DEF_TRAY_ICON         = true;
 const bool  CNetDDECltApp::DEF_MIN_TO_TRAY       = false;
@@ -63,7 +63,7 @@ const bool  CNetDDECltApp::DEF_TRACE_NET_CONNS   = true;
 const bool  CNetDDECltApp::DEF_TRACE_TO_WINDOW   = true;
 const int   CNetDDECltApp::DEF_TRACE_LINES       = 100;
 const bool  CNetDDECltApp::DEF_TRACE_TO_FILE     = false;
-const char* CNetDDECltApp::DEF_TRACE_FILE        = "NetDDEClient.log";
+const tchar* CNetDDECltApp::DEF_TRACE_FILE        = TXT("NetDDEClient.log");
 
 const uint  CNetDDECltApp::WM_POST_INITIAL_UPDATES = WM_APP + 1;
 
@@ -149,7 +149,7 @@ bool CNetDDECltApp::OnOpen()
 	}
 
 	// Set the app title.
-	m_strTitle = "NetDDE Client";
+	m_strTitle = TXT("NetDDE Client");
 
 	// Load settings.
 	LoadConfig();
@@ -167,7 +167,7 @@ bool CNetDDECltApp::OnOpen()
 		}
 		catch (CFileException& e)
 		{
-			AlertMsg("Failed to truncate trace file:\n\n%s", e.ErrorText());
+			AlertMsg(TXT("Failed to truncate trace file:\n\n%s"), e.ErrorText());
 
 			m_bTraceToFile = false;
 		}
@@ -180,7 +180,7 @@ bool CNetDDECltApp::OnOpen()
 
 		if (nResult != 0)
 		{
-			FatalMsg("Failed to initialise WinSock layer: %d.", nResult);
+			FatalMsg(TXT("Failed to initialise WinSock layer: %d."), nResult);
 			return false;
 		}
 
@@ -190,7 +190,7 @@ bool CNetDDECltApp::OnOpen()
 	}
 	catch (CException& e)
 	{
-		FatalMsg(e.ErrorText());
+		FatalMsg(TXT("%s"), e.ErrorText());
 		return false;
 	}
 
@@ -207,23 +207,23 @@ bool CNetDDECltApp::OnOpen()
 	// Update UI.
 	m_AppCmds.UpdateUI();
 
-	App.Trace("SERVER_STATUS: Server started");
+	App.Trace(TXT("SERVER_STATUS: Server started"));
 
 	// Register DDE services.
-	for (int i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
 		try
 		{
-			App.Trace("DDE_STATUS: Registering service: %s [%s]", pService->m_oCfg.m_strLocName, pService->m_oCfg.m_strServer);
+			App.Trace(TXT("DDE_STATUS: Registering service: %s [%s]"), pService->m_oCfg.m_strLocName, pService->m_oCfg.m_strServer);
 
 			// Register the DDE service name.
 			m_pDDEServer->Register(pService->m_oCfg.m_strLocName);
 		}
 		catch (CException& e)
 		{
-			AlertMsg("Failed to register DDE service: %s\n\n%s", pService->m_oCfg.m_strLocName, e.ErrorText());
+			AlertMsg(TXT("Failed to register DDE service: %s\n\n%s"), pService->m_oCfg.m_strLocName, e.ErrorText());
 		}
 	}
 
@@ -251,7 +251,7 @@ bool CNetDDECltApp::OnClose()
 	StopTimer(m_nTimerID);
 
 	// Terminate the services.
-	for (int i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
@@ -278,7 +278,7 @@ bool CNetDDECltApp::OnClose()
 	// Save settings.
 	SaveConfig();
 	
-	App.Trace("SERVER_STATUS: Server stopped");
+	App.Trace(TXT("SERVER_STATUS: Server stopped"));
 
 	return true;
 }
@@ -296,7 +296,7 @@ bool CNetDDECltApp::OnClose()
 *******************************************************************************
 */
 
-void CNetDDECltApp::Trace(const char* pszMsg, ...)
+void CNetDDECltApp::Trace(const tchar* pszMsg, ...)
 {
 	// Nothing to do?
 	if (!m_bTraceToWindow && !m_bTraceToFile)
@@ -312,7 +312,7 @@ void CNetDDECltApp::Trace(const char* pszMsg, ...)
 	strMsg.FormatEx(pszMsg, args);
 
 	// Prepend date and time.
-	strMsg = CDateTime::Current().ToString() + " " + strMsg;
+	strMsg = CDateTime::Current().ToString() + TXT(" ") + strMsg;
 
 	// Convert all non-printable chars.
 	strMsg.RepCtrlChars();
@@ -334,14 +334,14 @@ void CNetDDECltApp::Trace(const char* pszMsg, ...)
 				m_fTraceFile.Create(m_strTracePath);
 
 			m_fTraceFile.Seek(0, FILE_END);
-			m_fTraceFile.WriteLine(strMsg);
+			m_fTraceFile.WriteLine(strMsg, ANSI_TEXT);
 			m_fTraceFile.Close();
 		}
 		catch (CFileException& e)
 		{
 			m_bTraceToFile = false;
 
-			AlertMsg("Failed to write to trace file:\n\n%s", e.ErrorText());
+			AlertMsg(TXT("Failed to write to trace file:\n\n%s"), e.ErrorText());
 		}
 	}
 }
@@ -361,33 +361,33 @@ void CNetDDECltApp::Trace(const char* pszMsg, ...)
 void CNetDDECltApp::LoadConfig()
 {
 	// Read the file version.
-	CString strVer = m_oIniFile.ReadString("Version", "Version", INI_FILE_VER);
+	CString strVer = m_oIniFile.ReadString(TXT("Version"), TXT("Version"), INI_FILE_VER);
 
 	// Read the general settings.
-	m_bTrayIcon   = m_oIniFile.ReadBool("Main", "TrayIcon",     m_bTrayIcon  );
-	m_bMinToTray  = m_oIniFile.ReadBool("Main", "MinToTray",    m_bMinToTray );
-	m_nNetTimeOut = m_oIniFile.ReadInt ("Main", "NetTimeOut",   m_nNetTimeOut);
+	m_bTrayIcon   = m_oIniFile.ReadBool(TXT("Main"), TXT("TrayIcon"),     m_bTrayIcon  );
+	m_bMinToTray  = m_oIniFile.ReadBool(TXT("Main"), TXT("MinToTray"),    m_bMinToTray );
+	m_nNetTimeOut = m_oIniFile.ReadInt (TXT("Main"), TXT("NetTimeOut"),   m_nNetTimeOut);
 
 	// Read the service descriptions.
-	int nCount = m_oIniFile.ReadInt("Services", "Count", 0);
+	int nCount = m_oIniFile.ReadInt(TXT("Services"), TXT("Count"), 0);
 
 	for (int i = 0; i < nCount; ++i)
 	{
 		CString strEntry;
 
-		strEntry.Format("Service[%d]", i);
+		strEntry.Format(TXT("Service[%d]"), i);
 
-		CString strSection = m_oIniFile.ReadString("Services", strEntry, "");
+		CString strSection = m_oIniFile.ReadString(TXT("Services"), strEntry, TXT(""));
 
 		// Entry valid?
-		if (strSection != "")
+		if (strSection != TXT(""))
 		{
-			CString strRemName = m_oIniFile.ReadString(strSection, "RemoteName", "");
-			CString strLocName = m_oIniFile.ReadString(strSection, "LocalName",  "");
-			CString strServer  = m_oIniFile.ReadString(strSection, "Server",     "");
+			CString strRemName = m_oIniFile.ReadString(strSection, TXT("RemoteName"), TXT(""));
+			CString strLocName = m_oIniFile.ReadString(strSection, TXT("LocalName"),  TXT(""));
+			CString strServer  = m_oIniFile.ReadString(strSection, TXT("Server"),     TXT(""));
 
 			// Section valid?
-			if ( (strRemName != "") && (strLocName != "") && (strServer != "") )
+			if ( (strRemName != TXT("")) && (strLocName != TXT("")) && (strServer != TXT("")) )
 			{
 				// Add to collection.
 				CNetDDEService* pService = new CNetDDEService;
@@ -395,12 +395,12 @@ void CNetDDECltApp::LoadConfig()
 				pService->m_oCfg.m_strRemName    = strRemName;
 				pService->m_oCfg.m_strLocName    = strLocName;
 				pService->m_oCfg.m_strServer     = strServer;
-				pService->m_oCfg.m_nServerPort   = m_oIniFile.ReadInt   (strSection, "Port",         NETDDE_PORT_DEFAULT);
-				pService->m_oCfg.m_bAsyncAdvises = m_oIniFile.ReadBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
-				pService->m_oCfg.m_bTextOnly     = m_oIniFile.ReadBool  (strSection, "TextOnly",     pService->m_oCfg.m_bTextOnly    );
-				pService->m_oCfg.m_strInitialVal = m_oIniFile.ReadString(strSection, "InitialValue", pService->m_oCfg.m_strInitialVal);
-				pService->m_oCfg.m_strFailedVal  = m_oIniFile.ReadString(strSection, "FailedValue",  pService->m_oCfg.m_strFailedVal );
-				pService->m_oCfg.m_bReqInitalVal = m_oIniFile.ReadBool  (strSection, "ReqInitValue", pService->m_oCfg.m_bReqInitalVal);
+				pService->m_oCfg.m_nServerPort   = m_oIniFile.ReadInt   (strSection, TXT("Port"),         NETDDE_PORT_DEFAULT);
+				pService->m_oCfg.m_bAsyncAdvises = m_oIniFile.ReadBool  (strSection, TXT("AsyncAdvises"), pService->m_oCfg.m_bAsyncAdvises);
+				pService->m_oCfg.m_bTextOnly     = m_oIniFile.ReadBool  (strSection, TXT("TextOnly"),     pService->m_oCfg.m_bTextOnly    );
+				pService->m_oCfg.m_strInitialVal = m_oIniFile.ReadString(strSection, TXT("InitialValue"), pService->m_oCfg.m_strInitialVal);
+				pService->m_oCfg.m_strFailedVal  = m_oIniFile.ReadString(strSection, TXT("FailedValue"),  pService->m_oCfg.m_strFailedVal );
+				pService->m_oCfg.m_bReqInitalVal = m_oIniFile.ReadBool  (strSection, TXT("ReqInitValue"), pService->m_oCfg.m_bReqInitalVal);
 
 				m_aoServices.Add(pService);
 
@@ -411,21 +411,21 @@ void CNetDDECltApp::LoadConfig()
 	}
 
 	// Read the trace settings.
-	m_bTraceConvs    = m_oIniFile.ReadBool  ("Trace", "Conversations",  m_bTraceConvs   );
-	m_bTraceRequests = m_oIniFile.ReadBool  ("Trace", "Requests",       m_bTraceRequests);
-	m_bTraceAdvises  = m_oIniFile.ReadBool  ("Trace", "Advises",        m_bTraceAdvises );
-	m_bTraceUpdates  = m_oIniFile.ReadBool  ("Trace", "Updates",        m_bTraceUpdates );
-	m_bTraceNetConns = m_oIniFile.ReadBool  ("Trace", "NetConnections", m_bTraceNetConns);
-	m_bTraceToWindow = m_oIniFile.ReadBool  ("Trace", "ToWindow",       m_bTraceToWindow);
-	m_nTraceLines    = m_oIniFile.ReadInt   ("Trace", "Lines",          m_nTraceLines   );
-	m_bTraceToFile   = m_oIniFile.ReadBool  ("Trace", "ToFile",         m_bTraceToFile  );
-	m_strTraceFile   = m_oIniFile.ReadString("Trace", "FileName",       m_strTraceFile  );
+	m_bTraceConvs    = m_oIniFile.ReadBool  (TXT("Trace"), TXT("Conversations"),  m_bTraceConvs   );
+	m_bTraceRequests = m_oIniFile.ReadBool  (TXT("Trace"), TXT("Requests"),       m_bTraceRequests);
+	m_bTraceAdvises  = m_oIniFile.ReadBool  (TXT("Trace"), TXT("Advises"),        m_bTraceAdvises );
+	m_bTraceUpdates  = m_oIniFile.ReadBool  (TXT("Trace"), TXT("Updates"),        m_bTraceUpdates );
+	m_bTraceNetConns = m_oIniFile.ReadBool  (TXT("Trace"), TXT("NetConnections"), m_bTraceNetConns);
+	m_bTraceToWindow = m_oIniFile.ReadBool  (TXT("Trace"), TXT("ToWindow"),       m_bTraceToWindow);
+	m_nTraceLines    = m_oIniFile.ReadInt   (TXT("Trace"), TXT("Lines"),          m_nTraceLines   );
+	m_bTraceToFile   = m_oIniFile.ReadBool  (TXT("Trace"), TXT("ToFile"),         m_bTraceToFile  );
+	m_strTraceFile   = m_oIniFile.ReadString(TXT("Trace"), TXT("FileName"),       m_strTraceFile  );
 
 	// Read the window pos and size.
-	m_rcLastPos.left   = m_oIniFile.ReadInt("UI", "Left",   0);
-	m_rcLastPos.top    = m_oIniFile.ReadInt("UI", "Top",    0);
-	m_rcLastPos.right  = m_oIniFile.ReadInt("UI", "Right",  0);
-	m_rcLastPos.bottom = m_oIniFile.ReadInt("UI", "Bottom", 0);
+	m_rcLastPos.left   = m_oIniFile.ReadInt(TXT("UI"), TXT("Left"),   0);
+	m_rcLastPos.top    = m_oIniFile.ReadInt(TXT("UI"), TXT("Top"),    0);
+	m_rcLastPos.right  = m_oIniFile.ReadInt(TXT("UI"), TXT("Right"),  0);
+	m_rcLastPos.bottom = m_oIniFile.ReadInt(TXT("UI"), TXT("Bottom"), 0);
 }
 
 /******************************************************************************
@@ -443,53 +443,53 @@ void CNetDDECltApp::LoadConfig()
 void CNetDDECltApp::SaveConfig()
 {
 	// Write the file version.
-	m_oIniFile.WriteString("Version", "Version", INI_FILE_VER);
+	m_oIniFile.WriteString(TXT("Version"), TXT("Version"), INI_FILE_VER);
 
 	// Write the service descriptions.
-	m_oIniFile.WriteInt("Services", "Count", m_aoServices.Size());
+	m_oIniFile.WriteInt(TXT("Services"), TXT("Count"), m_aoServices.Size());
 
-	for (int i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
 		CString strEntry;
 		CString strSection = pService->m_oCfg.m_strRemName;
 
-		strEntry.Format("Service[%d]", i);
+		strEntry.Format(TXT("Service[%d]"), i);
 
-		m_oIniFile.WriteString("Services", strEntry,       strSection);
-		m_oIniFile.WriteString(strSection, "RemoteName",   pService->m_oCfg.m_strRemName   );
-		m_oIniFile.WriteString(strSection, "LocalName",    pService->m_oCfg.m_strLocName   );
-		m_oIniFile.WriteString(strSection, "Server",       pService->m_oCfg.m_strServer    );
-		m_oIniFile.WriteInt   (strSection, "Port",         pService->m_oCfg.m_nServerPort  );
-		m_oIniFile.WriteBool  (strSection, "AsyncAdvises", pService->m_oCfg.m_bAsyncAdvises);
-		m_oIniFile.WriteBool  (strSection, "TextOnly",     pService->m_oCfg.m_bTextOnly    );
-		m_oIniFile.WriteString(strSection, "InitialValue", pService->m_oCfg.m_strInitialVal);
-		m_oIniFile.WriteString(strSection, "FailedValue",  pService->m_oCfg.m_strFailedVal );
-		m_oIniFile.WriteBool  (strSection, "ReqInitValue", pService->m_oCfg.m_bReqInitalVal);
+		m_oIniFile.WriteString(TXT("Services"), strEntry,       strSection);
+		m_oIniFile.WriteString(strSection, TXT("RemoteName"),   pService->m_oCfg.m_strRemName   );
+		m_oIniFile.WriteString(strSection, TXT("LocalName"),    pService->m_oCfg.m_strLocName   );
+		m_oIniFile.WriteString(strSection, TXT("Server"),       pService->m_oCfg.m_strServer    );
+		m_oIniFile.WriteInt   (strSection, TXT("Port"),         pService->m_oCfg.m_nServerPort  );
+		m_oIniFile.WriteBool  (strSection, TXT("AsyncAdvises"), pService->m_oCfg.m_bAsyncAdvises);
+		m_oIniFile.WriteBool  (strSection, TXT("TextOnly"),     pService->m_oCfg.m_bTextOnly    );
+		m_oIniFile.WriteString(strSection, TXT("InitialValue"), pService->m_oCfg.m_strInitialVal);
+		m_oIniFile.WriteString(strSection, TXT("FailedValue"),  pService->m_oCfg.m_strFailedVal );
+		m_oIniFile.WriteBool  (strSection, TXT("ReqInitValue"), pService->m_oCfg.m_bReqInitalVal);
 	}
 
 	// Write the trace settings.
-	m_oIniFile.WriteBool  ("Trace", "Conversations",  m_bTraceConvs   );
-	m_oIniFile.WriteBool  ("Trace", "Requests",       m_bTraceRequests);
-	m_oIniFile.WriteBool  ("Trace", "Advises",        m_bTraceAdvises );
-	m_oIniFile.WriteBool  ("Trace", "Updates",        m_bTraceUpdates );
-	m_oIniFile.WriteBool  ("Trace", "NetConnections", m_bTraceNetConns);
-	m_oIniFile.WriteBool  ("Trace", "ToWindow",       m_bTraceToWindow);
-	m_oIniFile.WriteInt   ("Trace", "Lines",          m_nTraceLines   );
-	m_oIniFile.WriteBool  ("Trace", "ToFile",         m_bTraceToFile  );
-	m_oIniFile.WriteString("Trace", "FileName",       m_strTraceFile  );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("Conversations"),  m_bTraceConvs   );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("Requests"),       m_bTraceRequests);
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("Advises"),        m_bTraceAdvises );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("Updates"),        m_bTraceUpdates );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("NetConnections"), m_bTraceNetConns);
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("ToWindow"),       m_bTraceToWindow);
+	m_oIniFile.WriteInt   (TXT("Trace"), TXT("Lines"),          m_nTraceLines   );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("ToFile"),         m_bTraceToFile  );
+	m_oIniFile.WriteString(TXT("Trace"), TXT("FileName"),       m_strTraceFile  );
 
 	// Write the general settings.
-	m_oIniFile.WriteBool("Main", "TrayIcon",     m_bTrayIcon  );
-	m_oIniFile.WriteBool("Main", "MinToTray",    m_bMinToTray );
-	m_oIniFile.WriteInt ("Main", "NetTimeOut",   m_nNetTimeOut);
+	m_oIniFile.WriteBool(TXT("Main"), TXT("TrayIcon"),     m_bTrayIcon  );
+	m_oIniFile.WriteBool(TXT("Main"), TXT("MinToTray"),    m_bMinToTray );
+	m_oIniFile.WriteInt (TXT("Main"), TXT("NetTimeOut"),   m_nNetTimeOut);
 
 	// Write the window pos and size.
-	m_oIniFile.WriteInt("UI", "Left",   m_rcLastPos.left  );
-	m_oIniFile.WriteInt("UI", "Top",    m_rcLastPos.top   );
-	m_oIniFile.WriteInt("UI", "Right",  m_rcLastPos.right );
-	m_oIniFile.WriteInt("UI", "Bottom", m_rcLastPos.bottom);
+	m_oIniFile.WriteInt(TXT("UI"), TXT("Left"),   m_rcLastPos.left  );
+	m_oIniFile.WriteInt(TXT("UI"), TXT("Top"),    m_rcLastPos.top   );
+	m_oIniFile.WriteInt(TXT("UI"), TXT("Right"),  m_rcLastPos.right );
+	m_oIniFile.WriteInt(TXT("UI"), TXT("Bottom"), m_rcLastPos.bottom);
 }
 
 /******************************************************************************
@@ -504,10 +504,10 @@ void CNetDDECltApp::SaveConfig()
 *******************************************************************************
 */
 
-CNetDDEService* CNetDDECltApp::FindService(const char* pszService) const
+CNetDDEService* CNetDDECltApp::FindService(const tchar* pszService) const
 {
 	// For all services...
-	for (int i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
@@ -534,12 +534,12 @@ CNetDDEService* CNetDDECltApp::FindService(const char* pszService) const
 CNetDDEService* CNetDDECltApp::FindService(HCONV hSvrConv) const
 {
 	// For all services...
-	for (int i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
 		// For all service conversations.
-		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 		{
 			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -567,12 +567,12 @@ CNetDDEService* CNetDDECltApp::FindService(HCONV hSvrConv) const
 CNetDDEService* CNetDDECltApp::FindService(CDDESvrConv* pConv) const
 {
 	// For all services...
-	for (int i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
 		// For all service conversations.
-		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 		{
 			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -627,27 +627,27 @@ void CNetDDECltApp::Disconnect(CDDESvrConv* pConv)
 bool CNetDDECltApp::OnWildConnect(CStrArray& /*astrServices*/, CStrArray& /*astrTopics*/)
 {
 	if (m_bTraceConvs)
-		App.Trace("DDE_WILDCONNECT (ignored)");
+		App.Trace(TXT("DDE_WILDCONNECT (ignored)"));
 
 	return false;
 }
 
-bool CNetDDECltApp::OnWildConnectService(const char* pszService, CStrArray& /*astrTopics*/)
+bool CNetDDECltApp::OnWildConnectService(const tchar* pszService, CStrArray& /*astrTopics*/)
 {
 	ASSERT(pszService != NULL);
 
 	if (m_bTraceConvs)
-		App.Trace("DDE_WILDCONNECT_SERVICE: %s (ignored)", pszService);
+		App.Trace(TXT("DDE_WILDCONNECT_SERVICE: %s (ignored)"), pszService);
 
 	return false;
 }
 
-bool CNetDDECltApp::OnWildConnectTopic(const char* pszTopic, CStrArray& /*astrServices*/)
+bool CNetDDECltApp::OnWildConnectTopic(const tchar* pszTopic, CStrArray& /*astrServices*/)
 {
 	ASSERT(pszTopic != NULL);
 
 	if (m_bTraceConvs)
-		App.Trace("DDE_WILDCONNECT_TOPIC: %s (ignored)", pszTopic);
+		App.Trace(TXT("DDE_WILDCONNECT_TOPIC: %s (ignored)"), pszTopic);
 
 	return false;
 }
@@ -665,7 +665,7 @@ bool CNetDDECltApp::OnWildConnectTopic(const char* pszTopic, CStrArray& /*astrSe
 *******************************************************************************
 */
 
-bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
+bool CNetDDECltApp::OnConnect(const tchar* pszService, const tchar* pszTopic)
 {
 	bool bAccept = false;
 
@@ -695,7 +695,7 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 			CNetDDEPacket oRspPacket;
 
 			if (m_bTraceConvs)
-				App.Trace("DDE_CREATE_CONVERSATION: %s %s", pszService, pszTopic);
+				App.Trace(TXT("DDE_CREATE_CONVERSATION: %s %s"), pszService, pszTopic);
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oReqPacket);
@@ -724,7 +724,7 @@ bool CNetDDECltApp::OnConnect(const char* pszService, const char* pszTopic)
 		}
 		catch (CSocketException& e)
 		{
-			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+			App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 
 			CloseConnection(pService);
 		}
@@ -760,7 +760,7 @@ void CNetDDECltApp::OnConnectConfirm(CDDESvrConv* pConv)
 	ASSERT(pService != NULL);
 
 	// Set the client side of the NetDDE conversation.
-	for (int i = 0; i < pService->m_aoNetConvs.Size(); ++i)
+	for (size_t i = 0; i < pService->m_aoNetConvs.Size(); ++i)
 	{
 		CNetDDEConv* pNetConv = pService->m_aoNetConvs[i];
 
@@ -814,14 +814,14 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 			CNetDDEPacket oPacket(CNetDDEPacket::DDE_DESTROY_CONVERSATION, oBuffer);
 
 			if (m_bTraceConvs)
-				App.Trace("DDE_DESTROY_CONVERSATION: %s %s", pConv->Service(), pConv->Topic());
+				App.Trace(TXT("DDE_DESTROY_CONVERSATION: %s %s"), pConv->Service(), pConv->Topic());
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
 		}
 		catch (CSocketException& e)
 		{
-			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+			App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 
 			CloseConnection(pService);
 		}
@@ -853,7 +853,7 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 *******************************************************************************
 */
 
-bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFormat, CDDEData& oData)
+bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFormat, CDDEData& oData)
 {
 	// Custom formats not supported.
 	if (nFormat >= 0xC000)
@@ -883,7 +883,11 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 			oData.SetBuffer(pValue->m_oLastValue);
 
 			if (m_bTraceRequests)
-				App.Trace("DDE_REQUEST: %s %s %s %s [%s]", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat), oData.GetString());
+			{
+				CString str = oData.GetString(ANSI_TEXT);
+
+				App.Trace(TXT("DDE_REQUEST: %s %s %s %s [%s]"), pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat), str);
+			}
 
 			return true;
 		}
@@ -911,7 +915,7 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 			CNetDDEPacket oRspPacket;
 
 			if (m_bTraceRequests)
-				App.Trace("DDE_REQUEST: %s %s %s %s", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
+				App.Trace(TXT("DDE_REQUEST: %s %s %s %s"), pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oReqPacket);
@@ -936,7 +940,7 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 		}
 		catch (CSocketException& e)
 		{
-			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+			App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 
 			CloseConnection(pService);
 		}
@@ -963,7 +967,7 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFor
 *******************************************************************************
 */
 
-bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint nFormat)
+bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const tchar* pszItem, uint nFormat)
 {
 	// Custom formats not supported.
 	if (nFormat >= 0xC000)
@@ -1005,7 +1009,7 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 			CNetDDEPacket oRspPacket;
 
 			if (App.m_bTraceAdvises)
-				App.Trace("DDE_START_ADVISE: %s %s %s %s", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
+				App.Trace(TXT("DDE_START_ADVISE: %s %s %s %s"), pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oReqPacket);
@@ -1034,7 +1038,7 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint 
 		}
 		catch (CSocketException& e)
 		{
-			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+			App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 
 			CloseConnection(pService);
 		}
@@ -1159,14 +1163,14 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 			CNetDDEPacket oPacket(CNetDDEPacket::DDE_STOP_ADVISE, oBuffer);
 
 			if (App.m_bTraceAdvises)
-				App.Trace("DDE_STOP_ADVISE: %s %s %s %s", pConv->Service(), pConv->Topic(), pLink->Item(), CClipboard::FormatName(pLink->Format()));
+				App.Trace(TXT("DDE_STOP_ADVISE: %s %s %s %s"), pConv->Service(), pConv->Topic(), pLink->Item(), CClipboard::FormatName(pLink->Format()));
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
 		}
 		catch (CSocketException& e)
 		{
-			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+			App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 
 			CloseConnection(pService);
 		}
@@ -1223,7 +1227,7 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 			CNetDDEPacket oRspPacket;
 
 			if (App.m_bTraceRequests)
-				App.Trace("DDE_EXECUTE: %s %s [%s]", pConv->Service(), pConv->Topic(), strCmd);
+				App.Trace(TXT("DDE_EXECUTE: %s %s [%s]"), pConv->Service(), pConv->Topic(), strCmd);
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oReqPacket);
@@ -1243,7 +1247,7 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 		}
 		catch (CSocketException& e)
 		{
-			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+			App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 
 			CloseConnection(pService);
 		}
@@ -1271,7 +1275,7 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 *******************************************************************************
 */
 
-bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat, const CDDEData& oData)
+bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const tchar* pszItem, uint nFormat, const CDDEData& oData)
 {
 	// Custom formats not supported.
 	if (nFormat >= 0xC000)
@@ -1312,7 +1316,11 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat
 			CNetDDEPacket oRspPacket;
 
 			if (App.m_bTraceRequests)
-				App.Trace("DDE_POKE: %s %s %s %s [%s]", pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat), oData.GetString());
+			{
+				CString str = oData.GetString(ANSI_TEXT);
+
+				App.Trace(TXT("DDE_POKE: %s %s %s %s [%s]"), pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat), str);
+			}
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oReqPacket);
@@ -1332,7 +1340,7 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat
 		}
 		catch (CSocketException& e)
 		{
-			App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+			App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 
 			CloseConnection(pService);
 		}
@@ -1403,7 +1411,7 @@ void CNetDDECltApp::OnReadReady(CSocket* pSocket)
 	}
 	catch (CSocketException& e)
 	{
-		App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+		App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 
 		CloseConnection(pService);
 	}
@@ -1430,7 +1438,7 @@ void CNetDDECltApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 	// Outstanding conversations?
 	if (pService->m_aoNetConvs.Size() > 0)
 	{
-		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 		{
 			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -1463,7 +1471,7 @@ void CNetDDECltApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 
 void CNetDDECltApp::OnError(CSocket* /*pSocket*/, int nEvent, int nError)
 {
-	Trace("SOCKET_ERROR: %s [%s]", CWinSock::ErrorToSymbol(nError), CSocket::AsyncEventStr(nEvent));
+	Trace(TXT("SOCKET_ERROR: %s [%s]"), CWinSock::ErrorToSymbol(nError), CSocket::AsyncEventStr(nEvent));
 }
 
 /******************************************************************************
@@ -1499,7 +1507,7 @@ void CNetDDECltApp::OnTimer(uint /*nTimerID*/)
 void CNetDDECltApp::OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPacket& /*oNfyPacket*/)
 {
 	if (m_bTraceNetConns)
-		App.Trace("NETDDE_SERVER_DISCONNECT: %s", oService.m_oCfg.m_strServer);
+		App.Trace(TXT("NETDDE_SERVER_DISCONNECT: %s"), oService.m_oCfg.m_strServer);
 
 	// Close connection to server.
 	oService.m_oConnection.Close();
@@ -1543,7 +1551,7 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 	if (pService != NULL)
 	{
 		if (m_bTraceConvs)
-			App.Trace("DDE_DISCONNECT: %s", pService->m_oCfg.m_strRemName);
+			App.Trace(TXT("DDE_DISCONNECT: %s"), pService->m_oCfg.m_strRemName);
 
 		// Cleanup all client conversations...
 		for (int i = pService->m_aoNetConvs.Size()-1; i >= 0; --i)
@@ -1611,11 +1619,13 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 			CString strData;
 
 			if (nFormat == CF_TEXT)
-				strData = oData.ToString();
+				strData = oData.ToString(ANSI_TEXT);
+			else if (nFormat == CF_UNICODETEXT)
+				strData = oData.ToString(UNICODE_TEXT);
 			else
 				strData = CClipboard::FormatName(nFormat);
 
-			App.Trace("DDE_ADVISE: %s %s [%s]", oService.m_oCfg.m_strLocName, strItem, strData);
+			App.Trace(TXT("DDE_ADVISE: %s %s [%s]"), oService.m_oCfg.m_strLocName, strItem, strData);
 		}
 
 		// Find the service for the conversation handle.
@@ -1624,7 +1634,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 		if (pService != NULL)
 		{
 			// For all NetDDE conversations...
-			for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+			for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 			{
 				CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -1633,7 +1643,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 					continue;
 
 				// For all links....
-				for (int i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
+				for (size_t i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
 				{
 					CDDELink* pLink = pNetConv->m_aoLinks[i];
 					CDDEConv* pConv = pLink->Conversation();
@@ -1703,7 +1713,7 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 		oStream >> bEoP;
 
 		if (App.m_bTraceAdvises)
-			App.Trace("DDE_START_ADVISE_FAILED: %s %s", oService.m_oCfg.m_strLocName, strItem);
+			App.Trace(TXT("DDE_START_ADVISE_FAILED: %s %s"), oService.m_oCfg.m_strLocName, strItem);
 
 		// Find the service for the conversation handle.
 		CNetDDEService* pService = FindService(hSvrConv);
@@ -1711,7 +1721,7 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 		if (pService != NULL)
 		{
 			// For all NetDDE conversations...
-			for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+			for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 			{
 				CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -1720,7 +1730,7 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 					continue;
 
 				// For all links....
-				for (int i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
+				for (size_t i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
 				{
 					CDDELink* pLink = pNetConv->m_aoLinks[i];
 					CDDEConv* pConv = pLink->Conversation();
@@ -1737,7 +1747,7 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 						ASSERT(pValue != NULL);
 
 						// Update links' value.
-						pValue->m_oLastValue.FromString(pService->m_oCfg.m_strFailedVal);
+						pValue->m_oLastValue.FromString(pService->m_oCfg.m_strFailedVal, ANSI_TEXT);
 						pValue->m_tLastUpdate = CDateTime::Current();
 
 						// Notify DDE Client of advise.
@@ -1773,7 +1783,7 @@ void CNetDDECltApp::UpdateStats()
 		int nConns = 0;
 
 		// How many server connections?
-		for (int i = 0; i < m_aoServices.Size(); ++i)
+		for (size_t i = 0; i < m_aoServices.Size(); ++i)
 		{
 			if (m_aoServices[i]->m_oConnection.IsOpen())
 				nConns++;
@@ -1792,12 +1802,12 @@ void CNetDDECltApp::UpdateStats()
 			nIconID = IDI_NET_LOST;
 
 		// Format tooltip.
-		CString strTip = "NetDDE Client";
+		CString strTip = TXT("NetDDE Client");
 
 		if (nConns > 0)
 		{
-			strTip += "\nConnections: "   + CStrCvt::FormatInt(nConns);
-			strTip += "\nConversations: " + CStrCvt::FormatInt(m_pDDEServer->GetNumConversations());
+			strTip += TXT("\nConnections: ")   + CStrCvt::FormatInt(nConns);
+			strTip += TXT("\nConversations: ") + CStrCvt::FormatInt(m_pDDEServer->GetNumConversations());
 		}
 
 		// Update tray icon.
@@ -1826,12 +1836,12 @@ void CNetDDECltApp::UpdateStats()
 void CNetDDECltApp::OnPostInitalUpdates()
 {
 	// For all services...
-	for (int i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
 		// For all NetDDE conversations...
-		for (int j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
 		{
 			// Template shorthands.
 			typedef CNetDDEConv::CLinkList::const_iterator CIter;
@@ -1846,7 +1856,7 @@ void CNetDDECltApp::OnPostInitalUpdates()
 
 				if (!pConv->PostLinkUpdate(pLink))
 				{
-					TRACE3("PostLinkUpdate('%s|%s', '%s') - Failed\n", pConv->Service(), pConv->Topic(), pLink->Item());
+					TRACE3(TXT("PostLinkUpdate('%s|%s', '%s') - Failed\n"), pConv->Service(), pConv->Topic(), pLink->Item());
 				}
 			}
 
@@ -1880,7 +1890,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 		return;
 
 	if (m_bTraceNetConns)
-		App.Trace("SOCKET_STATUS: Connecting to %s:%u", pService->m_oCfg.m_strServer, pService->m_oCfg.m_nServerPort);
+		App.Trace(TXT("SOCKET_STATUS: Connecting to %s:%u"), pService->m_oCfg.m_strServer, pService->m_oCfg.m_nServerPort);
 
 	// Open the connection to the server
 	pService->m_oConnection.Connect(pService->m_oCfg.m_strServer, pService->m_oCfg.m_nServerPort);
@@ -1907,7 +1917,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	CNetDDEPacket oRspPacket;
 
 	if (m_bTraceNetConns)
-		App.Trace("NETDDE_CLIENT_CONNECT: %u %s %s %s", NETDDE_PROTOCOL, pService->m_oCfg.m_strRemName, CSysInfo::ComputerName(), CSysInfo::UserName());
+		App.Trace(TXT("NETDDE_CLIENT_CONNECT: %u %s %s %s"), NETDDE_PROTOCOL, pService->m_oCfg.m_strRemName, CSysInfo::ComputerName(), CSysInfo::UserName());
 
 	pService->m_oConnection.SendPacket(oReqPacket);
 
@@ -1927,7 +1937,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	oRspStream.Close();
 
 	if (m_bTraceNetConns)
-		App.Trace("NETDDE_SERVER_VERSION: %s", strVersion);
+		App.Trace(TXT("NETDDE_SERVER_VERSION: %s"), strVersion);
 
 	if (!bAccept)
 		throw CSocketException(CSocketException::E_BAD_PROTOCOL, 0);
@@ -1971,7 +1981,7 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 		CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_CLIENT_DISCONNECT, oBuffer);
 
 		if (m_bTraceNetConns)
-			App.Trace("NETDDE_CLIENT_DISCONNECT: %s %s", pService->m_oCfg.m_strRemName, CSysInfo::ComputerName());
+			App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), pService->m_oCfg.m_strRemName, CSysInfo::ComputerName());
 
 		pService->m_oConnection.SendPacket(oPacket);
 

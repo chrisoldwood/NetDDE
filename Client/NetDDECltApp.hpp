@@ -74,7 +74,7 @@ public:
 	bool		m_bTraceUpdates;	// Trace advise updates?
 	bool		m_bTraceNetConns;	// Trace net connections?
 	bool		m_bTraceToWindow;	// Trace output to window?
-	int			m_nTraceLines;		// Trace lines in window.
+	uint		m_nTraceLines;		// Trace lines in window.
 	bool		m_bTraceToFile;		// Trace output to file?
 	CString		m_strTraceFile;		// Trace filename.
 
@@ -92,11 +92,11 @@ public:
 	//
 	// Methods.
 	//
-	CNetDDEService* FindService(const char* pszService) const;
+	CNetDDEService* FindService(const tchar* pszService) const;
 	CNetDDEService* FindService(HCONV hSvrConv) const;
 	CNetDDEService* FindService(CDDESvrConv* pConv) const;
 
-	void Trace(const char* pszMsg, ...);
+	void Trace(const tchar* pszMsg, ...);
 
 	void Disconnect(CDDESvrConv* pConv);
 	void CloseConnection(CNetDDEService* pService);
@@ -104,7 +104,7 @@ public:
 	//
 	// Constants.
 	//
-	static const char* VERSION;
+	static const tchar* VERSION;
 
 protected:
 	//
@@ -122,7 +122,7 @@ protected:
 	//
 	// Constants.
 	//
-	static const char* INI_FILE_VER;
+	static const tchar* INI_FILE_VER;
 	static const uint  BG_TIMER_FREQ;
 
 	static const bool  DEF_TRAY_ICON;
@@ -136,7 +136,7 @@ protected:
 	static const bool  DEF_TRACE_TO_WINDOW;
 	static const int   DEF_TRACE_LINES;
 	static const bool  DEF_TRACE_TO_FILE;
-	static const char* DEF_TRACE_FILE;
+	static const tchar* DEF_TRACE_FILE;
 
 	static const uint  WM_POST_INITIAL_UPDATES;
 
@@ -144,18 +144,18 @@ protected:
 	// IDDEClientListener methods.
 	//
 	virtual bool OnWildConnect(CStrArray& astrServices, CStrArray& astrTopics);
-	virtual bool OnWildConnectService(const char* pszService, CStrArray& astrTopics);
-	virtual bool OnWildConnectTopic(const char* pszTopic, CStrArray& astrServices);
-	virtual bool OnConnect(const char* pszService, const char* pszTopic);
+	virtual bool OnWildConnectService(const tchar* pszService, CStrArray& astrTopics);
+	virtual bool OnWildConnectTopic(const tchar* pszTopic, CStrArray& astrServices);
+	virtual bool OnConnect(const tchar* pszService, const tchar* pszTopic);
 	virtual void OnConnectConfirm(CDDESvrConv* pConv);
 	virtual void OnDisconnect(CDDESvrConv* pConv);
-	virtual bool OnRequest(CDDESvrConv* pConv, const char* pszItem, uint nFormat, CDDEData& oData);
-	virtual bool OnAdviseStart(CDDESvrConv* pConv, const char* pszItem, uint nFormat);
+	virtual bool OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFormat, CDDEData& oData);
+	virtual bool OnAdviseStart(CDDESvrConv* pConv, const tchar* pszItem, uint nFormat);
 	virtual void OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink);
 	virtual bool OnAdviseRequest(CDDESvrConv* pConv, CDDELink* pLink, CDDEData& oData);
 	virtual void OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink);
 	virtual bool OnExecute(CDDESvrConv* pConv, const CString& strCmd);
-	virtual bool OnPoke(CDDESvrConv* pConv, const char* pszItem, uint nFormat, const CDDEData& oData);
+	virtual bool OnPoke(CDDESvrConv* pConv, const tchar* pszItem, uint nFormat, const CDDEData& oData);
 
 	//
 	// IClientSocketListener methods.

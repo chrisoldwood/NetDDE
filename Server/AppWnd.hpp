@@ -55,7 +55,7 @@ public:
 	//
 	// Constants.
 	//
-	static const char* WNDCLASS_NAME;
+	static const tchar* WNDCLASS_NAME;
 
 protected:
 	//
@@ -111,7 +111,7 @@ protected:
 inline void CAppWnd::ShowTrayIcon(bool bShow)
 {
 	if (bShow)
-		m_oTrayIcon.Add(*this, TRAY_ICON_ID, WM_USER_TRAY_NOTIFY, IDI_NET_IDLE, "NetDDE Server");
+		m_oTrayIcon.Add(*this, TRAY_ICON_ID, WM_USER_TRAY_NOTIFY, IDI_NET_IDLE, TXT("NetDDE Server"));
 	else
 		m_oTrayIcon.Remove();
 }

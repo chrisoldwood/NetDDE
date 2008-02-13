@@ -77,11 +77,11 @@ void CServicesDlg::OnInitDialog()
 	m_lvServices.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvServices.InsertColumn(0, "Service", 100, LVCFMT_LEFT);
-	m_lvServices.InsertColumn(1, "Server",  100, LVCFMT_LEFT);
+	m_lvServices.InsertColumn(0, TXT("Service"), 100, LVCFMT_LEFT);
+	m_lvServices.InsertColumn(1, TXT("Server"),  100, LVCFMT_LEFT);
 
 	// Load current services.
-	for (int i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.Size(); ++i)
 	{
 		CNetDDESvcCfg* pService = m_aoServices[i];
 
@@ -131,15 +131,15 @@ void CServicesDlg::OnAdd()
 	CServiceDlg Dlg;
 
 	// Initialise with default values.
-	Dlg.m_strRemName    = "";
-	Dlg.m_strLocName    = "";
+	Dlg.m_strRemName    = TXT("");
+	Dlg.m_strLocName    = TXT("");
 	Dlg.m_bTextOnly     = false;
-	Dlg.m_strServer     = "";
+	Dlg.m_strServer     = TXT("");
 	Dlg.m_nPort         = NETDDE_PORT_DEFAULT;
-	Dlg.m_strDefaultVal = "#PNDG";
+	Dlg.m_strDefaultVal = TXT("#PNDG");
 	Dlg.m_bReqInitVal   = false;
 	Dlg.m_bAsyncAdvises = false;
-	Dlg.m_strFailedVal  = "#LINK";
+	Dlg.m_strFailedVal  = TXT("#LINK");
 
 	// Show config dialog.
 	if (Dlg.RunModal(*this) != IDOK)
@@ -253,7 +253,7 @@ void CServicesDlg::OnRemove()
 		return;
 
 	// Get the selected service.
-	int            nSel     = m_lvServices.Selection();
+	size_t         nSel     = m_lvServices.Selection();
 	CNetDDESvcCfg* pService = static_cast<CNetDDESvcCfg*>(m_lvServices.ItemPtr(nSel));
 
 	// Delete from collection and view.

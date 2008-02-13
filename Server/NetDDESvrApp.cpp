@@ -46,12 +46,12 @@ CNetDDESvrApp App;
 */
 
 #ifdef _DEBUG
-const char* CNetDDESvrApp::VERSION = "v2.0 [Debug]";
+const tchar* CNetDDESvrApp::VERSION = TXT("v2.0 [Debug]");
 #else
-const char* CNetDDESvrApp::VERSION = "v2.0";
+const tchar* CNetDDESvrApp::VERSION = TXT("v2.0");
 #endif
 
-const char* CNetDDESvrApp::INI_FILE_VER  = "1.0";
+const tchar* CNetDDESvrApp::INI_FILE_VER  = TXT("1.0");
 const uint  CNetDDESvrApp::BG_TIMER_FREQ =  1000;
 
 const bool  CNetDDESvrApp::DEF_TRAY_ICON         = true;
@@ -66,7 +66,7 @@ const bool  CNetDDESvrApp::DEF_TRACE_NET_CONNS   = true;
 const bool  CNetDDESvrApp::DEF_TRACE_TO_WINDOW   = true;
 const int   CNetDDESvrApp::DEF_TRACE_LINES       = 100;
 const bool  CNetDDESvrApp::DEF_TRACE_TO_FILE     = false;
-const char* CNetDDESvrApp::DEF_TRACE_FILE        = "NetDDEServer.log";
+const tchar* CNetDDESvrApp::DEF_TRACE_FILE        = TXT("NetDDEServer.log");
 
 const uint  CNetDDESvrApp::WM_POLL_SOCKETS = WM_APP + 1;
 
@@ -152,7 +152,7 @@ bool CNetDDESvrApp::OnOpen()
 	}
 
 	// Set the app title.
-	m_strTitle = "NetDDE Server";
+	m_strTitle = TXT("NetDDE Server");
 
 	// Load settings.
 	LoadConfig();
@@ -170,7 +170,7 @@ bool CNetDDESvrApp::OnOpen()
 		}
 		catch (CFileException& e)
 		{
-			AlertMsg("Failed to truncate trace file:\n\n%s", e.ErrorText());
+			AlertMsg(TXT("Failed to truncate trace file:\n\n%s"), e.ErrorText());
 
 			m_bTraceToFile = false;
 		}
@@ -183,7 +183,7 @@ bool CNetDDESvrApp::OnOpen()
 
 		if (nResult != 0)
 		{
-			FatalMsg("Failed to initialise WinSock layer: %d.", nResult);
+			FatalMsg(TXT("Failed to initialise WinSock layer: %d."), nResult);
 			return false;
 		}
 
@@ -199,7 +199,7 @@ bool CNetDDESvrApp::OnOpen()
 	}
 	catch (CException& e)
 	{
-		FatalMsg(e.ErrorText());
+		FatalMsg(TXT("%s"), e.ErrorText());
 		return false;
 	}
 
@@ -219,8 +219,8 @@ bool CNetDDESvrApp::OnOpen()
 	// Start the background timer.
 	m_nTimerID = StartTimer(BG_TIMER_FREQ);
 
-	App.Trace("SERVER_STATUS: Server started");
-	App.Trace("SERVER_STATUS: Server listening on port: %d", m_nServerPort);
+	App.Trace(TXT("SERVER_STATUS: Server started"));
+	App.Trace(TXT("SERVER_STATUS: Server listening on port: %d"), m_nServerPort);
 
 	return true;
 }
@@ -246,7 +246,7 @@ bool CNetDDESvrApp::OnClose()
 	m_oSvrSocket.Close();
 
 	// Close all client connections...
-	for (int i = 0; i < m_aoConnections.Size(); ++i)
+	for (size_t i = 0; i < m_aoConnections.Size(); ++i)
 	{
 		try
 		{
@@ -255,11 +255,11 @@ bool CNetDDESvrApp::OnClose()
 			if (pConnection->IsOpen())
 			{
 				// Delete the conversation list.
-				for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+				for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
 					m_pDDEClient->DestroyConversation(pConnection->m_aoNetConvs[j]->m_pSvrConv);
 
 				if (App.m_bTraceNetConns)
-					App.Trace("NETDDE_SERVER_DISCONNECT:");
+					App.Trace(TXT("NETDDE_SERVER_DISCONNECT:"));
 
 				// Send disconnect message.
 				CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT);
@@ -291,7 +291,7 @@ bool CNetDDESvrApp::OnClose()
 	// Save settings.
 	SaveConfig();
 
-	App.Trace("SERVER_STATUS: Server stopped");
+	App.Trace(TXT("SERVER_STATUS: Server stopped"));
 
 	return true;
 }
@@ -309,7 +309,7 @@ bool CNetDDESvrApp::OnClose()
 *******************************************************************************
 */
 
-void CNetDDESvrApp::Trace(const char* pszMsg, ...)
+void CNetDDESvrApp::Trace(const tchar* pszMsg, ...)
 {
 	// Nothing to do?
 	if (!m_bTraceToWindow && !m_bTraceToFile)
@@ -325,7 +325,7 @@ void CNetDDESvrApp::Trace(const char* pszMsg, ...)
 	strMsg.FormatEx(pszMsg, args);
 
 	// Prepend date and time.
-	strMsg = CDateTime::Current().ToString() + " " + strMsg;
+	strMsg = CDateTime::Current().ToString() + TXT(" ") + strMsg;
 
 	// Convert all non-printable chars.
 	strMsg.RepCtrlChars();
@@ -347,14 +347,14 @@ void CNetDDESvrApp::Trace(const char* pszMsg, ...)
 				m_fTraceFile.Create(m_strTracePath);
 
 			m_fTraceFile.Seek(0, FILE_END);
-			m_fTraceFile.WriteLine(strMsg);
+			m_fTraceFile.WriteLine(strMsg, ANSI_TEXT);
 			m_fTraceFile.Close();
 		}
 		catch (CFileException& e)
 		{
 			m_bTraceToFile = false;
 
-			AlertMsg("Failed to write to trace file:\n\n%s", e.ErrorText());
+			AlertMsg(TXT("Failed to write to trace file:\n\n%s"), e.ErrorText());
 		}
 	}
 }
@@ -374,33 +374,33 @@ void CNetDDESvrApp::Trace(const char* pszMsg, ...)
 void CNetDDESvrApp::LoadConfig()
 {
 	// Read the file version.
-	CString strVer = m_oIniFile.ReadString("Version", "Version", INI_FILE_VER);
+	CString strVer = m_oIniFile.ReadString(TXT("Version"), TXT("Version"), INI_FILE_VER);
 
 	// Read the server port.
-	m_nServerPort = m_oIniFile.ReadInt("Server", "Port", NETDDE_PORT_DEFAULT);
+	m_nServerPort = m_oIniFile.ReadInt(TXT("Server"), TXT("Port"), NETDDE_PORT_DEFAULT);
 
 	// Read the trace settings.
-	m_bTraceConvs    = m_oIniFile.ReadBool  ("Trace", "Conversations",  m_bTraceConvs   );
-	m_bTraceRequests = m_oIniFile.ReadBool  ("Trace", "Requests",       m_bTraceRequests);
-	m_bTraceAdvises  = m_oIniFile.ReadBool  ("Trace", "Advises",        m_bTraceAdvises );
-	m_bTraceUpdates  = m_oIniFile.ReadBool  ("Trace", "Updates",        m_bTraceUpdates );
-	m_bTraceNetConns = m_oIniFile.ReadBool  ("Trace", "NetConnections", m_bTraceNetConns);
-	m_bTraceToWindow = m_oIniFile.ReadBool  ("Trace", "ToWindow",       m_bTraceToWindow);
-	m_nTraceLines    = m_oIniFile.ReadInt   ("Trace", "Lines",          m_nTraceLines   );
-	m_bTraceToFile   = m_oIniFile.ReadBool  ("Trace", "ToFile",         m_bTraceToFile  );
-	m_strTraceFile   = m_oIniFile.ReadString("Trace", "FileName",       m_strTraceFile  );
+	m_bTraceConvs    = m_oIniFile.ReadBool  (TXT("Trace"), TXT("Conversations"),  m_bTraceConvs   );
+	m_bTraceRequests = m_oIniFile.ReadBool  (TXT("Trace"), TXT("Requests"),       m_bTraceRequests);
+	m_bTraceAdvises  = m_oIniFile.ReadBool  (TXT("Trace"), TXT("Advises"),        m_bTraceAdvises );
+	m_bTraceUpdates  = m_oIniFile.ReadBool  (TXT("Trace"), TXT("Updates"),        m_bTraceUpdates );
+	m_bTraceNetConns = m_oIniFile.ReadBool  (TXT("Trace"), TXT("NetConnections"), m_bTraceNetConns);
+	m_bTraceToWindow = m_oIniFile.ReadBool  (TXT("Trace"), TXT("ToWindow"),       m_bTraceToWindow);
+	m_nTraceLines    = m_oIniFile.ReadInt   (TXT("Trace"), TXT("Lines"),          m_nTraceLines   );
+	m_bTraceToFile   = m_oIniFile.ReadBool  (TXT("Trace"), TXT("ToFile"),         m_bTraceToFile  );
+	m_strTraceFile   = m_oIniFile.ReadString(TXT("Trace"), TXT("FileName"),       m_strTraceFile  );
 
 	// Read the general settings.
-	m_bTrayIcon    = m_oIniFile.ReadBool("Main", "TrayIcon",     m_bTrayIcon   );
-	m_bMinToTray   = m_oIniFile.ReadBool("Main", "MinToTray",    m_bMinToTray  );
-	m_nDDETimeOut  = m_oIniFile.ReadInt ("Main", "DDETimeOut",   m_nDDETimeOut );
-	m_bDiscardDups = m_oIniFile.ReadBool("Main", "NoDuplicates", m_bDiscardDups);
+	m_bTrayIcon    = m_oIniFile.ReadBool(TXT("Main"), TXT("TrayIcon"),     m_bTrayIcon   );
+	m_bMinToTray   = m_oIniFile.ReadBool(TXT("Main"), TXT("MinToTray"),    m_bMinToTray  );
+	m_nDDETimeOut  = m_oIniFile.ReadInt (TXT("Main"), TXT("DDETimeOut"),   m_nDDETimeOut );
+	m_bDiscardDups = m_oIniFile.ReadBool(TXT("Main"), TXT("NoDuplicates"), m_bDiscardDups);
 
 	// Read the window pos and size.
-	m_rcLastPos.left   = m_oIniFile.ReadInt("UI", "Left",   0);
-	m_rcLastPos.top    = m_oIniFile.ReadInt("UI", "Top",    0);
-	m_rcLastPos.right  = m_oIniFile.ReadInt("UI", "Right",  0);
-	m_rcLastPos.bottom = m_oIniFile.ReadInt("UI", "Bottom", 0);
+	m_rcLastPos.left   = m_oIniFile.ReadInt(TXT("UI"), TXT("Left"),   0);
+	m_rcLastPos.top    = m_oIniFile.ReadInt(TXT("UI"), TXT("Top"),    0);
+	m_rcLastPos.right  = m_oIniFile.ReadInt(TXT("UI"), TXT("Right"),  0);
+	m_rcLastPos.bottom = m_oIniFile.ReadInt(TXT("UI"), TXT("Bottom"), 0);
 }
 
 /******************************************************************************
@@ -418,30 +418,30 @@ void CNetDDESvrApp::LoadConfig()
 void CNetDDESvrApp::SaveConfig()
 {
 	// Write the file version.
-	m_oIniFile.WriteString("Version", "Version", INI_FILE_VER);
+	m_oIniFile.WriteString(TXT("Version"), TXT("Version"), INI_FILE_VER);
 
 	// Write the trace settings.
-	m_oIniFile.WriteBool  ("Trace", "Conversations",  m_bTraceConvs   );
-	m_oIniFile.WriteBool  ("Trace", "Requests",       m_bTraceRequests);
-	m_oIniFile.WriteBool  ("Trace", "Advises",        m_bTraceAdvises );
-	m_oIniFile.WriteBool  ("Trace", "Updates",        m_bTraceUpdates );
-	m_oIniFile.WriteBool  ("Trace", "NetConnections", m_bTraceNetConns);
-	m_oIniFile.WriteBool  ("Trace", "ToWindow",       m_bTraceToWindow);
-	m_oIniFile.WriteInt   ("Trace", "Lines",          m_nTraceLines   );
-	m_oIniFile.WriteBool  ("Trace", "ToFile",         m_bTraceToFile  );
-	m_oIniFile.WriteString("Trace", "FileName",       m_strTraceFile  );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("Conversations"),  m_bTraceConvs   );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("Requests"),       m_bTraceRequests);
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("Advises"),        m_bTraceAdvises );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("Updates"),        m_bTraceUpdates );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("NetConnections"), m_bTraceNetConns);
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("ToWindow"),       m_bTraceToWindow);
+	m_oIniFile.WriteInt   (TXT("Trace"), TXT("Lines"),          m_nTraceLines   );
+	m_oIniFile.WriteBool  (TXT("Trace"), TXT("ToFile"),         m_bTraceToFile  );
+	m_oIniFile.WriteString(TXT("Trace"), TXT("FileName"),       m_strTraceFile  );
 
 	// Write the general settings.
-	m_oIniFile.WriteBool("Main", "TrayIcon",     m_bTrayIcon   );
-	m_oIniFile.WriteBool("Main", "MinToTray",    m_bMinToTray  );
-	m_oIniFile.WriteInt ("Main", "DDETimeOut",   m_nDDETimeOut );
-	m_oIniFile.WriteBool("Main", "NoDuplicates", m_bDiscardDups);
+	m_oIniFile.WriteBool(TXT("Main"), TXT("TrayIcon"),     m_bTrayIcon   );
+	m_oIniFile.WriteBool(TXT("Main"), TXT("MinToTray"),    m_bMinToTray  );
+	m_oIniFile.WriteInt (TXT("Main"), TXT("DDETimeOut"),   m_nDDETimeOut );
+	m_oIniFile.WriteBool(TXT("Main"), TXT("NoDuplicates"), m_bDiscardDups);
 
 	// Write the window pos and size.
-	m_oIniFile.WriteInt("UI", "Left",   m_rcLastPos.left  );
-	m_oIniFile.WriteInt("UI", "Top",    m_rcLastPos.top   );
-	m_oIniFile.WriteInt("UI", "Right",  m_rcLastPos.right );
-	m_oIniFile.WriteInt("UI", "Bottom", m_rcLastPos.bottom);
+	m_oIniFile.WriteInt(TXT("UI"), TXT("Left"),   m_rcLastPos.left  );
+	m_oIniFile.WriteInt(TXT("UI"), TXT("Top"),    m_rcLastPos.top   );
+	m_oIniFile.WriteInt(TXT("UI"), TXT("Right"),  m_rcLastPos.right );
+	m_oIniFile.WriteInt(TXT("UI"), TXT("Bottom"), m_rcLastPos.bottom);
 }
 
 /******************************************************************************
@@ -469,7 +469,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 	CNetDDEPacket oPacket(CNetDDEPacket::DDE_DISCONNECT, oBuffer);
 
 	// For all NetDDEClients...
-	for (int i = 0; i < m_aoConnections.Size(); ++i)
+	for (size_t i = 0; i < m_aoConnections.Size(); ++i)
 	{
 		CNetDDESvrSocket* pConnection = m_aoConnections[i];
 		bool              bNotifyConn = true;
@@ -489,7 +489,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 						bNotifyConn = false;
 
 						if (App.m_bTraceConvs)
-							App.Trace("DDE_DISCONNECT: %s, %s", pConv->Service(), pConv->Topic());
+							App.Trace(TXT("DDE_DISCONNECT: %s, %s"), pConv->Service(), pConv->Topic());
 
 						// Send disconnect message.
 						pConnection->SendPacket(oPacket);
@@ -500,7 +500,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 				}
 				catch (CSocketException& e)
 				{
-					App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+					App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 				}
 
 				pConnection->m_aoNetConvs.Delete(j);
@@ -550,7 +550,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	 && (pValue->m_oLastValue == oData))
 	{
 		if (App.m_bTraceUpdates)
-			App.Trace("DDE_ADVISE: %s %s (ignored)", pConv->Service(), pLink->Item());
+			App.Trace(TXT("DDE_ADVISE: %s %s (ignored)"), pConv->Service(), pLink->Item());
 
 		return;
 	}
@@ -583,7 +583,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
 
 	// Notify all NetDDEClients...
-	for (int i = 0; i < m_aoConnections.Size(); ++i)
+	for (size_t i = 0; i < m_aoConnections.Size(); ++i)
 	{
 		CNetDDESvrSocket* pConnection = m_aoConnections[i];
 
@@ -599,9 +599,16 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 				if (App.m_bTraceUpdates)
 				{
 					uint    nFormat = pLink->Format();
-					CString strData = (nFormat == CF_TEXT) ? oData.ToString() : CClipboard::FormatName(nFormat);
+					CString strData;
 
-					App.Trace("DDE_ADVISE: %s %s [%s]", pConv->Service(), pLink->Item(), strData);
+					if (nFormat == CF_TEXT)
+						strData = oData.ToString(ANSI_TEXT);
+					else if (nFormat == CF_UNICODETEXT)
+						strData = oData.ToString(UNICODE_TEXT);
+					else
+						strData = CClipboard::FormatName(nFormat);
+
+					App.Trace(TXT("DDE_ADVISE: %s %s [%s]"), pConv->Service(), pLink->Item(), strData);
 				}
 
 				// Send advise message.
@@ -612,7 +619,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 			}
 			catch (CSocketException& e)
 			{
-				App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+				App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 			}
 		}
 	}
@@ -641,7 +648,7 @@ void CNetDDESvrApp::OnAcceptReady(CTCPSvrSocket* pSvrSocket)
 		pSvrSocket->Accept(pCltSocket);
 
 		if (App.m_bTraceNetConns)
-			App.Trace("SOCKET_STATUS: Connection accepted from %s", pCltSocket->PeerAddress());
+			App.Trace(TXT("SOCKET_STATUS: Connection accepted from %s"), pCltSocket->PeerAddress());
 
 		// Add to collection.
 		m_aoConnections.Add(pCltSocket);
@@ -651,7 +658,7 @@ void CNetDDESvrApp::OnAcceptReady(CTCPSvrSocket* pSvrSocket)
 	}
 	catch (CSocketException& e)
 	{
-		App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+		App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 
 		delete pCltSocket;
 	}
@@ -696,12 +703,12 @@ void CNetDDESvrApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 		CNetDDESvrSocket* pConnection = static_cast<CNetDDESvrSocket*>(pSocket);
 
 		if (App.m_bTraceNetConns)
-			App.Trace("SOCKET_STATUS: Connection closed from %s", pConnection->Host());
+			App.Trace(TXT("SOCKET_STATUS: Connection closed from %s"), pConnection->Host());
 	}
 	// Listening socket.
 	else // (pSocket == &m_oSvrSocket)
 	{
-		FatalMsg("Server listening socket closed.");
+		FatalMsg(TXT("Server listening socket closed."));
 
 		m_AppWnd.Destroy();
 	}
@@ -726,7 +733,7 @@ void CNetDDESvrApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 
 void CNetDDESvrApp::OnError(CSocket* /*pSocket*/, int nEvent, int nError)
 {
-	Trace("SOCKET_ERROR: %s [%s]", CWinSock::ErrorToSymbol(nError), CSocket::AsyncEventStr(nEvent));
+	Trace(TXT("SOCKET_ERROR: %s [%s]"), CWinSock::ErrorToSymbol(nError), CSocket::AsyncEventStr(nEvent));
 }
 
 /******************************************************************************
@@ -789,8 +796,8 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 
 	if (App.m_bTraceNetConns)
 	{
-		App.Trace("NETDDE_CLIENT_CONNECT: %u %s %s %s", nProtocol, strService, strComputer, strUser);
-		App.Trace("NETDDE_CLIENT_VERSION: %s %s", strProcess, strVersion);
+		App.Trace(TXT("NETDDE_CLIENT_CONNECT: %u %s %s %s"), nProtocol, strService, strComputer, strUser);
+		App.Trace(TXT("NETDDE_CLIENT_VERSION: %s %s"), strProcess, strVersion);
 	}
 
 	// Save connection details.
@@ -853,7 +860,7 @@ void CNetDDESvrApp::OnNetDDEClientDisconnect(CNetDDESvrSocket& /*oConnection*/, 
 	oStream.Close();
 
 	if (App.m_bTraceNetConns)
-		App.Trace("NETDDE_CLIENT_DISCONNECT: %s %s", strService, strComputer);
+		App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), strService, strComputer);
 }
 
 /******************************************************************************
@@ -892,7 +899,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	oReqStream.Close();
 
 	if (App.m_bTraceConvs)
-		App.Trace("DDE_CREATE_CONVERSATION: %s %s [#%u]", strService, strTopic, nConvID);
+		App.Trace(TXT("DDE_CREATE_CONVERSATION: %s %s [#%u]"), strService, strTopic, nConvID);
 
 	try
 	{
@@ -910,7 +917,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace("DDE_ERROR: %s", e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
 	}
 
 	// Create response message.
@@ -966,7 +973,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 	oStream.Close();
 
 	if (App.m_bTraceConvs)
-		App.Trace("DDE_DESTROY_CONVERSATION: 0x%p [#%u]", hConv, nConvID);
+		App.Trace(TXT("DDE_DESTROY_CONVERSATION: 0x%p [#%u]"), hConv, nConvID);
 
 	// Locate the conversation.
 	CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
@@ -983,7 +990,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 			if (pNetConv->m_pSvrConv->RefCount() != 1)
 			{
 				// Destroy NetDDE conversations' links.
-				for (int i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
+				for (size_t i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
 					pConv->DestroyLink(pNetConv->m_aoLinks[i]);
 			}
 
@@ -996,7 +1003,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 		}
 		catch (CDDEException& e)
 		{
-			App.Trace("DDE_ERROR: %s", e.ErrorText());
+			App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
 		}
 
 		// Detach from the connection.
@@ -1043,7 +1050,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	oStream.Close();
 
 	if (App.m_bTraceRequests)
-		App.Trace("DDE_REQUEST: %s %s", strItem, CClipboard::FormatName(nFormat));
+		App.Trace(TXT("DDE_REQUEST: %s %s"), strItem, CClipboard::FormatName(nFormat));
 
 	try
 	{
@@ -1062,7 +1069,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace("DDE_ERROR: %s", e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
 	}
 
 	// Create response message.
@@ -1129,7 +1136,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	oStream.Close();
 
 	if (App.m_bTraceAdvises)
-		App.Trace("DDE_START_ADVISE: %s %s %s", strItem, CClipboard::FormatName(nFormat), (bAsync) ? "[ASYNC]" : "");
+		App.Trace(TXT("DDE_START_ADVISE: %s %s %s"), strItem, CClipboard::FormatName(nFormat), (bAsync) ? TXT("[ASYNC]") : TXT(""));
 
 	try
 	{
@@ -1153,7 +1160,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace("DDE_ERROR: %s", e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
 	}
 
 	// Sync advise start?
@@ -1225,7 +1232,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 		}
 		catch (CDDEException& e)
 		{
-			App.Trace("DDE_ERROR: %s", e.ErrorText());
+			App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
 		}
 	}
 	// Link established AND not 1st real link?
@@ -1264,11 +1271,13 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 			CString strData;
 
 			if (nFormat == CF_TEXT)
-				strData = pLinkValue->m_oLastValue.ToString();
+				strData = pLinkValue->m_oLastValue.ToString(ANSI_TEXT);
+			else if (nFormat == CF_UNICODETEXT)
+				strData = pLinkValue->m_oLastValue.ToString(UNICODE_TEXT);
 			else
 				strData = CClipboard::FormatName(nFormat);
 
-			App.Trace("DDE_ADVISE: %s %u", strItem, nFormat);
+			App.Trace(TXT("DDE_ADVISE: %s %u"), strItem, nFormat);
 		}
 	}
 }
@@ -1309,7 +1318,7 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 	oStream.Close();
 
 	if (App.m_bTraceAdvises)
-		App.Trace("DDE_STOP_ADVISE: %s %s", strItem, CClipboard::FormatName(nFormat));
+		App.Trace(TXT("DDE_STOP_ADVISE: %s %s"), strItem, CClipboard::FormatName(nFormat));
 
 	// Locate the conversation.
 	CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
@@ -1332,7 +1341,7 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 			}
 			catch (CDDEException& e)
 			{
-				App.Trace("DDE_ERROR: %s", e.ErrorText());
+				App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
 			}
 
 			// Detach from the connection.
@@ -1377,7 +1386,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	oStream.Close();
 
 	if (App.m_bTraceRequests)
-		App.Trace("DDE_EXECUTE: 0x%p [%s]", hConv, strCmd);
+		App.Trace(TXT("DDE_EXECUTE: 0x%p [%s]"), hConv, strCmd);
 
 	try
 	{
@@ -1394,7 +1403,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace("DDE_ERROR: %s", e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
 	}
 
 	// Create response message.
@@ -1456,7 +1465,18 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 	oStream.Close();
 
 	if (App.m_bTraceRequests)
-		App.Trace("DDE_POKE: %s %s [%s]", strItem, CClipboard::FormatName(nFormat), oData.ToString());
+	{
+		CString strData;
+
+		if (nFormat == CF_TEXT)
+			strData = oData.ToString(ANSI_TEXT);
+		else if (nFormat == CF_UNICODETEXT)
+			strData = oData.ToString(UNICODE_TEXT);
+		else
+			strData = CClipboard::FormatName(nFormat);
+
+		App.Trace(TXT("DDE_POKE: %s %s [%s]"), strItem, CClipboard::FormatName(nFormat), strData);
+	}
 
 	try
 	{
@@ -1473,7 +1493,7 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace("DDE_ERROR: %s", e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
 	}
 
 	// Create response message.
@@ -1522,12 +1542,12 @@ void CNetDDESvrApp::UpdateStats()
 		nIconID = IDI_NET_LOST;
 
 	// Format tooltip.
-	CString strTip = "NetDDE Server";
+	CString strTip = TXT("NetDDE Server");
 
 	if (m_aoConnections.Size() > 0)
 	{
-		strTip += "\nConnections: "   + CStrCvt::FormatInt(m_aoConnections.Size());
-		strTip += "\nConversations: " + CStrCvt::FormatInt(m_pDDEClient->GetNumConversations());
+		strTip += TXT("\nConnections: ")   + CStrCvt::FormatInt(m_aoConnections.Size());
+		strTip += TXT("\nConversations: ") + CStrCvt::FormatInt(m_pDDEClient->GetNumConversations());
 	}
 
 	// Update tray icon.
@@ -1620,7 +1640,7 @@ void CNetDDESvrApp::OnPollSockets()
 			bRecvPacket = false;
 
 			// For all connections...
-			for (int i = 0; i < m_aoConnections.Size(); ++i)
+			for (size_t i = 0; i < m_aoConnections.Size(); ++i)
 			{
 				CNetDDESvrSocket* pConnection = m_aoConnections[i];
 
@@ -1658,13 +1678,13 @@ void CNetDDESvrApp::OnPollSockets()
 				}
 				catch (CSocketException& e)
 				{
-					App.Trace("SOCKET_ERROR: %s", e.ErrorText());
+					App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
 				}
 			}
 		}
 
 		// For all connections...
-		for (int i = 0; i < m_aoConnections.Size(); ++i)
+		for (size_t i = 0; i < m_aoConnections.Size(); ++i)
 		{
 			CNetDDESvrSocket* pConnection = m_aoConnections[i];
 
@@ -1672,7 +1692,7 @@ void CNetDDESvrApp::OnPollSockets()
 			if (!pConnection->IsOpen())
 			{
 				// Close all DDE conversations.
-				for (int j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+				for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
 				{
 					CNetDDEConv* pNetConv = pConnection->m_aoNetConvs[j];
 

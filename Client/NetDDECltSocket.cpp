@@ -99,7 +99,7 @@ void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nPacketID
 		if (m_aoPackets.Size())
 		{
 			// Find our response.
-			for (int i = 0; i < m_aoPackets.Size(); ++i)
+			for (size_t i = 0; i < m_aoPackets.Size(); ++i)
 			{
 				CNetDDEPacket* pPacket = m_aoPackets[i];
 

@@ -185,7 +185,7 @@ void CAppCmds::OnOptionsServices()
 	int nConns = 0;
 
 	// Count connections...
-	for (int i = 0; i < App.m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < App.m_aoServices.Size(); ++i)
 	{
 		if (App.m_aoServices[i]->m_oConnection.IsOpen())
 			nConns++;
@@ -194,26 +194,26 @@ void CAppCmds::OnOptionsServices()
 	// Disallow, if any live connections.
 	if (nConns > 0)
 	{
-		App.NotifyMsg("Services cannot be configured while they are being used.\n"
-					  "Please close all DDE connections to the NetDDEClient first.");
+		App.NotifyMsg(TXT("Services cannot be configured while they are being used.\n")
+					  TXT("Please close all DDE connections to the NetDDEClient first."));
 		return;
 	}
 
 	CServicesDlg Dlg;
 
 	// Initialise dialog with current service list.
-	for (int i = 0; i < App.m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < App.m_aoServices.Size(); ++i)
 		Dlg.m_aoServices.Add(new CNetDDESvcCfg(App.m_aoServices[i]->m_oCfg));
 
 	// Show config dialog.
 	if ( (Dlg.RunModal(App.m_rMainWnd) == IDOK) && (Dlg.m_bModified) )
 	{
 		// Cleanup all current services.
-		for (int i = 0; i < App.m_aoServices.Size(); ++i)
+		for (size_t i = 0; i < App.m_aoServices.Size(); ++i)
 		{
 			CNetDDEService* pService = App.m_aoServices[i];
 
-			App.Trace("DDE_STATUS: Unregistering service: %s", pService->m_oCfg.m_strLocName);
+			App.Trace(TXT("DDE_STATUS: Unregistering service: %s"), pService->m_oCfg.m_strLocName);
 
 			// Unregister the service name.
 			App.m_pDDEServer->Unregister(pService->m_oCfg.m_strLocName);
@@ -222,7 +222,7 @@ void CAppCmds::OnOptionsServices()
 		App.m_aoServices.DeleteAll();
 
 		// Start all new ones.
-		for (int i = 0; i < Dlg.m_aoServices.Size(); ++i)
+		for (size_t i = 0; i < Dlg.m_aoServices.Size(); ++i)
 		{
 			CNetDDESvcCfg*  pSvcCfg  = Dlg.m_aoServices[i];
 			CNetDDEService* pService = new CNetDDEService;
@@ -232,14 +232,14 @@ void CAppCmds::OnOptionsServices()
 
 			try
 			{
-				App.Trace("DDE_STATUS: Registering service: %s [%s]", pService->m_oCfg.m_strLocName, pService->m_oCfg.m_strServer);
+				App.Trace(TXT("DDE_STATUS: Registering service: %s [%s]"), pService->m_oCfg.m_strLocName, pService->m_oCfg.m_strServer);
 
 				// Register the DDE service name.
 				App.m_pDDEServer->Register(pService->m_oCfg.m_strLocName);
 			}
 			catch (CException& e)
 			{
-				App.AlertMsg("Failed to register DDE service: %s\n\n%s", pService->m_oCfg.m_strLocName, e.ErrorText());
+				App.AlertMsg(TXT("Failed to register DDE service: %s\n\n%s"), pService->m_oCfg.m_strLocName, e.ErrorText());
 			}
 
 			// Add to collection.

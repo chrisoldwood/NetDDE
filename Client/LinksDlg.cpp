@@ -61,18 +61,18 @@ void CLinksDlg::OnInitDialog()
 	ASSERT(m_pConv != NULL);
 
 	// Set dialog title.
-	Title(CString::Fmt("Links - %s|%s [%d]", m_pConv->Service(), m_pConv->Topic(), m_pConv->NumLinks()));
+	Title(CString::Fmt(TXT("Links - %s|%s [%d]"), m_pConv->Service(), m_pConv->Topic(), m_pConv->NumLinks()));
 
 	// Set grid style.
 	m_lvGrid.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvGrid.InsertColumn(ITEM_NAME,    "Item",        125, LVCFMT_LEFT);
-	m_lvGrid.InsertColumn(UPDATE_TIME,  "Last Update", 125, LVCFMT_LEFT);
-	m_lvGrid.InsertColumn(UPDATE_VALUE, "Last Value",  100, LVCFMT_LEFT);
+	m_lvGrid.InsertColumn(ITEM_NAME,    TXT("Item"),        125, LVCFMT_LEFT);
+	m_lvGrid.InsertColumn(UPDATE_TIME,  TXT("Last Update"), 125, LVCFMT_LEFT);
+	m_lvGrid.InsertColumn(UPDATE_VALUE, TXT("Last Value"),  100, LVCFMT_LEFT);
 
 	// Load links...
-	for (int i = 0; i < m_pConv->NumLinks(); ++i)
+	for (size_t i = 0; i < m_pConv->NumLinks(); ++i)
 	{
 		CDDELink*   pLink  = m_pConv->GetLink(i);
 		CLinkValue* pValue = App.m_oLinkCache.Find(m_pConv, pLink);
@@ -83,7 +83,7 @@ void CLinksDlg::OnInitDialog()
 		if ((pValue != NULL) && (pValue->m_tLastUpdate != CDateTime::Min()))
 		{
 			m_lvGrid.ItemText(i, UPDATE_TIME,  pValue->m_tLastUpdate.ToString());
-			m_lvGrid.ItemText(i, UPDATE_VALUE, pValue->m_oLastValue.ToString());
+			m_lvGrid.ItemText(i, UPDATE_VALUE, pValue->m_oLastValue.ToString(ANSI_TEXT));
 		}
 	}
 }

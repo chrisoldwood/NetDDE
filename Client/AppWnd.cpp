@@ -21,7 +21,7 @@
 *******************************************************************************
 */
 
-const char* CAppWnd::WNDCLASS_NAME = "NetDDEClient";
+const tchar* CAppWnd::WNDCLASS_NAME = TXT("NetDDEClient");
 
 /******************************************************************************
 ** Method:		Default constructor.
@@ -246,7 +246,7 @@ bool CAppWnd::OnQueryClose()
 	{
 		CString strMsg;
 
-		strMsg.Format("There are %d client(s) still connected.\n\nAre you sure you want to close it?", nConvs);
+		strMsg.Format(TXT("There are %d client(s) still connected.\n\nAre you sure you want to close it?"), nConvs);
 
 		// Abort if NO or CANCEL.
 		if (QueryMsg(strMsg) != IDYES)
