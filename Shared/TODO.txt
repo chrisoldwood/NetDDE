@@ -20,10 +20,12 @@
 
 - Remember size and position of "Links dialog".
 
-- WCL: Fix dialog centering code, to ensure its not off screen.
-
 - Change all dialog fonts to Win2K default.
 
 - See if its possible to find more out about the DDE Client (ala PDD).
 
 - Fix problems configuring two aliases for the same service (eg REUTER as REUTER1 & REUTER2)
+
+- Fix tracing request when not ANSI text.
+
+- Fix assumption that link value can be easily converted to ANSI text (i.e. ToString()/FromString()).
