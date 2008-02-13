@@ -32,7 +32,7 @@ public:
 	//
 	// Constructors/Destructor.
 	//
-	CLinkValue(const char* pszLink);
+	CLinkValue(const tchar* pszLink);
 	~CLinkValue();
 	
 	//
@@ -50,7 +50,7 @@ public:
 *******************************************************************************
 */
 
-inline CLinkValue::CLinkValue(const char* pszLink)
+inline CLinkValue::CLinkValue(const tchar* pszLink)
 	: m_strLink(pszLink)
 	, m_tLastUpdate(CDateTime::Min())
 {

@@ -64,7 +64,7 @@ CLinkCache::~CLinkCache()
 *******************************************************************************
 */
 
-CLinkValue* CLinkCache::Create(const CDDEConv* pConv, const CDDELink* pLink, const char* pszDefValue)
+CLinkValue* CLinkCache::Create(const CDDEConv* pConv, const CDDELink* pLink, const tchar* pszDefValue)
 {
 	ASSERT(Find(pConv, pLink) == NULL);
 
@@ -77,7 +77,7 @@ CLinkValue* CLinkCache::Create(const CDDEConv* pConv, const CDDELink* pLink, con
 
 	// Store inital value, if supplied.
 	if (pszDefValue != NULL)
-		pValue->m_oLastValue.FromString(pszDefValue);
+		pValue->m_oLastValue.FromString(pszDefValue, ANSI_TEXT, true);
 
 	return pValue;
 }
@@ -122,7 +122,7 @@ void CLinkCache::Purge(const CDDEConv* pConv)
 	CStrArray astrLinks;
 
 	// Format the cache entry prefix for the conversation.
-	CString strPrefix = CString::Fmt("%s|%s!", pConv->Service(), pConv->Topic());
+	CString strPrefix = CString::Fmt(TXT("%s|%s!"), pConv->Service(), pConv->Topic());
 	int     nLength   = strPrefix.Length();
 
 	CString		strLink;
@@ -132,7 +132,7 @@ void CLinkCache::Purge(const CDDEConv* pConv)
 	// Find all links for the conversation...
 	while (oIter.Next(strLink, pLinkValue))
 	{
-		if (_strnicmp(strLink, strPrefix, nLength) == 0)
+		if (tstrnicmp(strLink, strPrefix, nLength) == 0)
 		{
 			// Delete value, but remember key.
 			astrLinks.Add(strLink);
@@ -141,7 +141,7 @@ void CLinkCache::Purge(const CDDEConv* pConv)
 	}
 
 	// Purge all matching links...
-	for (int i = 0; i < astrLinks.Size(); ++i)
+	for (size_t i = 0; i < astrLinks.Size(); ++i)
 		m_oLinks.Remove(astrLinks[i]);
 }
 
@@ -184,5 +184,5 @@ void CLinkCache::Purge()
 
 CString CLinkCache::FormatKey(const CDDEConv* pConv, const CDDELink* pLink)
 {
-	return CString::Fmt("%s|%s!%s%u", pConv->Service(), pConv->Topic(), pLink->Item(), pLink->Format());
+	return CString::Fmt(TXT("%s|%s!%s%u"), pConv->Service(), pConv->Topic(), pLink->Item(), pLink->Format());
 }

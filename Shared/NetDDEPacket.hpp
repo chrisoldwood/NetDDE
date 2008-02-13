@@ -116,7 +116,8 @@ protected:
 	//
 	void    Create(uint nDataType, uint nPacketID, const void* pData, uint nDataSize);
 
-	Header* GetHeader() const;
+	const Header* GetHeader() const;
+	Header*       GetHeader();
 
 	static uint GeneratePktID();
 };
@@ -196,16 +197,23 @@ inline const void* CNetDDEPacket::DataBuffer() const
 {
 	ASSERT(m_oBuffer.Buffer() != NULL);
 
-	byte* pBuffer = (byte*) m_oBuffer.Buffer();
+	const byte* pBuffer = static_cast<const byte*>(m_oBuffer.Buffer());
 
 	return pBuffer + sizeof(Header);
 }
 
-inline CNetDDEPacket::Header* CNetDDEPacket::GetHeader() const
+inline const CNetDDEPacket::Header* CNetDDEPacket::GetHeader() const
 {
 	ASSERT(m_oBuffer.Buffer() != NULL);
 
-	return (Header*) m_oBuffer.Buffer();
+	return static_cast<const Header*>(m_oBuffer.Buffer());
+}
+
+inline CNetDDEPacket::Header* CNetDDEPacket::GetHeader()
+{
+	ASSERT(m_oBuffer.Buffer() != NULL);
+
+	return static_cast<Header*>(m_oBuffer.Buffer());
 }
 
 inline uint CNetDDEPacket::GeneratePktID()

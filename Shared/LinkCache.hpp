@@ -45,7 +45,7 @@ public:
 	//
 	uint Size() const;
 
-	CLinkValue* Create(const CDDEConv* pConv, const CDDELink* pLink, const char* pszDefValue = NULL);
+	CLinkValue* Create(const CDDEConv* pConv, const CDDELink* pLink, const tchar* pszDefValue = NULL);
 	CLinkValue* Find(const CDDEConv* pConv, const CDDELink* pLink) const;
 
 	void Purge(const CDDEConv* pConv);
