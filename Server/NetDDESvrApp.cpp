@@ -170,7 +170,7 @@ bool CNetDDESvrApp::OnOpen()
 		}
 		catch (CFileException& e)
 		{
-			AlertMsg(TXT("Failed to truncate trace file:\n\n%s"), e.ErrorText());
+			AlertMsg(TXT("Failed to truncate trace file:\n\n%s"), e.What());
 
 			m_bTraceToFile = false;
 		}
@@ -197,9 +197,9 @@ bool CNetDDESvrApp::OnOpen()
 		// Attach event handler.
 		m_oSvrSocket.AddServerListener(this);
 	}
-	catch (CException& e)
+	catch (Core::Exception& e)
 	{
-		FatalMsg(TXT("%s"), e.ErrorText());
+		FatalMsg(TXT("%s"), e.What());
 		return false;
 	}
 
@@ -270,7 +270,7 @@ bool CNetDDESvrApp::OnClose()
 				++m_nPktsSent;
 			}
 		}
-		catch (CException& /*e*/)
+		catch (Core::Exception& /*e*/)
 		{
 		}
 	}
@@ -354,7 +354,7 @@ void CNetDDESvrApp::Trace(const tchar* pszMsg, ...)
 		{
 			m_bTraceToFile = false;
 
-			AlertMsg(TXT("Failed to write to trace file:\n\n%s"), e.ErrorText());
+			AlertMsg(TXT("Failed to write to trace file:\n\n%s"), e.What());
 		}
 	}
 }
@@ -500,7 +500,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 				}
 				catch (CSocketException& e)
 				{
-					App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
+					App.Trace(TXT("SOCKET_ERROR: %s"), e.What());
 				}
 
 				pConnection->m_aoNetConvs.Delete(j);
@@ -619,7 +619,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 			}
 			catch (CSocketException& e)
 			{
-				App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
+				App.Trace(TXT("SOCKET_ERROR: %s"), e.What());
 			}
 		}
 	}
@@ -658,7 +658,7 @@ void CNetDDESvrApp::OnAcceptReady(CTCPSvrSocket* pSvrSocket)
 	}
 	catch (CSocketException& e)
 	{
-		App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
+		App.Trace(TXT("SOCKET_ERROR: %s"), e.What());
 
 		delete pCltSocket;
 	}
@@ -917,7 +917,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.What());
 	}
 
 	// Create response message.
@@ -1003,7 +1003,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 		}
 		catch (CDDEException& e)
 		{
-			App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
+			App.Trace(TXT("DDE_ERROR: %s"), e.What());
 		}
 
 		// Detach from the connection.
@@ -1069,7 +1069,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.What());
 	}
 
 	// Create response message.
@@ -1160,7 +1160,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.What());
 	}
 
 	// Sync advise start?
@@ -1232,7 +1232,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 		}
 		catch (CDDEException& e)
 		{
-			App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
+			App.Trace(TXT("DDE_ERROR: %s"), e.What());
 		}
 	}
 	// Link established AND not 1st real link?
@@ -1341,7 +1341,7 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 			}
 			catch (CDDEException& e)
 			{
-				App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
+				App.Trace(TXT("DDE_ERROR: %s"), e.What());
 			}
 
 			// Detach from the connection.
@@ -1403,7 +1403,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.What());
 	}
 
 	// Create response message.
@@ -1493,7 +1493,7 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.ErrorText());
+		App.Trace(TXT("DDE_ERROR: %s"), e.What());
 	}
 
 	// Create response message.
@@ -1678,7 +1678,7 @@ void CNetDDESvrApp::OnPollSockets()
 				}
 				catch (CSocketException& e)
 				{
-					App.Trace(TXT("SOCKET_ERROR: %s"), e.ErrorText());
+					App.Trace(TXT("SOCKET_ERROR: %s"), e.What());
 				}
 			}
 		}
