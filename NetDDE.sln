@@ -1,29 +1,29 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetDDEClient", "NetDDE\Client\NetDDEClient.vcproj", "{88417210-FDAC-4FBC-874F-754DD8415181}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetDDEClient", "Client\NetDDEClient.vcproj", "{88417210-FDAC-4FBC-874F-754DD8415181}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetDDEServer", "NetDDE\Server\NetDDEServer.vcproj", "{F534BCD7-A509-4261-AE81-E86477E051DF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetDDEServer", "Server\NetDDEServer.vcproj", "{F534BCD7-A509-4261-AE81-E86477E051DF}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetDDEShared", "NetDDE\Shared\NetDDEShared.vcproj", "{AD3FA1B4-9D85-4D4F-B23F-5A519210F6CB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetDDEShared", "Shared\NetDDEShared.vcproj", "{AD3FA1B4-9D85-4D4F-B23F-5A519210F6CB}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "Lib\Core\Core.vcproj", "{790BC113-52FB-4565-8968-79B8B011C520}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Core", "..\Lib\Core\Core.vcproj", "{790BC113-52FB-4565-8968-79B8B011C520}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wcl", "Lib\WCL\Wcl.vcproj", "{9B0335B6-93BE-4604-8497-27431874D758}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wcl", "..\Lib\WCL\Wcl.vcproj", "{9B0335B6-93BE-4604-8497-27431874D758}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NCL", "Lib\NCL\NCL.vcproj", "{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NCL", "..\Lib\NCL\NCL.vcproj", "{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Legacy", "Lib\Legacy\Legacy.vcproj", "{AED77F84-49CF-4B84-B319-2D07025ECA06}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Legacy", "..\Lib\Legacy\Legacy.vcproj", "{AED77F84-49CF-4B84-B319-2D07025ECA06}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
