@@ -32,7 +32,7 @@ FILESUBTYPE		0
 BEGIN
 	BLOCK "StringFileInfo"
 	BEGIN
-		BLOCK "040904E4"
+		BLOCK "080904E4"
 		BEGIN
 			VALUE "FileDescription",  "Net DDE Server\0"
 			VALUE "FileVersion",      "2.0\0"
@@ -48,6 +48,6 @@ BEGIN
 	END
 	BLOCK "VarFileInfo"
 	BEGIN
-		VALUE "Translation", 0x809, 1252
+		VALUE "Translation", 0x0809, 0x04E4
 	END
 END
