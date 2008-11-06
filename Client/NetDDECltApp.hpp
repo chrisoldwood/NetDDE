@@ -25,11 +25,11 @@
 #include "AppWnd.hpp"
 #include "AppCmds.hpp"
 #include "LinkCache.hpp"
+#include <NCL/DDEServer.hpp>
 
 // Forward declarations.
 class CNetDDEService;
 class CNetDDEPacket;
-class CDDEServer;
 
 /******************************************************************************
 ** 
@@ -57,7 +57,7 @@ public:
 	CAppWnd		m_AppWnd;			// Main window.
 	CAppCmds	m_AppCmds;			// Command handler.
 
-	CDDEServer*	m_pDDEServer;		// The DDE Server.
+	DDE::ServerPtr	m_pDDEServer;	// The DDE Server.
 	CServices	m_aoServices;		// The DDE services to bridge.
 	CLinkCache 	m_oLinkCache;		// Cache of links values.
 	bool		m_bPostedAdviseMsg;	// Posted WM_POST_INITAL_UPDATES?

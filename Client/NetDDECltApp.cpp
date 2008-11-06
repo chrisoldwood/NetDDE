@@ -81,7 +81,6 @@ const uint  CNetDDECltApp::WM_POST_INITIAL_UPDATES = WM_APP + 1;
 
 CNetDDECltApp::CNetDDECltApp()
 	: CApp(m_AppWnd, m_AppCmds)
-	, m_pDDEServer(CDDEServer::Instance())
 	, m_bPostedAdviseMsg(false)
 	, m_nTimerID(0)
 	, m_bTrayIcon(DEF_TRAY_ICON)
@@ -185,7 +184,7 @@ bool CNetDDECltApp::OnOpen()
 		}
 
 		// Initialise the DDE server.
-		m_pDDEServer->Initialise();
+		m_pDDEServer = DDE::ServerPtr(new CDDEServer);
 		m_pDDEServer->AddListener(this);
 	}
 	catch (Core::Exception& e)
@@ -267,7 +266,7 @@ bool CNetDDECltApp::OnClose()
 
 	// Unnitialise the DDE client.
 	m_pDDEServer->RemoveListener(this);
-	m_pDDEServer->Uninitialise();
+	m_pDDEServer.Reset();
 
 	// Empty the link cache.
 	m_oLinkCache.Purge();

@@ -27,12 +27,12 @@
 #include "AppCmds.hpp"
 #include "LinkCache.hpp"
 #include <NCL/TCPSvrSocket.hpp>
+#include <NCL/DDEClient.hpp>
 
 // Forward declarations.
 class CNetDDEService;
 class CNetDDEPacket;
 class CNetDDESvrSocket;
-class CDDEClient;
 
 /******************************************************************************
 ** 
@@ -60,7 +60,7 @@ public:
 	CAppWnd			m_AppWnd;			// Main window.
 	CAppCmds		m_AppCmds;			// Command handler.
 
-	CDDEClient*		m_pDDEClient;		// The DDE Client.
+	DDE::ClientPtr	m_pDDEClient;		// The DDE Client.
 	uint			m_nServerPort;		// The port for connections.
 	CSockets		m_aoConnections;	// The client connections.
 	CTCPSvrSocket	m_oSvrSocket;		// The listening server socket.

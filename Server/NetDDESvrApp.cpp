@@ -84,7 +84,6 @@ const uint  CNetDDESvrApp::WM_POLL_SOCKETS = WM_APP + 1;
 
 CNetDDESvrApp::CNetDDESvrApp()
 	: CApp(m_AppWnd, m_AppCmds)
-	, m_pDDEClient(CDDEClient::Instance())
 	, m_oSvrSocket(CSocket::ASYNC)
 	, m_nNextConvID(1)
 	, m_nTimerID(0)
@@ -188,7 +187,7 @@ bool CNetDDESvrApp::OnOpen()
 		}
 
 		// Initialise the DDE client.
-		m_pDDEClient->Initialise();
+		m_pDDEClient = DDE::ClientPtr(new CDDEClient);
 		m_pDDEClient->AddListener(this);
 
 		// Open the listening socket.
@@ -280,7 +279,7 @@ bool CNetDDESvrApp::OnClose()
 
 	// Unnitialise the DDE client.
 	m_pDDEClient->RemoveListener(this);
-	m_pDDEClient->Uninitialise();
+	m_pDDEClient.Reset();
 
 	// Empty the link cache.
 	m_oLinkCache.Purge();
