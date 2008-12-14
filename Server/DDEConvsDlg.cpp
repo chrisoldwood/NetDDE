@@ -107,7 +107,7 @@ void CDDEConvsDlg::Refresh()
 	App.m_pDDEClient->GetAllConversations(aoConvs);
 
 	// Load grid data.
-	for (size_t i = 0; i < aoConvs.Size(); ++i)
+	for (size_t i = 0, n = aoConvs.size(); i != n; ++i)
 	{
 		CDDECltConv* pConv = aoConvs[i];
 
