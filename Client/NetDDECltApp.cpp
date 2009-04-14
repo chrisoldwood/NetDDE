@@ -332,7 +332,7 @@ void CNetDDECltApp::Trace(const tchar* pszMsg, ...)
 			else
 				m_fTraceFile.Create(m_strTracePath);
 
-			m_fTraceFile.Seek(0, FILE_END);
+			m_fTraceFile.Seek(0, WCL::IStreamBase::END);
 			m_fTraceFile.WriteLine(strMsg, ANSI_TEXT);
 			m_fTraceFile.Close();
 		}
