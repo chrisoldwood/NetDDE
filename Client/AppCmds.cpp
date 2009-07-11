@@ -239,7 +239,7 @@ void CAppCmds::OnOptionsServices()
 			}
 			catch (Core::Exception& e)
 			{
-				App.AlertMsg(TXT("Failed to register DDE service: %s\n\n%s"), pService->m_oCfg.m_strLocName, e.What());
+				App.AlertMsg(TXT("Failed to register DDE service: %s\n\n%s"), pService->m_oCfg.m_strLocName, e.twhat());
 			}
 
 			// Add to collection.

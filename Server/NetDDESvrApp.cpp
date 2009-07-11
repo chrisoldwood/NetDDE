@@ -169,7 +169,7 @@ bool CNetDDESvrApp::OnOpen()
 		}
 		catch (CFileException& e)
 		{
-			AlertMsg(TXT("Failed to truncate trace file:\n\n%s"), e.What());
+			AlertMsg(TXT("Failed to truncate trace file:\n\n%s"), e.twhat());
 
 			m_bTraceToFile = false;
 		}
@@ -198,7 +198,7 @@ bool CNetDDESvrApp::OnOpen()
 	}
 	catch (Core::Exception& e)
 	{
-		FatalMsg(TXT("%s"), e.What());
+		FatalMsg(TXT("%s"), e.twhat());
 		return false;
 	}
 
@@ -279,7 +279,7 @@ bool CNetDDESvrApp::OnClose()
 
 	// Unnitialise the DDE client.
 	m_pDDEClient->RemoveListener(this);
-	m_pDDEClient.Reset();
+	m_pDDEClient.reset();
 
 	// Empty the link cache.
 	m_oLinkCache.Purge();
@@ -353,7 +353,7 @@ void CNetDDESvrApp::Trace(const tchar* pszMsg, ...)
 		{
 			m_bTraceToFile = false;
 
-			AlertMsg(TXT("Failed to write to trace file:\n\n%s"), e.What());
+			AlertMsg(TXT("Failed to write to trace file:\n\n%s"), e.twhat());
 		}
 	}
 }
@@ -499,7 +499,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 				}
 				catch (CSocketException& e)
 				{
-					App.Trace(TXT("SOCKET_ERROR: %s"), e.What());
+					App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 				}
 
 				pConnection->m_aoNetConvs.Delete(j);
@@ -618,7 +618,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 			}
 			catch (CSocketException& e)
 			{
-				App.Trace(TXT("SOCKET_ERROR: %s"), e.What());
+				App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 			}
 		}
 	}
@@ -657,7 +657,7 @@ void CNetDDESvrApp::OnAcceptReady(CTCPSvrSocket* pSvrSocket)
 	}
 	catch (CSocketException& e)
 	{
-		App.Trace(TXT("SOCKET_ERROR: %s"), e.What());
+		App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
 		delete pCltSocket;
 	}
@@ -916,7 +916,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.What());
+		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
 
 	// Create response message.
@@ -1002,7 +1002,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 		}
 		catch (CDDEException& e)
 		{
-			App.Trace(TXT("DDE_ERROR: %s"), e.What());
+			App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 		}
 
 		// Detach from the connection.
@@ -1068,7 +1068,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.What());
+		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
 
 	// Create response message.
@@ -1159,7 +1159,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.What());
+		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
 
 	// Sync advise start?
@@ -1231,7 +1231,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 		}
 		catch (CDDEException& e)
 		{
-			App.Trace(TXT("DDE_ERROR: %s"), e.What());
+			App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 		}
 	}
 	// Link established AND not 1st real link?
@@ -1340,7 +1340,7 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 			}
 			catch (CDDEException& e)
 			{
-				App.Trace(TXT("DDE_ERROR: %s"), e.What());
+				App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 			}
 
 			// Detach from the connection.
@@ -1402,7 +1402,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.What());
+		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
 
 	// Create response message.
@@ -1492,7 +1492,7 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 	}
 	catch (CDDEException& e)
 	{
-		App.Trace(TXT("DDE_ERROR: %s"), e.What());
+		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
 
 	// Create response message.
@@ -1677,7 +1677,7 @@ void CNetDDESvrApp::OnPollSockets()
 				}
 				catch (CSocketException& e)
 				{
-					App.Trace(TXT("SOCKET_ERROR: %s"), e.What());
+					App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 				}
 			}
 		}
