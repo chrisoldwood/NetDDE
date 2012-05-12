@@ -62,7 +62,7 @@ public:
 	CLinkCache 	m_oLinkCache;		// Cache of links values.
 	bool		m_bPostedAdviseMsg;	// Posted WM_POST_INITAL_UPDATES?
 
-	uint		m_nTimerID;			// The background timer ID.
+	WCL::TimerID	m_nTimerID;		// The background timer ID.
 
 	bool		m_bTrayIcon;		// Show system tray indicator?
 	bool		m_bMinToTray;		// Minimise to system tray?

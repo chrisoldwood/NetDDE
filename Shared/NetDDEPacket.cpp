@@ -35,7 +35,7 @@ uint CNetDDEPacket::s_nNextPktID = 1;
 *******************************************************************************
 */
 
-void CNetDDEPacket::Create(uint nDataType, uint nPacketID, const void* pData, uint nDataSize)
+void CNetDDEPacket::Create(uint nDataType, uint nPacketID, const void* pData, size_t nDataSize)
 {
 	ASSERT((pData != NULL) || (nDataSize == 0));
 
@@ -45,7 +45,7 @@ void CNetDDEPacket::Create(uint nDataType, uint nPacketID, const void* pData, ui
 	Header* pHeader = GetHeader();
 
 	// Set the packet header.
-	pHeader->m_nDataSize = nDataSize;
+	pHeader->m_nDataSize = static_cast<uint>(nDataSize);
 	pHeader->m_nDataType = nDataType;
 	pHeader->m_nPacketID = nPacketID;
 

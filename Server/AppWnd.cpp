@@ -238,7 +238,7 @@ void CAppWnd::OnFocus()
 
 bool CAppWnd::OnQueryClose()
 {
-	int nClients = App.m_aoConnections.Size();
+	int nClients = static_cast<int>(App.m_aoConnections.Size());
 
 	// Warn user if server in use.
 	if (nClients > 0)

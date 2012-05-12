@@ -161,7 +161,7 @@ void CServicesDlg::OnAdd()
 	m_aoServices.Add(pService);
 
 	// Add service to view.
-	int i = m_lvServices.ItemCount();
+	size_t i = m_lvServices.ItemCount();
 
 	m_lvServices.InsertItem(i,    pService->m_strRemName);
 	m_lvServices.ItemText  (i, 1, pService->m_strServer);
@@ -194,7 +194,7 @@ void CServicesDlg::OnEdit()
 		return;
 
 	// Get the selected service.
-	int            nSel     = m_lvServices.Selection();
+	size_t         nSel     = m_lvServices.Selection();
 	CNetDDESvcCfg* pService = static_cast<CNetDDESvcCfg*>(m_lvServices.ItemPtr(nSel));
 
 	CServiceDlg Dlg;

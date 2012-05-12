@@ -14,7 +14,7 @@
 #include "NetDDESvrApp.hpp"
 #include <NCL/DDEClient.hpp>
 #include <NCL/DDECltConv.hpp>
-#include <WCL/StrCvt.hpp>
+#include <Core/StringUtils.hpp>
 
 /******************************************************************************
 ** Method:		Default constructor.
@@ -113,7 +113,7 @@ void CDDEConvsDlg::Refresh()
 
 		m_lvGrid.InsertItem(i,             pConv->Service());
 		m_lvGrid.ItemText  (i, TOPIC_NAME, pConv->Topic());
-		m_lvGrid.ItemText  (i, LINK_COUNT, CStrCvt::FormatUInt(pConv->NumLinks()));
+		m_lvGrid.ItemText  (i, LINK_COUNT, Core::format(pConv->NumLinks()));
 		m_lvGrid.ItemData  (i,             reinterpret_cast<LPARAM>(pConv->Handle()));
 	}
 

@@ -25,7 +25,7 @@
 #include <NCL/DDEData.hpp>
 #include "LinkValue.hpp"
 #include <WCL/Clipboard.hpp>
-#include <WCL/StrCvt.hpp>
+#include <Core/StringUtils.hpp>
 #include <WCL/AutoBool.hpp>
 
 /******************************************************************************
@@ -474,7 +474,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 		bool              bNotifyConn = true;
 
 		// Clean-up all client conversations...
-		for (int j = pConnection->m_aoNetConvs.Size()-1; j >= 0; --j)
+		for (int j = static_cast<int>(pConnection->m_aoNetConvs.Size())-1; j >= 0; --j)
 		{
 			CNetDDEConv* pNetConv = pConnection->m_aoNetConvs[j];
 
@@ -1545,8 +1545,8 @@ void CNetDDESvrApp::UpdateStats()
 
 	if (m_aoConnections.Size() > 0)
 	{
-		strTip += TXT("\nConnections: ")   + CStrCvt::FormatInt(m_aoConnections.Size());
-		strTip += TXT("\nConversations: ") + CStrCvt::FormatInt(m_pDDEClient->GetNumConversations());
+		strTip += TXT("\nConnections: ")   + Core::format(m_aoConnections.Size());
+		strTip += TXT("\nConversations: ") + Core::format(m_pDDEClient->GetNumConversations());
 	}
 
 	// Update tray icon.

@@ -13,7 +13,7 @@
 #include "NetDDESvrApp.hpp"
 #include "NetDDESvrSocket.hpp"
 #include "NetDDEConv.hpp"
-#include <WCL/StrCvt.hpp>
+#include <Core/StringUtils.hpp>
 
 /******************************************************************************
 ** Method:		Default constructor.
@@ -93,19 +93,19 @@ void CClientConnsDlg::Refresh()
 		if (!pConnection->IsOpen())
 			continue;
 
-		int nLinks = 0;
+		size_t nLinks = 0;
 
 		// Sum links for all conversations.
 		for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
 			nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.Size();
 
-		int n = m_lvGrid.ItemCount();
+		size_t n = m_lvGrid.ItemCount();
 
 		m_lvGrid.InsertItem(n,               pConnection->m_strComputer);
 		m_lvGrid.ItemText  (n, USER_NAME,    pConnection->m_strUser);
 		m_lvGrid.ItemText  (n, SERVICE_NAME, pConnection->m_strService);
-		m_lvGrid.ItemText  (n, CONV_COUNT,   CStrCvt::FormatInt(pConnection->m_aoNetConvs.Size()));
-		m_lvGrid.ItemText  (n, LINK_COUNT,   CStrCvt::FormatInt(nLinks));
+		m_lvGrid.ItemText  (n, CONV_COUNT,   Core::format(pConnection->m_aoNetConvs.Size()));
+		m_lvGrid.ItemText  (n, LINK_COUNT,   Core::format(nLinks));
 		m_lvGrid.ItemPtr   (n, pConnection);
 	}
 

@@ -13,6 +13,7 @@
 #include "NetDDECltApp.hpp"
 #include "NetDDEService.hpp"
 #include <WCL/StrCvt.hpp>
+#include <Core/StringUtils.hpp>
 
 /******************************************************************************
 ** Method:		Default constructor.
@@ -69,18 +70,18 @@ void CServerConnsDlg::OnInitDialog()
 		// Only add if connection active.
 		if (pConnection->m_aoNetConvs.Size() > 0)
 		{
-			int nLinks = 0;
+			size_t nLinks = 0;
 
 			// Sum links for all conversations.
 			for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
 				nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.Size();
 
-			int n = m_lvGrid.ItemCount();
+			size_t n = m_lvGrid.ItemCount();
 
 			m_lvGrid.InsertItem(n,                pConnection->m_oCfg.m_strRemName);
 			m_lvGrid.ItemText  (n, COMPUTER_NAME, pConnection->m_oCfg.m_strServer);
-			m_lvGrid.ItemText  (n, CONV_COUNT,    CStrCvt::FormatInt(pConnection->m_aoNetConvs.Size()));
-			m_lvGrid.ItemText  (n, LINK_COUNT,    CStrCvt::FormatInt(nLinks));
+			m_lvGrid.ItemText  (n, CONV_COUNT,    Core::format(pConnection->m_aoNetConvs.Size()));
+			m_lvGrid.ItemText  (n, LINK_COUNT,    Core::format(nLinks));
 		}
 	}
 

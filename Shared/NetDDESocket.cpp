@@ -77,7 +77,7 @@ void CNetDDESocket::SendPacket(const CNetDDEPacket& oPacket)
 
 bool CNetDDESocket::RecvPacket(CNetDDEPacket& oPacket)
 {
-	uint nAvail = m_oSocket.Available();
+	size_t nAvail = m_oSocket.Available();
 
 	// Enough data to read packet header?
 	if (nAvail >= sizeof(CNetDDEPacket::Header))
@@ -86,7 +86,7 @@ bool CNetDDESocket::RecvPacket(CNetDDEPacket& oPacket)
 		oPacket.Buffer().Size(sizeof(CNetDDEPacket::Header));
 
 		// Peek at packet header.
-		uint nRead = m_oSocket.Peek(oPacket.Buffer(), oPacket.Buffer().Size());
+		size_t nRead = m_oSocket.Peek(oPacket.Buffer(), oPacket.Buffer().Size());
 
 		// Peeked entire header?
 		if (nRead == sizeof(CNetDDEPacket::Header))

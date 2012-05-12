@@ -25,6 +25,7 @@
 #include <WCL/Clipboard.hpp>
 #include <WCL/StrCvt.hpp>
 #include <WCL/SysInfo.hpp>
+#include <Core/StringUtils.hpp>
 
 /******************************************************************************
 **
@@ -445,7 +446,7 @@ void CNetDDECltApp::SaveConfig()
 	m_oIniFile.WriteString(TXT("Version"), TXT("Version"), INI_FILE_VER);
 
 	// Write the service descriptions.
-	m_oIniFile.WriteInt(TXT("Services"), TXT("Count"), m_aoServices.Size());
+	m_oIniFile.WriteInt(TXT("Services"), TXT("Count"), static_cast<int>(m_aoServices.Size()));
 
 	for (size_t i = 0; i < m_aoServices.Size(); ++i)
 	{
@@ -1553,7 +1554,7 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 			App.Trace(TXT("DDE_DISCONNECT: %s"), pService->m_oCfg.m_strRemName);
 
 		// Cleanup all client conversations...
-		for (int i = pService->m_aoNetConvs.Size()-1; i >= 0; --i)
+		for (int i = static_cast<int>(pService->m_aoNetConvs.Size())-1; i >= 0; --i)
 		{
 			CNetDDEConv* pNetConv = pService->m_aoNetConvs[i];
 
@@ -1806,7 +1807,7 @@ void CNetDDECltApp::UpdateStats()
 		if (nConns > 0)
 		{
 			strTip += TXT("\nConnections: ")   + CStrCvt::FormatInt(nConns);
-			strTip += TXT("\nConversations: ") + CStrCvt::FormatInt(m_pDDEServer->GetNumConversations());
+			strTip += TXT("\nConversations: ") + Core::format(m_pDDEServer->GetNumConversations());
 		}
 
 		// Update tray icon.

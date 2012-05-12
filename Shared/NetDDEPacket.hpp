@@ -114,7 +114,7 @@ protected:
 	//
 	// Internal methods.
 	//
-	void    Create(uint nDataType, uint nPacketID, const void* pData, uint nDataSize);
+	void    Create(uint nDataType, uint nPacketID, const void* pData, size_t nDataSize);
 
 	const Header* GetHeader() const;
 	Header*       GetHeader();

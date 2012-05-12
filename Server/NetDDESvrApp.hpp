@@ -67,7 +67,7 @@ public:
 	CLinkCache		m_oLinkCache;		// Cache of links values.
 	uint			m_nNextConvID;		// Conversation ID generator.
 
-	uint			m_nTimerID;			// The background timer ID.
+	WCL::TimerID	m_nTimerID;			// The background timer ID.
 
 	bool			m_bTrayIcon;		// Show system tray indicator?
 	bool			m_bMinToTray;		// Minimise to system tray?

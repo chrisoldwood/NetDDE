@@ -123,7 +123,7 @@ void CLinkCache::Purge(const CDDEConv* pConv)
 
 	// Format the cache entry prefix for the conversation.
 	CString strPrefix = CString::Fmt(TXT("%s|%s!"), pConv->Service(), pConv->Topic());
-	int     nLength   = strPrefix.Length();
+	size_t  nLength   = strPrefix.Length();
 
 	CString		strLink;
 	CLinkValue* pLinkValue = NULL;

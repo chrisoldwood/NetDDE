@@ -239,7 +239,7 @@ void CAppWnd::OnFocus()
 
 bool CAppWnd::OnQueryClose()
 {
-	int nConvs = App.m_pDDEServer->GetNumConversations();
+	int nConvs = static_cast<int>(App.m_pDDEServer->GetNumConversations());
 
 	// Warn user if still in use.
 	if (nConvs > 0)

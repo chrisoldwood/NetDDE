@@ -43,7 +43,7 @@ public:
 	//
 	// Methods.
 	//
-	uint Size() const;
+	size_t Size() const;
 
 	CLinkValue* Create(const CDDEConv* pConv, const CDDELink* pLink, const tchar* pszDefValue = NULL);
 	CLinkValue* Find(const CDDEConv* pConv, const CDDELink* pLink) const;
@@ -74,7 +74,7 @@ protected:
 *******************************************************************************
 */
 
-inline uint CLinkCache::Size() const
+inline size_t CLinkCache::Size() const
 {
 	return m_oLinks.Count();
 }
