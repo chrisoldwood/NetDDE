@@ -82,6 +82,8 @@ const uint  CNetDDECltApp::WM_POST_INITIAL_UPDATES = WM_APP + 1;
 
 CNetDDECltApp::CNetDDECltApp()
 	: CApp(m_AppWnd, m_AppCmds)
+	, m_AppWnd()
+	, m_AppCmds(m_AppWnd)
 	, m_bPostedAdviseMsg(false)
 	, m_nTimerID(0)
 	, m_bTrayIcon(DEF_TRAY_ICON)
@@ -199,7 +201,7 @@ bool CNetDDECltApp::OnOpen()
 		return false;
 
 	// Show it.
-	if (ShowNormal() && !m_rcLastPos.Empty())
+	if (!m_rcLastPos.Empty())
 		m_AppWnd.Move(m_rcLastPos);
 
 	m_AppWnd.Show(m_iCmdShow);

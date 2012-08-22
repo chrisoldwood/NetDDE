@@ -84,6 +84,8 @@ const uint  CNetDDESvrApp::WM_POLL_SOCKETS = WM_APP + 1;
 
 CNetDDESvrApp::CNetDDESvrApp()
 	: CApp(m_AppWnd, m_AppCmds)
+	, m_AppWnd()
+	, m_AppCmds(m_AppWnd)
 	, m_oSvrSocket(CSocket::ASYNC)
 	, m_nNextConvID(1)
 	, m_nTimerID(0)
@@ -207,7 +209,7 @@ bool CNetDDESvrApp::OnOpen()
 		return false;
 
 	// Show it.
-	if (ShowNormal() && !m_rcLastPos.Empty())
+	if (!m_rcLastPos.Empty())
 		m_AppWnd.Move(m_rcLastPos);
 
 	m_AppWnd.Show(m_iCmdShow);

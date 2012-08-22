@@ -18,6 +18,9 @@
 
 #include <WCL/CmdCtrl.hpp>
 
+// Forward declarations.
+class CAppWnd;
+
 /******************************************************************************
 ** 
 ** Application command controller.
@@ -31,7 +34,7 @@ public:
 	//
 	// Constructors/Destructor.
 	//
-	CAppCmds();
+	CAppCmds(CAppWnd& appWnd);
 	~CAppCmds();
 
 	//
