@@ -914,7 +914,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 		oConnection.m_aoNetConvs.Add(new CNetDDEConv(pConv, nConvID));
 
 		// Apply settings.
-		pConv->SetTimeOut(App.m_nDDETimeOut);
+		pConv->SetTimeout(App.m_nDDETimeOut);
 	}
 	catch (CDDEException& e)
 	{
@@ -1397,7 +1397,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 		if (pConv != NULL)
 		{
 			// Call DDE to do the execute.
-			pConv->Execute(strCmd);
+			pConv->ExecuteString(strCmd, CF_TEXT);
 
 			bResult = true;
 		}
