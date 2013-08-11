@@ -1397,7 +1397,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 		if (pConv != NULL)
 		{
 			// Call DDE to do the execute.
-			pConv->ExecuteString(strCmd, CF_TEXT);
+			pConv->ExecuteString(strCmd);
 
 			bResult = true;
 		}
