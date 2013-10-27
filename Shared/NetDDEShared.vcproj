@@ -4,10 +4,6 @@
 	Version="7.10"
 	Name="NetDDEShared"
 	ProjectGUID="{AD3FA1B4-9D85-4D4F-B23F-5A519210F6CB}"
-	SccProjectName="SAK"
-	SccAuxPath="SAK"
-	SccLocalPath="SAK"
-	SccProvider="SAK"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

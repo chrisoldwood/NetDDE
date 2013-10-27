@@ -4,10 +4,7 @@
 	Version="7.10"
 	Name="NetDDEServer"
 	ProjectGUID="{F534BCD7-A509-4261-AE81-E86477E051DF}"
-	SccProjectName="SAK"
-	SccAuxPath="SAK"
-	SccLocalPath="SAK"
-	SccProvider="SAK">
+	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
