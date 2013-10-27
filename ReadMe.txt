@@ -1,7 +1,14 @@
 NetDDE v1.1
 ===========
 
-1) Installation.
+Introduction
+------------
+
+This DDE client and server can be used to allow a DDE conversation to span a
+network.
+
+Installation
+------------
 
 Run Setup.exe or
 Copy the file NetDDEClient.exe to a folder on the DDE client machine.
@@ -9,13 +16,13 @@ Copy the file NetDDEServer.exe to a folder on the DDE server machine.
 
 Configure the NetDDEClient to point to the NetDDEServer machine.
 
-
-2) Uninstallation.
+Uninstallation
+--------------
 
 Delete the files NetDDE*.*
 
-
-3) Manual.
+Documentation
+-------------
 
 These utilities allow you to establish a DDE conversation between a DDE Client
 and Server where they reside on separate machines on a network. The NetDDE
@@ -91,13 +98,16 @@ of the EULA. Some DDE servers were designed to only allow a single conversation
 to restrict their use, remoting them with this utility circumvents that, if in
 doubt check the EULA.
 
+Development
+-----------
 
-4) Contact Details.
+See DevNotes.txt
 
-EMail: gort@cix.co.uk
-Web:   http://www.cix.co.uk/~gort
+Contact Details
+---------------
 
+Email: gort@cix.co.uk
+Web:   http://www.chrisoldwood.com
 
-Chris Oldwood 
-
+Chris Oldwood
 22nd November 2004
