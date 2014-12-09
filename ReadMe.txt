@@ -7,6 +7,15 @@ Introduction
 This DDE client and server can be used to allow a DDE conversation to span a
 network.
 
+Releases
+--------
+
+Stable releases are formally packaged and made available from my Win32 tools page:
+http://www.chrisoldwood.com/win32.htm
+
+The latest code is available from my GitHub repo:
+https://github.com/chrisoldwood/NetDDE
+
 Installation
 ------------
 
