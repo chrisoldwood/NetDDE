@@ -27,6 +27,7 @@
 #include <WCL/Clipboard.hpp>
 #include <Core/StringUtils.hpp>
 #include <WCL/AutoBool.hpp>
+#include <NCL/DDEException.hpp>
 
 /******************************************************************************
 **
