@@ -1,265 +1,368 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="NetDDEServer"
 	ProjectGUID="{F534BCD7-A509-4261-AE81-E86477E051DF}"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			CharacterSet="1">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHa"
 				Optimization="0"
 				AdditionalIncludeDirectories="../Shared;../../Lib"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
-				MinimalRebuild="TRUE"
-				ExceptionHandling="FALSE"
+				MinimalRebuild="true"
+				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
-				SmallerTypeCheck="TRUE"
+				SmallerTypeCheck="true"
 				RuntimeLibrary="1"
-				TreatWChar_tAsBuiltInType="TRUE"
-				ForceConformanceInForLoopScope="TRUE"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="3"
+				TreatWChar_tAsBuiltInType="true"
+				ForceConformanceInForLoopScope="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="Common.hpp"
 				WarningLevel="4"
-				WarnAsError="TRUE"
-				DebugInformationFormat="3"/>
+				WarnAsError="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				GenerateDebugInformation="TRUE"
-				SubSystem="2"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				AdditionalIncludeDirectories="../../Lib"/>
+				AdditionalIncludeDirectories="../../Lib"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			CharacterSet="1">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/EHa"
 				AdditionalIncludeDirectories="../Shared;../../Lib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				StringPooling="TRUE"
-				ExceptionHandling="FALSE"
+				StringPooling="true"
+				ExceptionHandling="0"
 				RuntimeLibrary="0"
-				TreatWChar_tAsBuiltInType="TRUE"
-				ForceConformanceInForLoopScope="TRUE"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="3"
+				TreatWChar_tAsBuiltInType="true"
+				ForceConformanceInForLoopScope="true"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="Common.hpp"
 				WarningLevel="4"
-				WarnAsError="TRUE"
-				DebugInformationFormat="3"/>
+				WarnAsError="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
-			<Tool
-				Name="VCLinkerTool"
-				GenerateDebugInformation="TRUE"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
-			<Tool
-				Name="VCPreBuildEventTool"/>
-			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				AdditionalIncludeDirectories="../../Lib"/>
+				AdditionalIncludeDirectories="../../Lib"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCLinkerTool"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
 		<ProjectReference
 			ReferencedProjectIdentifier="{790BC113-52FB-4565-8968-79B8B011C520}"
-			Name="Core"/>
+		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{AED77F84-49CF-4B84-B319-2D07025ECA06}"
-			Name="Legacy"/>
+		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}"
-			Name="NCL"/>
+		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{AD3FA1B4-9D85-4D4F-B23F-5A519210F6CB}"
-			Name="NetDDEShared"/>
+		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{9B0335B6-93BE-4604-8497-27431874D758}"
-			Name="Wcl"/>
+		/>
 	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+			>
 			<File
-				RelativePath="AppCmds.cpp">
+				RelativePath="AppCmds.cpp"
+				>
 			</File>
 			<File
-				RelativePath="AppDlg.cpp">
+				RelativePath="AppDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="AppWnd.cpp">
+				RelativePath="AppWnd.cpp"
+				>
 			</File>
 			<File
-				RelativePath="ClientConnsDlg.cpp">
+				RelativePath="ClientConnsDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="DDEConvsDlg.cpp">
+				RelativePath="DDEConvsDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\LinksDlg.cpp">
+				RelativePath=".\LinksDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath="NetDDESvrApp.cpp">
+				RelativePath="NetDDESvrApp.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\NetDDESvrSocket.cpp">
+				RelativePath=".\NetDDESvrSocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\OptionsDlg.cpp">
+				RelativePath=".\OptionsDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\pch.cpp">
+				RelativePath=".\pch.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
+						UsePrecompiledHeader="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
+						UsePrecompiledHeader="1"
+					/>
 				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl">
+			Filter="h;hpp;hxx;hm;inl"
+			>
 			<File
-				RelativePath=".\AboutDlg.hpp">
+				RelativePath=".\AboutDlg.hpp"
+				>
 			</File>
 			<File
-				RelativePath="AppCmds.hpp">
+				RelativePath="AppCmds.hpp"
+				>
 			</File>
 			<File
-				RelativePath="AppDlg.hpp">
+				RelativePath="AppDlg.hpp"
+				>
 			</File>
 			<File
-				RelativePath="AppWnd.hpp">
+				RelativePath="AppWnd.hpp"
+				>
 			</File>
 			<File
-				RelativePath="ClientConnsDlg.hpp">
+				RelativePath="ClientConnsDlg.hpp"
+				>
 			</File>
 			<File
-				RelativePath=".\Common.hpp">
+				RelativePath=".\Common.hpp"
+				>
 			</File>
 			<File
-				RelativePath="DDEConvsDlg.hpp">
+				RelativePath="DDEConvsDlg.hpp"
+				>
 			</File>
 			<File
-				RelativePath=".\LinksDlg.hpp">
+				RelativePath=".\LinksDlg.hpp"
+				>
 			</File>
 			<File
-				RelativePath=".\NetDDEConv.hpp">
+				RelativePath=".\NetDDEConv.hpp"
+				>
 			</File>
 			<File
-				RelativePath="NetDDESvrApp.hpp">
+				RelativePath="NetDDESvrApp.hpp"
+				>
 			</File>
 			<File
-				RelativePath=".\NetDDESvrSocket.hpp">
+				RelativePath=".\NetDDESvrSocket.hpp"
+				>
 			</File>
 			<File
-				RelativePath=".\OptionsDlg.hpp">
+				RelativePath=".\OptionsDlg.hpp"
+				>
 			</File>
 			<File
-				RelativePath=".\TraceOptionsDlg.hpp">
+				RelativePath=".\TraceOptionsDlg.hpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+			>
 			<File
-				RelativePath="App.ico">
+				RelativePath="App.ico"
+				>
 			</File>
 			<File
-				RelativePath="App.rcv">
+				RelativePath="App.rcv"
+				>
 			</File>
 			<File
-				RelativePath="NetBoth.ico">
+				RelativePath="NetBoth.ico"
+				>
 			</File>
 			<File
-				RelativePath="NetDDESvr.rc">
+				RelativePath="NetDDESvr.rc"
+				>
 			</File>
 			<File
-				RelativePath="NetIdle.ico">
+				RelativePath="NetIdle.ico"
+				>
 			</File>
 			<File
-				RelativePath="NetLost.ico">
+				RelativePath="NetLost.ico"
+				>
 			</File>
 			<File
-				RelativePath="NetRecv.ico">
+				RelativePath="NetRecv.ico"
+				>
 			</File>
 			<File
-				RelativePath="NetSend.ico">
+				RelativePath="NetSend.ico"
+				>
 			</File>
 			<File
-				RelativePath="Resource.h">
+				RelativePath="Resource.h"
+				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="NetDDEServer.ini">
+			RelativePath="NetDDEServer.ini"
+			>
 		</File>
 	</Files>
 	<Globals>
