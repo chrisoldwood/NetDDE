@@ -130,7 +130,7 @@ BEGIN
                     SS_CENTERIMAGE
     CTEXT           "gort@cix.co.uk",IDC_EMAIL,10,70,100,10,SS_NOTIFY | 
                     SS_CENTERIMAGE
-    CTEXT           "www.cix.co.uk/~gort",IDC_WEBSITE,10,80,100,10,SS_NOTIFY | 
+    CTEXT           "www.chrisoldwood.com",IDC_WEBSITE,10,80,100,10,SS_NOTIFY | 
                     SS_CENTERIMAGE
     DEFPUSHBUTTON   "OK",IDOK,35,100,50,15
 END
