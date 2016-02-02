@@ -1666,9 +1666,9 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 						pValue->m_tLastUpdate = CDateTime::Current();
 
 						// Notify DDE Client of advise.
-						CDDESvrConv* pConv = static_cast<CDDESvrConv*>(pLink->Conversation());
+						CDDESvrConv* pServerConv = static_cast<CDDESvrConv*>(pLink->Conversation());
 
-						pConv->PostLinkUpdate(pLink);
+						pServerConv->PostLinkUpdate(pLink);
 					}
 				}
 			}
@@ -1753,9 +1753,9 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 						pValue->m_tLastUpdate = CDateTime::Current();
 
 						// Notify DDE Client of advise.
-						CDDESvrConv* pConv = static_cast<CDDESvrConv*>(pLink->Conversation());
+						CDDESvrConv* pServerConv = static_cast<CDDESvrConv*>(pLink->Conversation());
 
-						pConv->PostLinkUpdate(pLink);
+						pServerConv->PostLinkUpdate(pLink);
 					}
 				}
 			}

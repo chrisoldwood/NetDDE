@@ -29,6 +29,11 @@
 #include <WCL/AutoBool.hpp>
 #include <NCL/DDEException.hpp>
 
+#ifdef _MSC_VER
+// declaration of 'Xxx' hides previous local declaration (MemStream).
+#pragma warning(disable : 4456)
+#endif
+
 /******************************************************************************
 **
 ** Global variables.
