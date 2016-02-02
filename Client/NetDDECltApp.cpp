@@ -167,7 +167,7 @@ bool CNetDDECltApp::OnOpen()
 			m_fTraceFile.Create(m_strTracePath);
 			m_fTraceFile.Close();
 		}
-		catch (CFileException& e)
+		catch (const CFileException& e)
 		{
 			AlertMsg(TXT("Failed to truncate trace file:\n\n%s"), e.twhat());
 
@@ -190,7 +190,7 @@ bool CNetDDECltApp::OnOpen()
 		m_pDDEServer = DDE::ServerPtr(new CDDEServer);
 		m_pDDEServer->AddListener(this);
 	}
-	catch (Core::Exception& e)
+	catch (const Core::Exception& e)
 	{
 		FatalMsg(TXT("%s"), e.twhat());
 		return false;
@@ -223,7 +223,7 @@ bool CNetDDECltApp::OnOpen()
 			// Register the DDE service name.
 			m_pDDEServer->Register(pService->m_oCfg.m_strLocName);
 		}
-		catch (Core::Exception& e)
+		catch (const Core::Exception& e)
 		{
 			AlertMsg(TXT("Failed to register DDE service: %s\n\n%s"), pService->m_oCfg.m_strLocName, e.twhat());
 		}
@@ -339,7 +339,7 @@ void CNetDDECltApp::Trace(const tchar* pszMsg, ...)
 			m_fTraceFile.WriteLine(strMsg, ANSI_TEXT);
 			m_fTraceFile.Close();
 		}
-		catch (CFileException& e)
+		catch (const CFileException& e)
 		{
 			m_bTraceToFile = false;
 
@@ -724,7 +724,7 @@ bool CNetDDECltApp::OnConnect(const tchar* pszService, const tchar* pszTopic)
 			if (bAccept)
 				pService->m_aoNetConvs.Add(new CNetDDEConv(hSvrConv, nConvID));
 		}
-		catch (CSocketException& e)
+		catch (const CSocketException& e)
 		{
 			App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
@@ -821,7 +821,7 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
 		}
-		catch (CSocketException& e)
+		catch (const CSocketException& e)
 		{
 			App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
@@ -940,7 +940,7 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFo
 			if (bResult)
 				oData.SetBuffer(oDDEData);
 		}
-		catch (CSocketException& e)
+		catch (const CSocketException& e)
 		{
 			App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
@@ -1038,7 +1038,7 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const tchar* pszItem, uint
 				bResult = true;
 			}
 		}
-		catch (CSocketException& e)
+		catch (const CSocketException& e)
 		{
 			App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
@@ -1170,7 +1170,7 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
 		}
-		catch (CSocketException& e)
+		catch (const CSocketException& e)
 		{
 			App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
@@ -1247,7 +1247,7 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 
 			oRspStream.Close();
 		}
-		catch (CSocketException& e)
+		catch (const CSocketException& e)
 		{
 			App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
@@ -1340,7 +1340,7 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const tchar* pszItem, uint nForma
 
 			oRspStream.Close();
 		}
-		catch (CSocketException& e)
+		catch (const CSocketException& e)
 		{
 			App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
@@ -1411,7 +1411,7 @@ void CNetDDECltApp::OnReadReady(CSocket* pSocket)
 			}
 		}
 	}
-	catch (CSocketException& e)
+	catch (const CSocketException& e)
 	{
 		App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
@@ -1990,7 +1990,7 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 		// Update stats.
 		++m_nPktsSent;
 	}
-	catch (Core::Exception& /*e*/)
+	catch (const Core::Exception& /*e*/)
 	{
 	}
 

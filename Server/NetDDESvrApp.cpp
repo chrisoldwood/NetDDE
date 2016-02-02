@@ -175,7 +175,7 @@ bool CNetDDESvrApp::OnOpen()
 			m_fTraceFile.Create(m_strTracePath);
 			m_fTraceFile.Close();
 		}
-		catch (CFileException& e)
+		catch (const CFileException& e)
 		{
 			AlertMsg(TXT("Failed to truncate trace file:\n\n%s"), e.twhat());
 
@@ -204,7 +204,7 @@ bool CNetDDESvrApp::OnOpen()
 		// Attach event handler.
 		m_oSvrSocket.AddServerListener(this);
 	}
-	catch (Core::Exception& e)
+	catch (const Core::Exception& e)
 	{
 		FatalMsg(TXT("%s"), e.twhat());
 		return false;
@@ -277,7 +277,7 @@ bool CNetDDESvrApp::OnClose()
 				++m_nPktsSent;
 			}
 		}
-		catch (Core::Exception& /*e*/)
+		catch (const Core::Exception& /*e*/)
 		{
 		}
 	}
@@ -357,7 +357,7 @@ void CNetDDESvrApp::Trace(const tchar* pszMsg, ...)
 			m_fTraceFile.WriteLine(strMsg, ANSI_TEXT);
 			m_fTraceFile.Close();
 		}
-		catch (CFileException& e)
+		catch (const CFileException& e)
 		{
 			m_bTraceToFile = false;
 
@@ -505,7 +505,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 						++m_nPktsSent;
 					}
 				}
-				catch (CSocketException& e)
+				catch (const CSocketException& e)
 				{
 					App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 				}
@@ -624,7 +624,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 				// Update stats.
 				++m_nPktsSent;
 			}
-			catch (CSocketException& e)
+			catch (const CSocketException& e)
 			{
 				App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 			}
@@ -663,7 +663,7 @@ void CNetDDESvrApp::OnAcceptReady(CTCPSvrSocket* pSvrSocket)
 		// Attach event handler.
 		pCltSocket->AddClientListener(this);
 	}
-	catch (CSocketException& e)
+	catch (const CSocketException& e)
 	{
 		App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 
@@ -922,7 +922,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 		// Apply settings.
 		pConv->SetTimeout(App.m_nDDETimeOut);
 	}
-	catch (CDDEException& e)
+	catch (const CDDEException& e)
 	{
 		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
@@ -1008,7 +1008,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 			// Call DDE to terminate the conversation.
 			m_pDDEClient->DestroyConversation(pConv);
 		}
-		catch (CDDEException& e)
+		catch (const CDDEException& e)
 		{
 			App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 		}
@@ -1074,7 +1074,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 			bResult = true;
 		}
 	}
-	catch (CDDEException& e)
+	catch (const CDDEException& e)
 	{
 		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
@@ -1165,7 +1165,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 			bResult = true;
 		}
 	}
-	catch (CDDEException& e)
+	catch (const CDDEException& e)
 	{
 		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
@@ -1237,7 +1237,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 			pLinkValue->m_oLastValue  = oData.GetBuffer();;
 			pLinkValue->m_tLastUpdate = CDateTime::Current();
 		}
-		catch (CDDEException& e)
+		catch (const CDDEException& e)
 		{
 			App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 		}
@@ -1346,7 +1346,7 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 				// Call DDE to destroy the link.
 				pConv->DestroyLink(pLink);
 			}
-			catch (CDDEException& e)
+			catch (const CDDEException& e)
 			{
 				App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 			}
@@ -1408,7 +1408,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 			bResult = true;
 		}
 	}
-	catch (CDDEException& e)
+	catch (const CDDEException& e)
 	{
 		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
@@ -1498,7 +1498,7 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 			bResult = true;
 		}
 	}
-	catch (CDDEException& e)
+	catch (const CDDEException& e)
 	{
 		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
@@ -1590,7 +1590,7 @@ void CNetDDESvrApp::CloseConnection(CNetDDESvrSocket* pConnection)
 		// Update stats.
 		++App.m_nPktsSent;
 	}
-	catch (CSocketException& /*e*/)
+	catch (const CSocketException& /*e*/)
 	{ }
 
 	pConnection->Close();
@@ -1683,7 +1683,7 @@ void CNetDDESvrApp::OnPollSockets()
 					// Update stats.
 					++m_nPktsRecv;
 				}
-				catch (CSocketException& e)
+				catch (const CSocketException& e)
 				{
 					App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 				}

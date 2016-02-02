@@ -238,7 +238,7 @@ void CAppCmds::OnOptionsServices()
 				// Register the DDE service name.
 				App.m_pDDEServer->Register(pService->m_oCfg.m_strLocName);
 			}
-			catch (Core::Exception& e)
+			catch (const Core::Exception& e)
 			{
 				App.AlertMsg(TXT("Failed to register DDE service: %s\n\n%s"), pService->m_oCfg.m_strLocName, e.twhat());
 			}
