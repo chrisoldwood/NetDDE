@@ -14,6 +14,7 @@
 #include "NetDDEPacket.hpp"
 #include <NCL/WinSock.hpp>
 #include <NCL/SocketException.hpp>
+#include <Core/Algorithm.hpp>
 
 /******************************************************************************
 ** Method:		Constructor.
@@ -71,7 +72,7 @@ void CNetDDECltSocket::Close()
 	CTCPCltSocket::Close();
 
 	// Cleanup packet queue.
-	m_aoPackets.DeleteAll();
+	Core::deleteAll(m_aoPackets);
 }
 
 /******************************************************************************
@@ -96,10 +97,10 @@ void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nPacketID
 	while ((::GetTickCount() - dwStartTime) < m_nTimeOut)
 	{
 		// Any response packets received?
-		if (m_aoPackets.Size())
+		if (m_aoPackets.size())
 		{
 			// Find our response.
-			for (size_t i = 0; i < m_aoPackets.Size(); ++i)
+			for (size_t i = 0; i < m_aoPackets.size(); ++i)
 			{
 				CNetDDEPacket* pPacket = m_aoPackets[i];
 
@@ -110,7 +111,7 @@ void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nPacketID
 				{
 					oPacket = *pPacket;
 
-					m_aoPackets.Delete(i);
+					Core::deleteAt(m_aoPackets, i);
 
 					return;
 				}

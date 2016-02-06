@@ -20,7 +20,6 @@
 #include <NCL/DefDDEClientListener.hpp>
 #include <NCL/IServerSocketListener.hpp>
 #include <NCL/IClientSocketListener.hpp>
-#include <Legacy/TArray.hpp>
 #include <WCL/File.hpp>
 #include <WCL/IniFile.hpp>
 #include "AppWnd.hpp"
@@ -28,6 +27,7 @@
 #include "LinkCache.hpp"
 #include <NCL/TCPSvrSocket.hpp>
 #include <NCL/DDEClient.hpp>
+#include <vector>
 
 // Forward declarations.
 class CNetDDEService;
@@ -46,7 +46,7 @@ class CNetDDESvrApp : public CApp, public CDefDDEClientListener,
 {
 public:
 	// Template shorthands.
-	typedef TPtrArray<CNetDDESvrSocket> CSockets;
+	typedef std::vector<CNetDDESvrSocket*> CSockets;
 
 	//
 	// Constructors/Destructor.

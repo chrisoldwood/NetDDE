@@ -18,7 +18,7 @@
 
 #include <NCL/TCPCltSocket.hpp>
 #include "NetDDESocket.hpp"
-#include <Legacy/TArray.hpp>
+#include <vector>
 
 // Forward declarations;
 class CDDECltConv;
@@ -26,7 +26,7 @@ class CNetDDEConv;
 class CDDELink;
 
 // Template shorthands.
-typedef TPtrArray<CNetDDEConv> CNetConvs;
+typedef std::vector<CNetDDEConv*> CNetConvs;
 
 /******************************************************************************
 ** 

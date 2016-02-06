@@ -20,6 +20,7 @@
 #include "NetDDEService.hpp"
 #include <NCL/DDEServer.hpp>
 #include <WCL/Exception.hpp>
+#include <Core/Algorithm.hpp>
 
 /******************************************************************************
 ** Method:		Constructor.
@@ -186,7 +187,7 @@ void CAppCmds::OnOptionsServices()
 	int nConns = 0;
 
 	// Count connections...
-	for (size_t i = 0; i < App.m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < App.m_aoServices.size(); ++i)
 	{
 		if (App.m_aoServices[i]->m_oConnection.IsOpen())
 			nConns++;
@@ -203,14 +204,14 @@ void CAppCmds::OnOptionsServices()
 	CServicesDlg Dlg;
 
 	// Initialise dialog with current service list.
-	for (size_t i = 0; i < App.m_aoServices.Size(); ++i)
-		Dlg.m_aoServices.Add(new CNetDDESvcCfg(App.m_aoServices[i]->m_oCfg));
+	for (size_t i = 0; i < App.m_aoServices.size(); ++i)
+		Dlg.m_aoServices.push_back(new CNetDDESvcCfg(App.m_aoServices[i]->m_oCfg));
 
 	// Show config dialog.
 	if ( (Dlg.RunModal(App.m_rMainWnd) == IDOK) && (Dlg.m_bModified) )
 	{
 		// Cleanup all current services.
-		for (size_t i = 0; i < App.m_aoServices.Size(); ++i)
+		for (size_t i = 0; i < App.m_aoServices.size(); ++i)
 		{
 			CNetDDEService* pService = App.m_aoServices[i];
 
@@ -220,10 +221,10 @@ void CAppCmds::OnOptionsServices()
 			App.m_pDDEServer->Unregister(pService->m_oCfg.m_strLocName);
 		}
 
-		App.m_aoServices.DeleteAll();
+		Core::deleteAll(App.m_aoServices);
 
 		// Start all new ones.
-		for (size_t i = 0; i < Dlg.m_aoServices.Size(); ++i)
+		for (size_t i = 0; i < Dlg.m_aoServices.size(); ++i)
 		{
 			CNetDDESvcCfg*  pSvcCfg  = Dlg.m_aoServices[i];
 			CNetDDEService* pService = new CNetDDEService;
@@ -244,7 +245,7 @@ void CAppCmds::OnOptionsServices()
 			}
 
 			// Add to collection.
-			App.m_aoServices.Add(pService);
+			App.m_aoServices.push_back(pService);
 
 			// Attach event handler.
 			pService->m_oConnection.AddClientListener(&App);

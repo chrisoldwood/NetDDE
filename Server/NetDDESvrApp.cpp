@@ -28,6 +28,7 @@
 #include <Core/StringUtils.hpp>
 #include <WCL/AutoBool.hpp>
 #include <NCL/DDEException.hpp>
+#include <Core/Algorithm.hpp>
 
 #ifdef _MSC_VER
 // declaration of 'Xxx' hides previous local declaration (MemStream).
@@ -253,7 +254,7 @@ bool CNetDDESvrApp::OnClose()
 	m_oSvrSocket.Close();
 
 	// Close all client connections...
-	for (size_t i = 0; i < m_aoConnections.Size(); ++i)
+	for (size_t i = 0; i < m_aoConnections.size(); ++i)
 	{
 		try
 		{
@@ -262,7 +263,7 @@ bool CNetDDESvrApp::OnClose()
 			if (pConnection->IsOpen())
 			{
 				// Delete the conversation list.
-				for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+				for (size_t j = 0; j < pConnection->m_aoNetConvs.size(); ++j)
 					m_pDDEClient->DestroyConversation(pConnection->m_aoNetConvs[j]->m_pSvrConv);
 
 				if (App.m_bTraceNetConns)
@@ -283,7 +284,7 @@ bool CNetDDESvrApp::OnClose()
 	}
 
 	// Close all client connections.
-	m_aoConnections.DeleteAll();
+	Core::deleteAll(m_aoConnections);
 
 	// Unnitialise the DDE client.
 	m_pDDEClient->RemoveListener(this);
@@ -476,13 +477,13 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 	CNetDDEPacket oPacket(CNetDDEPacket::DDE_DISCONNECT, oBuffer);
 
 	// For all NetDDEClients...
-	for (size_t i = 0; i < m_aoConnections.Size(); ++i)
+	for (size_t i = 0; i < m_aoConnections.size(); ++i)
 	{
 		CNetDDESvrSocket* pConnection = m_aoConnections[i];
 		bool              bNotifyConn = true;
 
 		// Clean-up all client conversations...
-		for (int j = static_cast<int>(pConnection->m_aoNetConvs.Size())-1; j >= 0; --j)
+		for (int j = static_cast<int>(pConnection->m_aoNetConvs.size())-1; j >= 0; --j)
 		{
 			CNetDDEConv* pNetConv = pConnection->m_aoNetConvs[j];
 
@@ -510,7 +511,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 					App.Trace(TXT("SOCKET_ERROR: %s"), e.twhat());
 				}
 
-				pConnection->m_aoNetConvs.Delete(j);
+				Core::deleteAt(pConnection->m_aoNetConvs, j);
 			}
 		}
 	}
@@ -590,7 +591,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
 
 	// Notify all NetDDEClients...
-	for (size_t i = 0; i < m_aoConnections.Size(); ++i)
+	for (size_t i = 0; i < m_aoConnections.size(); ++i)
 	{
 		CNetDDESvrSocket* pConnection = m_aoConnections[i];
 
@@ -658,7 +659,7 @@ void CNetDDESvrApp::OnAcceptReady(CTCPSvrSocket* pSvrSocket)
 			App.Trace(TXT("SOCKET_STATUS: Connection accepted from %s"), pCltSocket->PeerAddress());
 
 		// Add to collection.
-		m_aoConnections.Add(pCltSocket);
+		m_aoConnections.push_back(pCltSocket);
 
 		// Attach event handler.
 		pCltSocket->AddClientListener(this);
@@ -917,7 +918,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 		hConv   = pConv->Handle();
 
 		// Attach to the connection.
-		oConnection.m_aoNetConvs.Add(new CNetDDEConv(pConv, nConvID));
+		oConnection.m_aoNetConvs.push_back(new CNetDDEConv(pConv, nConvID));
 
 		// Apply settings.
 		pConv->SetTimeout(App.m_nDDETimeOut);
@@ -997,7 +998,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 			if (pNetConv->m_pSvrConv->RefCount() != 1)
 			{
 				// Destroy NetDDE conversations' links.
-				for (size_t i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
+				for (size_t i = 0; i < pNetConv->m_aoLinks.size(); ++i)
 					pConv->DestroyLink(pNetConv->m_aoLinks[i]);
 			}
 
@@ -1014,7 +1015,7 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 		}
 
 		// Detach from the connection.
-		oConnection.m_aoNetConvs.Delete(oConnection.m_aoNetConvs.Find(pNetConv));
+		Core::deleteValue(oConnection.m_aoNetConvs, pNetConv);
 	}
 }
 
@@ -1160,7 +1161,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 			pLink = pConv->CreateLink(strItem, nFormat);
 
 			// Attach to the connection.
-			pNetConv->m_aoLinks.Add(pLink);
+			pNetConv->m_aoLinks.push_back(pLink);
 
 			bResult = true;
 		}
@@ -1352,7 +1353,7 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 			}
 
 			// Detach from the connection.
-			pNetConv->m_aoLinks.Remove(pNetConv->m_aoLinks.Find(pLink));
+			Core::eraseValue(pNetConv->m_aoLinks, pLink);
 		}
 	}
 }
@@ -1545,15 +1546,15 @@ void CNetDDESvrApp::UpdateStats()
 		nIconID = IDI_NET_SEND;
 	else if (m_nPktsRecv > 0) 
 		nIconID = IDI_NET_RECV;
-	else if (m_aoConnections.Size() == 0)
+	else if (m_aoConnections.size() == 0)
 		nIconID = IDI_NET_LOST;
 
 	// Format tooltip.
 	CString strTip = TXT("NetDDE Server");
 
-	if (m_aoConnections.Size() > 0)
+	if (m_aoConnections.size() > 0)
 	{
-		strTip += TXT("\nConnections: ")   + Core::format(m_aoConnections.Size());
+		strTip += TXT("\nConnections: ")   + Core::format(m_aoConnections.size());
 		strTip += TXT("\nConversations: ") + Core::format(m_pDDEClient->GetNumConversations());
 	}
 
@@ -1647,7 +1648,7 @@ void CNetDDESvrApp::OnPollSockets()
 			bRecvPacket = false;
 
 			// For all connections...
-			for (size_t i = 0; i < m_aoConnections.Size(); ++i)
+			for (size_t i = 0; i < m_aoConnections.size(); ++i)
 			{
 				CNetDDESvrSocket* pConnection = m_aoConnections[i];
 
@@ -1691,7 +1692,7 @@ void CNetDDESvrApp::OnPollSockets()
 		}
 
 		// For all connections...
-		for (size_t i = 0; i < m_aoConnections.Size(); ++i)
+		for (size_t i = 0; i < m_aoConnections.size(); ++i)
 		{
 			CNetDDESvrSocket* pConnection = m_aoConnections[i];
 
@@ -1699,7 +1700,7 @@ void CNetDDESvrApp::OnPollSockets()
 			if (!pConnection->IsOpen())
 			{
 				// Close all DDE conversations.
-				for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
+				for (size_t j = 0; j < pConnection->m_aoNetConvs.size(); ++j)
 				{
 					CNetDDEConv* pNetConv = pConnection->m_aoNetConvs[j];
 
@@ -1711,12 +1712,12 @@ void CNetDDESvrApp::OnPollSockets()
 				}
 
 				// Delete from collection.
-				m_aoConnections.Delete(m_aoConnections.Find(pConnection));
+				Core::deleteValue(m_aoConnections, pConnection);
 			}
 		}
 
 		// Flush value cache, if all connections closed.
-		if ( (m_aoConnections.Size() == 0) && (m_oLinkCache.Size() > 0) )
+		if ( (m_aoConnections.size() == 0) && (m_oLinkCache.Size() > 0) )
 			m_oLinkCache.Purge();
 	}
 }

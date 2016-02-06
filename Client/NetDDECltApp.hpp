@@ -19,13 +19,13 @@
 #include <WCL/App.hpp>
 #include <NCL/DefDDEServerListener.hpp>
 #include <NCL/IClientSocketListener.hpp>
-#include <Legacy/TArray.hpp>
 #include <WCL/File.hpp>
 #include <WCL/IniFile.hpp>
 #include "AppWnd.hpp"
 #include "AppCmds.hpp"
 #include "LinkCache.hpp"
 #include <NCL/DDEServer.hpp>
+#include <vector>
 
 // Forward declarations.
 class CNetDDEService;
@@ -43,7 +43,7 @@ class CNetDDECltApp : public CApp, public CDefDDEServerListener,
 {
 public:
 	// Template shorthands.
-	typedef TPtrArray<CNetDDEService> CServices;
+	typedef std::vector<CNetDDEService*> CServices;
 
 	//
 	// Constructors/Destructor.

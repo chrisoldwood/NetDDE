@@ -14,6 +14,7 @@
 #include <WCL/StrArray.hpp>
 #include <NCL/DDEConv.hpp>
 #include <NCL/DDELink.hpp>
+#include <Core/Algorithm.hpp>
 
 /******************************************************************************
 ** Method:		Constructor.
@@ -29,8 +30,6 @@
 
 CLinkCache::CLinkCache()
 {
-	// Expect around 1000 links.
-	m_oLinks.Reserve(1000);
 }
 
 /******************************************************************************
@@ -73,7 +72,7 @@ CLinkValue* CLinkCache::Create(const CDDEConv* pConv, const CDDELink* pLink, con
 	CLinkValue* pValue = new CLinkValue(strKey);
 
 	// Add to collection.
-	m_oLinks.Add(strKey, pValue);
+	m_oLinks[strKey] = pValue;
 
 	// Store inital value, if supplied.
 	if (pszDefValue != NULL)
@@ -97,12 +96,9 @@ CLinkValue* CLinkCache::Create(const CDDEConv* pConv, const CDDELink* pLink, con
 
 CLinkValue* CLinkCache::Find(const CDDEConv* pConv, const CDDELink* pLink) const
 {
-	CLinkValue* pValue = NULL;
+	CLinkValue* defaultValue = nullptr;
 
-	// Fetch link data from cache.
-	m_oLinks.Find(FormatKey(pConv, pLink), pValue);
-
-	return pValue;
+	return Core::findOrDefault(m_oLinks, FormatKey(pConv, pLink), defaultValue);
 }
 
 /******************************************************************************
@@ -119,30 +115,30 @@ CLinkValue* CLinkCache::Find(const CDDEConv* pConv, const CDDELink* pLink) const
 
 void CLinkCache::Purge(const CDDEConv* pConv)
 {
+	typedef CLinksMap::iterator LinksIter;
+
 	CStrArray astrLinks;
 
 	// Format the cache entry prefix for the conversation.
 	CString strPrefix = CString::Fmt(TXT("%s|%s!"), pConv->Service(), pConv->Topic());
 	size_t  nLength   = strPrefix.Length();
 
-	CString		strLink;
-	CLinkValue* pLinkValue = NULL;
-	CLinksIter	oIter(m_oLinks);
-
 	// Find all links for the conversation...
-	while (oIter.Next(strLink, pLinkValue))
+	for (LinksIter it = m_oLinks.begin(); it != m_oLinks.end(); ++it)
 	{
+		const CString& strLink = it->first;
+
 		if (tstrnicmp(strLink, strPrefix, nLength) == 0)
 		{
 			// Delete value, but remember key.
 			astrLinks.Add(strLink);
-			delete pLinkValue;
+			delete it->second;
 		}
 	}
 
 	// Purge all matching links...
 	for (size_t i = 0; i < astrLinks.Size(); ++i)
-		m_oLinks.Remove(astrLinks[i]);
+		m_oLinks.erase(astrLinks[i]);
 }
 
 /******************************************************************************
@@ -159,14 +155,12 @@ void CLinkCache::Purge(const CDDEConv* pConv)
 
 void CLinkCache::Purge()
 {
-	CString		strLink;
-	CLinkValue* pLinkValue = NULL;
-	CLinksIter	oIter(m_oLinks);
+	typedef CLinksMap::iterator LinksIter;
 
-	while (oIter.Next(strLink, pLinkValue))
-		delete pLinkValue;
+	for (LinksIter it = m_oLinks.begin(); it != m_oLinks.end(); ++it)
+		delete it->second;
 
-	m_oLinks.RemoveAll();
+	m_oLinks.clear();
 }
 
 /******************************************************************************

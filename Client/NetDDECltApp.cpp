@@ -26,6 +26,7 @@
 #include <WCL/StrCvt.hpp>
 #include <WCL/SysInfo.hpp>
 #include <Core/StringUtils.hpp>
+#include <Core/Algorithm.hpp>
 
 /******************************************************************************
 **
@@ -118,7 +119,7 @@ CNetDDECltApp::CNetDDECltApp()
 
 CNetDDECltApp::~CNetDDECltApp()
 {
-	m_aoServices.DeleteAll();
+	Core::deleteAll(m_aoServices);
 }
 
 /******************************************************************************
@@ -212,7 +213,7 @@ bool CNetDDECltApp::OnOpen()
 	App.Trace(TXT("SERVER_STATUS: Server started"));
 
 	// Register DDE services.
-	for (size_t i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
@@ -253,7 +254,7 @@ bool CNetDDECltApp::OnClose()
 	StopTimer(m_nTimerID);
 
 	// Terminate the services.
-	for (size_t i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
@@ -264,7 +265,7 @@ bool CNetDDECltApp::OnClose()
 		ServerDisconnect(pService);
 
 		// Cleanup.
-		pService->m_aoNetConvs.DeleteAll();
+		Core::deleteAll(pService->m_aoNetConvs);
 	}
 
 	// Unnitialise the DDE client.
@@ -404,7 +405,7 @@ void CNetDDECltApp::LoadConfig()
 				pService->m_oCfg.m_strFailedVal  = m_oIniFile.ReadString(strSection, TXT("FailedValue"),  pService->m_oCfg.m_strFailedVal );
 				pService->m_oCfg.m_bReqInitalVal = m_oIniFile.ReadBool  (strSection, TXT("ReqInitValue"), pService->m_oCfg.m_bReqInitalVal);
 
-				m_aoServices.Add(pService);
+				m_aoServices.push_back(pService);
 
 				// Attach event handler.
 				pService->m_oConnection.AddClientListener(this);
@@ -448,9 +449,9 @@ void CNetDDECltApp::SaveConfig()
 	m_oIniFile.WriteString(TXT("Version"), TXT("Version"), INI_FILE_VER);
 
 	// Write the service descriptions.
-	m_oIniFile.WriteInt(TXT("Services"), TXT("Count"), static_cast<int>(m_aoServices.Size()));
+	m_oIniFile.WriteInt(TXT("Services"), TXT("Count"), static_cast<int>(m_aoServices.size()));
 
-	for (size_t i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
@@ -509,7 +510,7 @@ void CNetDDECltApp::SaveConfig()
 CNetDDEService* CNetDDECltApp::FindService(const tchar* pszService) const
 {
 	// For all services...
-	for (size_t i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
@@ -536,12 +537,12 @@ CNetDDEService* CNetDDECltApp::FindService(const tchar* pszService) const
 CNetDDEService* CNetDDECltApp::FindService(HCONV hSvrConv) const
 {
 	// For all services...
-	for (size_t i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
 		// For all service conversations.
-		for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		for (size_t j = 0; j < pService->m_aoNetConvs.size(); ++j)
 		{
 			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -569,12 +570,12 @@ CNetDDEService* CNetDDECltApp::FindService(HCONV hSvrConv) const
 CNetDDEService* CNetDDECltApp::FindService(CDDESvrConv* pConv) const
 {
 	// For all services...
-	for (size_t i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
 		// For all service conversations.
-		for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		for (size_t j = 0; j < pService->m_aoNetConvs.size(); ++j)
 		{
 			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -679,7 +680,7 @@ bool CNetDDECltApp::OnConnect(const tchar* pszService, const tchar* pszTopic)
 		try
 		{
 			// Open connection, if first conversation.
-			if (pService->m_aoNetConvs.Size() == 0)
+			if (pService->m_aoNetConvs.size() == 0)
 				ServerConnect(pService);
 
 			// Create conversation message.
@@ -722,7 +723,7 @@ bool CNetDDECltApp::OnConnect(const tchar* pszService, const tchar* pszTopic)
 
 			// If accepted, attach to service.
 			if (bAccept)
-				pService->m_aoNetConvs.Add(new CNetDDEConv(hSvrConv, nConvID));
+				pService->m_aoNetConvs.push_back(new CNetDDEConv(hSvrConv, nConvID));
 		}
 		catch (const CSocketException& e)
 		{
@@ -732,7 +733,7 @@ bool CNetDDECltApp::OnConnect(const tchar* pszService, const tchar* pszTopic)
 		}
 
 		// Close connection, if last conversation.
-		if (pService->m_aoNetConvs.Size() == 0)
+		if (pService->m_aoNetConvs.size() == 0)
 			ServerDisconnect(pService);
 
 		// Update stats.
@@ -762,7 +763,7 @@ void CNetDDECltApp::OnConnectConfirm(CDDESvrConv* pConv)
 	ASSERT(pService != NULL);
 
 	// Set the client side of the NetDDE conversation.
-	for (size_t i = 0; i < pService->m_aoNetConvs.Size(); ++i)
+	for (size_t i = 0; i < pService->m_aoNetConvs.size(); ++i)
 	{
 		CNetDDEConv* pNetConv = pService->m_aoNetConvs[i];
 
@@ -829,10 +830,10 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 		}
 
 		// Remove from NetDDE conversation list.
-		pService->m_aoNetConvs.Delete(pService->m_aoNetConvs.Find(pNetConv));
+		Core::deleteValue(pService->m_aoNetConvs, pNetConv);
 
 		// Close connection, if last conversation.
-		if (pService->m_aoNetConvs.Size() == 0)
+		if (pService->m_aoNetConvs.size() == 0)
 			ServerDisconnect(pService);
 
 		// Update stats.
@@ -1077,7 +1078,7 @@ void CNetDDECltApp::OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink)
 	ASSERT(pNetConv != NULL);
 
 	// Add link to service links' list.
-	pNetConv->m_aoLinks.Add(pLink);
+	pNetConv->m_aoLinks.push_back(pLink);
 
 	// Set the initial link value.
 	if ((m_oLinkCache.Find(pConv, pLink)) == NULL)
@@ -1178,7 +1179,7 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 		}
 
 		// Remove from connections links list.
-		pNetConv->m_aoLinks.Remove(pNetConv->m_aoLinks.Find(pLink));
+		Core::eraseValue(pNetConv->m_aoLinks, pLink);
 
 		// Update stats.
 		++m_nPktsSent;
@@ -1438,9 +1439,9 @@ void CNetDDECltApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 	CNetDDEService*   pService    = pConnection->Service();
 
 	// Outstanding conversations?
-	if (pService->m_aoNetConvs.Size() > 0)
+	if (pService->m_aoNetConvs.size() > 0)
 	{
-		for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		for (size_t j = 0; j < pService->m_aoNetConvs.size(); ++j)
 		{
 			CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -1449,7 +1450,7 @@ void CNetDDECltApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 		}
 
 		// Discard NetDDE conversations.
-		pService->m_aoNetConvs.DeleteAll();
+		Core::deleteAll(pService->m_aoNetConvs);
 	}
 
 	// Flush link cache, if all connections closed.
@@ -1556,7 +1557,7 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 			App.Trace(TXT("DDE_DISCONNECT: %s"), pService->m_oCfg.m_strRemName);
 
 		// Cleanup all client conversations...
-		for (int i = static_cast<int>(pService->m_aoNetConvs.Size())-1; i >= 0; --i)
+		for (int i = static_cast<int>(pService->m_aoNetConvs.size())-1; i >= 0; --i)
 		{
 			CNetDDEConv* pNetConv = pService->m_aoNetConvs[i];
 
@@ -1566,12 +1567,12 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 				// Disconnect from DDE client.
 				m_pDDEServer->DestroyConversation(pNetConv->m_pCltConv);
 
-				pService->m_aoNetConvs.Delete(i);
+				Core::deleteAt(pService->m_aoNetConvs, i);
 			}
 		}
 
 		// Close connection, if last conversation.
-		if (pService->m_aoNetConvs.Size() == 0)
+		if (pService->m_aoNetConvs.size() == 0)
 			ServerDisconnect(pService);
 	}
 }
@@ -1636,7 +1637,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 		if (pService != NULL)
 		{
 			// For all NetDDE conversations...
-			for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+			for (size_t j = 0; j < pService->m_aoNetConvs.size(); ++j)
 			{
 				CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -1645,7 +1646,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 					continue;
 
 				// For all links....
-				for (size_t i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
+				for (size_t i = 0; i < pNetConv->m_aoLinks.size(); ++i)
 				{
 					CDDELink* pLink = pNetConv->m_aoLinks[i];
 					CDDEConv* pConv = pLink->Conversation();
@@ -1723,7 +1724,7 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 		if (pService != NULL)
 		{
 			// For all NetDDE conversations...
-			for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+			for (size_t j = 0; j < pService->m_aoNetConvs.size(); ++j)
 			{
 				CNetDDEConv* pNetConv = pService->m_aoNetConvs[j];
 
@@ -1732,7 +1733,7 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 					continue;
 
 				// For all links....
-				for (size_t i = 0; i < pNetConv->m_aoLinks.Size(); ++i)
+				for (size_t i = 0; i < pNetConv->m_aoLinks.size(); ++i)
 				{
 					CDDELink* pLink = pNetConv->m_aoLinks[i];
 					CDDEConv* pConv = pLink->Conversation();
@@ -1785,7 +1786,7 @@ void CNetDDECltApp::UpdateStats()
 		int nConns = 0;
 
 		// How many server connections?
-		for (size_t i = 0; i < m_aoServices.Size(); ++i)
+		for (size_t i = 0; i < m_aoServices.size(); ++i)
 		{
 			if (m_aoServices[i]->m_oConnection.IsOpen())
 				nConns++;
@@ -1838,12 +1839,12 @@ void CNetDDECltApp::UpdateStats()
 void CNetDDECltApp::OnPostInitalUpdates()
 {
 	// For all services...
-	for (size_t i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.size(); ++i)
 	{
 		CNetDDEService* pService = m_aoServices[i];
 
 		// For all NetDDE conversations...
-		for (size_t j = 0; j < pService->m_aoNetConvs.Size(); ++j)
+		for (size_t j = 0; j < pService->m_aoNetConvs.size(); ++j)
 		{
 			// Template shorthands.
 			typedef CNetDDEConv::CLinkList::const_iterator CIter;

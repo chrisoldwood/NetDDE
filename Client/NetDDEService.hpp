@@ -16,13 +16,13 @@
 #pragma once
 #endif
 
-#include <Legacy/TArray.hpp>
 #include "NetDDESvcCfg.hpp"
 #include "NetDDECltSocket.hpp"
 #include "NetDDEConv.hpp"
+#include <vector>
 
 // Template shorthands.
-typedef TPtrArray<CNetDDEConv> CNetConvs;
+typedef std::vector<CNetDDEConv*> CNetConvs;
 
 /******************************************************************************
 ** 
@@ -68,13 +68,13 @@ inline CNetDDEService::CNetDDEService()
 
 inline CNetDDEService::~CNetDDEService()
 {
-	ASSERT(m_aoNetConvs.Size() == 0);
+	ASSERT(m_aoNetConvs.size() == 0);
 }
 
 inline CNetDDEConv* CNetDDEService::FindNetConv(CDDESvrConv* pConv) const
 {
 	// For all service conversations.
-	for (size_t j = 0; j < m_aoNetConvs.Size(); ++j)
+	for (size_t j = 0; j < m_aoNetConvs.size(); ++j)
 	{
 		CNetDDEConv* pNetConv = m_aoNetConvs[j];
 

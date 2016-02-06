@@ -83,7 +83,7 @@ bool COptionsDlg::OnOk()
 	App.m_nNetTimeOut = m_ebNetTimeOut.IntValue();
 
 	// Update the service timeouts.
-	for (size_t i = 0; i < App.m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < App.m_aoServices.size(); ++i)
 		App.m_aoServices[i]->m_oConnection.SetTimeOut(App.m_nNetTimeOut);
 
 	return true;

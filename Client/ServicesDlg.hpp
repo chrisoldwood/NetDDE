@@ -17,13 +17,13 @@
 #endif
 
 #include <WCL/CommonUI.hpp>
-#include <Legacy/TArray.hpp>
+#include <vector>
 
 // Forward declarations.
 class CNetDDESvcCfg;
 
 // Template shorthands.
-typedef TPtrArray<CNetDDESvcCfg> CSvcConfigs;
+typedef std::vector<CNetDDESvcCfg*> CSvcConfigs;
 
 /******************************************************************************
 ** 

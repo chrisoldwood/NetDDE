@@ -16,8 +16,10 @@
 #pragma once
 #endif
 
+#include <vector>
+
 // Template shorthands.
-typedef TPtrArray<CDDELink> CLinks;
+typedef std::vector<CDDELink*> CLinks;
 
 /******************************************************************************
 ** 

@@ -13,6 +13,7 @@
 #include "NetDDEConv.hpp"
 #include <NCL/DDECltConv.hpp>
 #include <NCL/DDELink.hpp>
+#include <Core/Algorithm.hpp>
 
 /******************************************************************************
 ** Method:		Constructor.
@@ -50,7 +51,7 @@ CNetDDESvrSocket::~CNetDDESvrSocket()
 	Close();
 
 	// Cleanup.
-	m_aoNetConvs.DeleteAll();
+	Core::deleteAll(m_aoNetConvs);
 }
 
 /******************************************************************************
@@ -87,7 +88,7 @@ void CNetDDESvrSocket::Close()
 CNetDDEConv* CNetDDESvrSocket::FindNetConv(CDDECltConv* pConv, uint32 nConvID) const
 {
 	// For all conversations...
-	for (size_t j = 0; j < m_aoNetConvs.Size(); ++j)
+	for (size_t j = 0; j < m_aoNetConvs.size(); ++j)
 	{
 		CNetDDEConv* pNetConv = m_aoNetConvs[j];
 
@@ -117,7 +118,7 @@ bool CNetDDESvrSocket::IsLinkUsed(CDDELink* pLink) const
 	CDDEConv* pConv = pLink->Conversation();
 
 	// For all conversations...
-	for (size_t i = 0; i < m_aoNetConvs.Size(); ++i)
+	for (size_t i = 0; i < m_aoNetConvs.size(); ++i)
 	{
 		CNetDDEConv* pNetConv = m_aoNetConvs[i];
 
@@ -126,7 +127,7 @@ bool CNetDDESvrSocket::IsLinkUsed(CDDELink* pLink) const
 			continue;
 
 		// Conversation references link?
-		if (pNetConv->m_aoLinks.Find(pLink) != -1)
+		if (Core::exists(pNetConv->m_aoLinks, pLink))
 			return true;
 	}
 

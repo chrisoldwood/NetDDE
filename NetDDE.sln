@@ -12,8 +12,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wcl", "..\Lib\WCL\Wcl.vcpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NCL", "..\Lib\NCL\NCL.vcproj", "{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Legacy", "..\Lib\Legacy\Legacy.vcproj", "{AED77F84-49CF-4B84-B319-2D07025ECA06}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -44,10 +42,6 @@ Global
 		{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}.Debug|Win32.Build.0 = Debug|Win32
 		{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}.Release|Win32.ActiveCfg = Release|Win32
 		{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}.Release|Win32.Build.0 = Release|Win32
-		{AED77F84-49CF-4B84-B319-2D07025ECA06}.Debug|Win32.ActiveCfg = Debug|Win32
-		{AED77F84-49CF-4B84-B319-2D07025ECA06}.Debug|Win32.Build.0 = Debug|Win32
-		{AED77F84-49CF-4B84-B319-2D07025ECA06}.Release|Win32.ActiveCfg = Release|Win32
-		{AED77F84-49CF-4B84-B319-2D07025ECA06}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

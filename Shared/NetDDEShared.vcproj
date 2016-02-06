@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="NetDDEShared"
 	ProjectGUID="{AD3FA1B4-9D85-4D4F-B23F-5A519210F6CB}"
+	RootNamespace="NetDDEShared"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -232,6 +233,10 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath="..\DevNotes.txt"
+			>
+		</File>
 		<File
 			RelativePath=".\ReadMe.txt"
 			>

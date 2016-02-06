@@ -63,24 +63,24 @@ void CServerConnsDlg::OnInitDialog()
 	m_lvGrid.InsertColumn(LINK_COUNT,    TXT("Links"),     70, LVCFMT_RIGHT);
 
 	// Load grid data.
-	for (size_t i = 0; i < App.m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < App.m_aoServices.size(); ++i)
 	{
 		CNetDDEService* pConnection = App.m_aoServices[i];
 
 		// Only add if connection active.
-		if (pConnection->m_aoNetConvs.Size() > 0)
+		if (pConnection->m_aoNetConvs.size() > 0)
 		{
 			size_t nLinks = 0;
 
 			// Sum links for all conversations.
-			for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
-				nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.Size();
+			for (size_t j = 0; j < pConnection->m_aoNetConvs.size(); ++j)
+				nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.size();
 
 			size_t n = m_lvGrid.ItemCount();
 
 			m_lvGrid.InsertItem(n,                pConnection->m_oCfg.m_strRemName);
 			m_lvGrid.ItemText  (n, COMPUTER_NAME, pConnection->m_oCfg.m_strServer);
-			m_lvGrid.ItemText  (n, CONV_COUNT,    Core::format(pConnection->m_aoNetConvs.Size()));
+			m_lvGrid.ItemText  (n, CONV_COUNT,    Core::format(pConnection->m_aoNetConvs.size()));
 			m_lvGrid.ItemText  (n, LINK_COUNT,    Core::format(nLinks));
 		}
 	}

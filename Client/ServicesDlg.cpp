@@ -13,6 +13,7 @@
 #include "ServiceDlg.hpp"
 #include "NetDDESvcCfg.hpp"
 #include "NetDDEDefs.hpp"
+#include <Core/Algorithm.hpp>
 
 /******************************************************************************
 ** Method:		Default constructor.
@@ -56,7 +57,7 @@ CServicesDlg::CServicesDlg()
 
 CServicesDlg::~CServicesDlg()
 {
-	m_aoServices.DeleteAll();
+	Core::deleteAll(m_aoServices);
 }
 
 /******************************************************************************
@@ -81,7 +82,7 @@ void CServicesDlg::OnInitDialog()
 	m_lvServices.InsertColumn(1, TXT("Server"),  100, LVCFMT_LEFT);
 
 	// Load current services.
-	for (size_t i = 0; i < m_aoServices.Size(); ++i)
+	for (size_t i = 0; i < m_aoServices.size(); ++i)
 	{
 		CNetDDESvcCfg* pService = m_aoServices[i];
 
@@ -158,7 +159,7 @@ void CServicesDlg::OnAdd()
 	pService->m_bAsyncAdvises = Dlg.m_bAsyncAdvises;
 	pService->m_strFailedVal  = Dlg.m_strFailedVal;
 
-	m_aoServices.Add(pService);
+	m_aoServices.push_back(pService);
 
 	// Add service to view.
 	size_t i = m_lvServices.ItemCount();
@@ -257,7 +258,7 @@ void CServicesDlg::OnRemove()
 	CNetDDESvcCfg* pService = static_cast<CNetDDESvcCfg*>(m_lvServices.ItemPtr(nSel));
 
 	// Delete from collection and view.
-	m_aoServices.Delete(m_aoServices.Find(pService));
+	Core::deleteValue(m_aoServices, pService);
 	m_lvServices.DeleteItem(nSel);
 
 	// Update selection.

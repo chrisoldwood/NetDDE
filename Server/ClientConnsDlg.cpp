@@ -14,6 +14,7 @@
 #include "NetDDESvrSocket.hpp"
 #include "NetDDEConv.hpp"
 #include <Core/StringUtils.hpp>
+#include <Core/Algorithm.hpp>
 
 /******************************************************************************
 ** Method:		Default constructor.
@@ -85,7 +86,7 @@ void CClientConnsDlg::Refresh()
 	m_lvGrid.DeleteAllItems();
 
 	// Load grid data.
-	for (size_t i = 0; i < App.m_aoConnections.Size(); ++i)
+	for (size_t i = 0; i < App.m_aoConnections.size(); ++i)
 	{
 		CNetDDESvrSocket* pConnection = App.m_aoConnections[i];
 
@@ -96,15 +97,15 @@ void CClientConnsDlg::Refresh()
 		size_t nLinks = 0;
 
 		// Sum links for all conversations.
-		for (size_t j = 0; j < pConnection->m_aoNetConvs.Size(); ++j)
-			nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.Size();
+		for (size_t j = 0; j < pConnection->m_aoNetConvs.size(); ++j)
+			nLinks += pConnection->m_aoNetConvs[j]->m_aoLinks.size();
 
 		size_t n = m_lvGrid.ItemCount();
 
 		m_lvGrid.InsertItem(n,               pConnection->m_strComputer);
 		m_lvGrid.ItemText  (n, USER_NAME,    pConnection->m_strUser);
 		m_lvGrid.ItemText  (n, SERVICE_NAME, pConnection->m_strService);
-		m_lvGrid.ItemText  (n, CONV_COUNT,   Core::format(pConnection->m_aoNetConvs.Size()));
+		m_lvGrid.ItemText  (n, CONV_COUNT,   Core::format(pConnection->m_aoNetConvs.size()));
 		m_lvGrid.ItemText  (n, LINK_COUNT,   Core::format(nLinks));
 		m_lvGrid.ItemPtr   (n, pConnection);
 	}
@@ -152,7 +153,7 @@ void CClientConnsDlg::OnCloseConnection()
 	CNetDDESvrSocket* pConnection = static_cast<CNetDDESvrSocket*>(m_lvGrid.ItemPtr(m_lvGrid.Selection()));
 
 	// Close connection, if still active.
-	if ((App.m_aoConnections.Find(pConnection) != -1) && (pConnection->IsOpen()))
+	if (Core::exists(App.m_aoConnections, pConnection) && pConnection->IsOpen())
 		App.CloseConnection(pConnection);
 
 	// Re-populate.

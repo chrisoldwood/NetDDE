@@ -16,8 +16,7 @@
 #pragma once
 #endif
 
-#include <Legacy/TMap.hpp>
-#include <Legacy/TMapIter.hpp>
+#include <map>
 
 // Forward declarations.
 class CLinkValue;
@@ -53,8 +52,7 @@ public:
 
 protected:
 	// Template shorthands.
-	typedef TMap<CString, CLinkValue*> CLinksMap;
-	typedef TMapIter<CString, CLinkValue*> CLinksIter;
+	typedef std::map<CString, CLinkValue*> CLinksMap;
 
 	//
 	// Members.
@@ -76,7 +74,7 @@ protected:
 
 inline size_t CLinkCache::Size() const
 {
-	return m_oLinks.Count();
+	return m_oLinks.size();
 }
 
 #endif // LINKCACHE_HPP

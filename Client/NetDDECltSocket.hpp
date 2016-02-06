@@ -18,7 +18,7 @@
 
 #include <NCL/TCPCltSocket.hpp>
 #include "NetDDESocket.hpp"
-#include <Legacy/TArray.hpp>
+#include <vector>
 
 // Forward declarations;
 class CNetDDEService;
@@ -57,7 +57,7 @@ public:
 
 protected:
 	// Template shorthands.
-	typedef TPtrArray<CNetDDEPacket> CPackets;
+	typedef std::vector<CNetDDEPacket*> CPackets;
 
 	//
 	// Members.
@@ -86,7 +86,7 @@ inline void CNetDDECltSocket::SetTimeOut(uint nTimeOut)
 
 inline void CNetDDECltSocket::QueueResponsePacket(CNetDDEPacket* pPacket)
 {
-	m_aoPackets.Add(pPacket);
+	m_aoPackets.push_back(pPacket);
 }
 
 #endif // NETDDECLTSOCKET_HPP
