@@ -502,7 +502,7 @@ void CNetDDECltApp::SaveConfig()
 **
 ** Parameters:	pszService	The local service name.
 **
-** Returns:		The service or NULL.
+** Returns:		The service or nullptr.
 **
 *******************************************************************************
 */
@@ -519,7 +519,7 @@ CNetDDEService* CNetDDECltApp::FindService(const tchar* pszService) const
 			return pService;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /******************************************************************************
@@ -529,7 +529,7 @@ CNetDDEService* CNetDDECltApp::FindService(const tchar* pszService) const
 **
 ** Parameters:	hSvrConv	The server side conversation handle.
 **
-** Returns:		The service or NULL.
+** Returns:		The service or nullptr.
 **
 *******************************************************************************
 */
@@ -552,7 +552,7 @@ CNetDDEService* CNetDDECltApp::FindService(HCONV hSvrConv) const
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /******************************************************************************
@@ -562,7 +562,7 @@ CNetDDEService* CNetDDECltApp::FindService(HCONV hSvrConv) const
 **
 ** Parameters:	pConv	The client side conversation.
 **
-** Returns:		The service or NULL.
+** Returns:		The service or nullptr.
 **
 *******************************************************************************
 */
@@ -585,7 +585,7 @@ CNetDDEService* CNetDDECltApp::FindService(CDDESvrConv* pConv) const
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /******************************************************************************
@@ -602,7 +602,7 @@ CNetDDEService* CNetDDECltApp::FindService(CDDESvrConv* pConv) const
 
 void CNetDDECltApp::Disconnect(CDDESvrConv* pConv)
 {
-	ASSERT(pConv != NULL);
+	ASSERT(pConv != nullptr);
 
 	// Fake a client-side disconnection.
 	OnDisconnect(pConv);
@@ -637,7 +637,7 @@ bool CNetDDECltApp::OnWildConnect(CStrArray& /*astrServices*/, CStrArray& /*astr
 
 bool CNetDDECltApp::OnWildConnectService(const tchar* pszService, CStrArray& /*astrTopics*/)
 {
-	ASSERT(pszService != NULL);
+	ASSERT(pszService != nullptr);
 
 	if (m_bTraceConvs)
 		App.Trace(TXT("DDE_WILDCONNECT_SERVICE: %s (ignored)"), pszService);
@@ -647,7 +647,7 @@ bool CNetDDECltApp::OnWildConnectService(const tchar* pszService, CStrArray& /*a
 
 bool CNetDDECltApp::OnWildConnectTopic(const tchar* pszTopic, CStrArray& /*astrServices*/)
 {
-	ASSERT(pszTopic != NULL);
+	ASSERT(pszTopic != nullptr);
 
 	if (m_bTraceConvs)
 		App.Trace(TXT("DDE_WILDCONNECT_TOPIC: %s (ignored)"), pszTopic);
@@ -675,7 +675,7 @@ bool CNetDDECltApp::OnConnect(const tchar* pszService, const tchar* pszTopic)
 	CNetDDEService* pService = FindService(pszService);
 
 	// Valid service name?
-	if (pService != NULL)
+	if (pService != nullptr)
 	{
 		try
 		{
@@ -760,7 +760,7 @@ void CNetDDECltApp::OnConnectConfirm(CDDESvrConv* pConv)
 {
 	CNetDDEService* pService = FindService(pConv->Service());
 
-	ASSERT(pService != NULL);
+	ASSERT(pService != nullptr);
 
 	// Set the client side of the NetDDE conversation.
 	for (size_t i = 0; i < pService->m_aoNetConvs.size(); ++i)
@@ -768,7 +768,7 @@ void CNetDDECltApp::OnConnectConfirm(CDDESvrConv* pConv)
 		CNetDDEConv* pNetConv = pService->m_aoNetConvs[i];
 
 		// Server side handle was set in OnConnect().
-		if (pNetConv->m_pCltConv == NULL)
+		if (pNetConv->m_pCltConv == nullptr)
 		{
 			pNetConv->m_pCltConv = pConv;
 			break;
@@ -792,14 +792,14 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 {
 	CNetDDEService* pService = FindService(pConv->Service());
 
-	ASSERT(pService != NULL);
+	ASSERT(pService != nullptr);
 
 	// Valid service name?
-	if (pService != NULL)
+	if (pService != nullptr)
 	{
 		CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
 
-		ASSERT(pNetConv != NULL);
+		ASSERT(pNetConv != nullptr);
 
 		try
 		{
@@ -867,7 +867,7 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFo
 	CNetDDEService* pService = FindService(pConv->Service());
 
 	// Valid service name AND connection open?
-	if ( (pService != NULL) && (pService->m_oConnection.IsOpen()) )
+	if ( (pService != nullptr) && (pService->m_oConnection.IsOpen()) )
 	{
 		// Service only supports CF_TEXT?
 		if ( (pService->m_oCfg.m_bTextOnly) && (nFormat != CF_TEXT) )
@@ -876,12 +876,12 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFo
 		CDDELink* pLink = pConv->FindLink(pszItem, nFormat);
 
 		// Already linked to item?
-		if (pLink != NULL)
+		if (pLink != nullptr)
 		{
 			// Service request using link cache.
 			CLinkValue* pValue = m_oLinkCache.Find(pConv, pLink);
 
-			ASSERT(pValue != NULL);
+			ASSERT(pValue != nullptr);
 
 			oData.SetBuffer(pValue->m_oLastValue);
 
@@ -897,7 +897,7 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFo
 
 		CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
 
-		ASSERT(pNetConv != NULL);
+		ASSERT(pNetConv != nullptr);
 
 		try
 		{
@@ -981,7 +981,7 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const tchar* pszItem, uint
 	CNetDDEService* pService = FindService(pConv->Service());
 
 	// Valid service name?
-	if ( (pService != NULL) && (pService->m_oConnection.IsOpen()) )
+	if ( (pService != nullptr) && (pService->m_oConnection.IsOpen()) )
 	{
 		// Service only supports CF_TEXT?
 		if ( (pService->m_oCfg.m_bTextOnly) && (nFormat != CF_TEXT) )
@@ -989,7 +989,7 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const tchar* pszItem, uint
 
 		CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
 
-		ASSERT(pNetConv != NULL);
+		ASSERT(pNetConv != nullptr);
 
 		try
 		{
@@ -1071,17 +1071,17 @@ void CNetDDECltApp::OnAdviseConfirm(CDDESvrConv* pConv, CDDELink* pLink)
 {
 	CNetDDEService* pService = FindService(pConv);
 
-	ASSERT(pService != NULL);
+	ASSERT(pService != nullptr);
 
 	CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
 
-	ASSERT(pNetConv != NULL);
+	ASSERT(pNetConv != nullptr);
 
 	// Add link to service links' list.
 	pNetConv->m_aoLinks.push_back(pLink);
 
 	// Set the initial link value.
-	if ((m_oLinkCache.Find(pConv, pLink)) == NULL)
+	if ((m_oLinkCache.Find(pConv, pLink)) == nullptr)
 		m_oLinkCache.Create(pConv, pLink, pService->m_oCfg.m_strInitialVal);
 
 	// If we're not requesting an inital value, send the default one.
@@ -1117,11 +1117,11 @@ bool CNetDDECltApp::OnAdviseRequest(CDDESvrConv* pConv, CDDELink* pLink, CDDEDat
 	// Fetch link data from cache.
 	CLinkValue* pLinkValue = m_oLinkCache.Find(pConv, pLink);
 
-	ASSERT(pLinkValue != NULL);
+	ASSERT(pLinkValue != nullptr);
 
 	oData.SetBuffer(pLinkValue->m_oLastValue);
 
-	return (pLinkValue != NULL);
+	return (pLinkValue != nullptr);
 }
 
 /******************************************************************************
@@ -1142,11 +1142,11 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 	CNetDDEService* pService = FindService(pConv->Service());
 
 	// Valid service name?
-	if ( (pService != NULL) && (pService->m_oConnection.IsOpen()) )
+	if ( (pService != nullptr) && (pService->m_oConnection.IsOpen()) )
 	{
 		CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
 
-		ASSERT(pNetConv != NULL);
+		ASSERT(pNetConv != nullptr);
 
 		try
 		{
@@ -1206,11 +1206,11 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 	CNetDDEService* pService = FindService(pConv->Service());
 
 	// Valid service name?
-	if ( (pService != NULL) && (pService->m_oConnection.IsOpen()) )
+	if ( (pService != nullptr) && (pService->m_oConnection.IsOpen()) )
 	{
 		CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
 
-		ASSERT(pNetConv != NULL);
+		ASSERT(pNetConv != nullptr);
 
 		try
 		{
@@ -1289,7 +1289,7 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const tchar* pszItem, uint nForma
 	CNetDDEService* pService = FindService(pConv->Service());
 
 	// Valid service name?
-	if ( (pService != NULL) && (pService->m_oConnection.IsOpen()) )
+	if ( (pService != nullptr) && (pService->m_oConnection.IsOpen()) )
 	{
 		// Service only supports CF_TEXT?
 		if ( (pService->m_oCfg.m_bTextOnly) && (nFormat != CF_TEXT) )
@@ -1297,7 +1297,7 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const tchar* pszItem, uint nForma
 
 		CNetDDEConv* pNetConv = pService->FindNetConv(pConv);
 
-		ASSERT(pNetConv != NULL);
+		ASSERT(pNetConv != nullptr);
 
 		try
 		{
@@ -1551,7 +1551,7 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 	// Find the service for the conversation handle.
 	CNetDDEService* pService = FindService(hSvrConv);
 
-	if (pService != NULL)
+	if (pService != nullptr)
 	{
 		if (m_bTraceConvs)
 			App.Trace(TXT("DDE_DISCONNECT: %s"), pService->m_oCfg.m_strRemName);
@@ -1634,7 +1634,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 		// Find the service for the conversation handle.
 		CNetDDEService* pService = FindService(hSvrConv);
 
-		if (pService != NULL)
+		if (pService != nullptr)
 		{
 			// For all NetDDE conversations...
 			for (size_t j = 0; j < pService->m_aoNetConvs.size(); ++j)
@@ -1654,13 +1654,13 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 					// Post advise, if it's the link that has been updated.
 					if ( (pLink->Item() == strItem) && (pLink->Format() == nFormat) )
 					{
-						CLinkValue* pValue = NULL;
+						CLinkValue* pValue = nullptr;
 
 						// Find the links' value cache.
-						if ((pValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
+						if ((pValue = m_oLinkCache.Find(pConv, pLink)) == nullptr)
 							pValue = m_oLinkCache.Create(pConv, pLink);
 
-						ASSERT(pValue != NULL);
+						ASSERT(pValue != nullptr);
 
 						// Update links' value.
 						pValue->m_oLastValue  = oData;
@@ -1721,7 +1721,7 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 		// Find the service for the conversation handle.
 		CNetDDEService* pService = FindService(hSvrConv);
 
-		if (pService != NULL)
+		if (pService != nullptr)
 		{
 			// For all NetDDE conversations...
 			for (size_t j = 0; j < pService->m_aoNetConvs.size(); ++j)
@@ -1741,13 +1741,13 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 					// Post advise, if it's the link that has been updated.
 					if ( (pLink->Item() == strItem) && (pLink->Format() == nFormat) )
 					{
-						CLinkValue* pValue = NULL;
+						CLinkValue* pValue = nullptr;
 
 						// Find the links' value cache.
-						if ((pValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
+						if ((pValue = m_oLinkCache.Find(pConv, pLink)) == nullptr)
 							pValue = m_oLinkCache.Create(pConv, pLink);
 
-						ASSERT(pValue != NULL);
+						ASSERT(pValue != nullptr);
 
 						// Update links' value.
 						pValue->m_oLastValue.FromString(pService->m_oCfg.m_strFailedVal, ANSI_TEXT);

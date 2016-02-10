@@ -83,7 +83,7 @@ inline CNetDDEConv* CNetDDEService::FindNetConv(CDDESvrConv* pConv) const
 			return pNetConv;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 #endif // NETDDESERVICE_HPP

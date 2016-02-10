@@ -147,7 +147,7 @@ void CDDEConvsDlg::OnViewLinks()
 	// Find the conversation.
 	CDDECltConv* pConv = App.m_pDDEClient->FindConversation(hConv);
 
-	if (pConv == NULL)
+	if (pConv == nullptr)
 	{
 		AlertMsg(TXT("The conversation has been terminated."));
 		return;

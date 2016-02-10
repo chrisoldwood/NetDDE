@@ -34,7 +34,7 @@ CNetDDECltSocket::CNetDDECltSocket(CNetDDEService* pService)
 	, m_pService(pService)
 	, m_nTimeOut(App.m_nNetTimeOut)
 {
-	ASSERT(pService != NULL);
+	ASSERT(pService != nullptr);
 }
 
 /******************************************************************************

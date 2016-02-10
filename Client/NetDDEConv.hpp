@@ -61,7 +61,7 @@ public:
 inline CNetDDEConv::CNetDDEConv(HCONV hSvrConv, uint32 nSvrConvID)
 	: m_hSvrConv(hSvrConv)
 	, m_nSvrConvID(nSvrConvID)
-	, m_pCltConv(NULL)
+	, m_pCltConv(nullptr)
 {
 	ASSERT(m_hSvrConv   != NULL);
 	ASSERT(m_nSvrConvID != NULL);

@@ -37,7 +37,7 @@ uint CNetDDEPacket::s_nNextPktID = 1;
 
 void CNetDDEPacket::Create(uint nDataType, uint nPacketID, const void* pData, size_t nDataSize)
 {
-	ASSERT((pData != NULL) || (nDataSize == 0));
+	ASSERT((pData != nullptr) || (nDataSize == 0));
 
 	// Allocate memory for the entire packet.
 	m_oBuffer.Size(sizeof(Header) + nDataSize);

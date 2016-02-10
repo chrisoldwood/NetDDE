@@ -29,7 +29,7 @@
 
 CLinksDlg::CLinksDlg()
 	: CDialog(IDD_LINKS)
-	, m_pConv(NULL)
+	, m_pConv(nullptr)
 {
 	DEFINE_CTRL_TABLE
 		CTRL(IDC_GRID, &m_lvGrid)
@@ -58,7 +58,7 @@ CLinksDlg::CLinksDlg()
 
 void CLinksDlg::OnInitDialog()
 {
-	ASSERT(m_pConv != NULL);
+	ASSERT(m_pConv != nullptr);
 
 	// Set dialog title.
 	Title(CString::Fmt(TXT("Links - %s|%s [%d]"), m_pConv->Service(), m_pConv->Topic(), m_pConv->NumLinks()));
@@ -80,7 +80,7 @@ void CLinksDlg::OnInitDialog()
 		m_lvGrid.InsertItem(i, pLink->Item());
 
 		// Link been advised?
-		if ((pValue != NULL) && (pValue->m_tLastUpdate != CDateTime::Min()))
+		if ((pValue != nullptr) && (pValue->m_tLastUpdate != CDateTime::Min()))
 		{
 			m_lvGrid.ItemText(i, UPDATE_TIME,  pValue->m_tLastUpdate.ToString());
 			m_lvGrid.ItemText(i, UPDATE_VALUE, pValue->m_oLastValue.ToString(ANSI_TEXT));

@@ -65,7 +65,7 @@ CLinkCache::~CLinkCache()
 
 CLinkValue* CLinkCache::Create(const CDDEConv* pConv, const CDDELink* pLink, const tchar* pszDefValue)
 {
-	ASSERT(Find(pConv, pLink) == NULL);
+	ASSERT(Find(pConv, pLink) == nullptr);
 
 	// Allocate link value.
 	CString     strKey = FormatKey(pConv, pLink);
@@ -75,7 +75,7 @@ CLinkValue* CLinkCache::Create(const CDDEConv* pConv, const CDDELink* pLink, con
 	m_oLinks[strKey] = pValue;
 
 	// Store inital value, if supplied.
-	if (pszDefValue != NULL)
+	if (pszDefValue != nullptr)
 		pValue->m_oLastValue.FromString(pszDefValue, ANSI_TEXT, true);
 
 	return pValue;
@@ -89,7 +89,7 @@ CLinkValue* CLinkCache::Create(const CDDEConv* pConv, const CDDELink* pLink, con
 ** Parameters:	pConv	The conversation.
 **				pLink	The link.
 **
-** Returns:		The value or NULL.
+** Returns:		The value or nullptr.
 **
 *******************************************************************************
 */

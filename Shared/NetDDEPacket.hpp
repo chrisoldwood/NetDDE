@@ -141,7 +141,7 @@ inline CNetDDEPacket::CNetDDEPacket(uint nDataType)
 	if ((nDataType & PACKET_SYNC_MASK) == SYNC_PACKET)
 		nPacketID = GeneratePktID();
 
-	Create(nDataType, nPacketID, NULL, 0);
+	Create(nDataType, nPacketID, nullptr, 0);
 }
 
 inline CNetDDEPacket::CNetDDEPacket(uint nDataType, const CBuffer& oBuffer)
@@ -195,7 +195,7 @@ inline uint CNetDDEPacket::PacketID() const
 
 inline const void* CNetDDEPacket::DataBuffer() const
 {
-	ASSERT(m_oBuffer.Buffer() != NULL);
+	ASSERT(m_oBuffer.Buffer() != nullptr);
 
 	const byte* pBuffer = static_cast<const byte*>(m_oBuffer.Buffer());
 
@@ -204,14 +204,14 @@ inline const void* CNetDDEPacket::DataBuffer() const
 
 inline const CNetDDEPacket::Header* CNetDDEPacket::GetHeader() const
 {
-	ASSERT(m_oBuffer.Buffer() != NULL);
+	ASSERT(m_oBuffer.Buffer() != nullptr);
 
 	return static_cast<const Header*>(m_oBuffer.Buffer());
 }
 
 inline CNetDDEPacket::Header* CNetDDEPacket::GetHeader()
 {
-	ASSERT(m_oBuffer.Buffer() != NULL);
+	ASSERT(m_oBuffer.Buffer() != nullptr);
 
 	return static_cast<Header*>(m_oBuffer.Buffer());
 }

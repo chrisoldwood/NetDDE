@@ -40,17 +40,17 @@ CAppCmds::CAppCmds(CAppWnd& appWnd)
 	// Define the command table.
 	DEFINE_CMD_TABLE
 		// File menu.
-		CMD_ENTRY(ID_FILE_EXIT,			&CAppCmds::OnFileExit,			NULL,	-1)
+		CMD_ENTRY(ID_FILE_EXIT,			&CAppCmds::OnFileExit,			nullptr,	-1)
 		// View menu.
-		CMD_ENTRY(ID_VIEW_SERVER_CONNS,	&CAppCmds::OnViewServerConns,	NULL,	-1)
-		CMD_ENTRY(ID_VIEW_DDE_CONVS,	&CAppCmds::OnViewDDEConvs,		NULL,	-1)
-		CMD_ENTRY(ID_VIEW_CLEAR_TRACE,	&CAppCmds::OnViewClearTrace,	NULL,	-1)
+		CMD_ENTRY(ID_VIEW_SERVER_CONNS,	&CAppCmds::OnViewServerConns,	nullptr,	-1)
+		CMD_ENTRY(ID_VIEW_DDE_CONVS,	&CAppCmds::OnViewDDEConvs,		nullptr,	-1)
+		CMD_ENTRY(ID_VIEW_CLEAR_TRACE,	&CAppCmds::OnViewClearTrace,	nullptr,	-1)
 		// Options menu.
-		CMD_ENTRY(ID_OPTIONS_GENERAL,	&CAppCmds::OnOptionsGeneral,	NULL,	-1)
-		CMD_ENTRY(ID_OPTIONS_TRACE,		&CAppCmds::OnOptionsTrace,		NULL,	-1)
-		CMD_ENTRY(ID_OPTIONS_SERVICES,	&CAppCmds::OnOptionsServices,	NULL,	-1)
+		CMD_ENTRY(ID_OPTIONS_GENERAL,	&CAppCmds::OnOptionsGeneral,	nullptr,	-1)
+		CMD_ENTRY(ID_OPTIONS_TRACE,		&CAppCmds::OnOptionsTrace,		nullptr,	-1)
+		CMD_ENTRY(ID_OPTIONS_SERVICES,	&CAppCmds::OnOptionsServices,	nullptr,	-1)
 		// Help menu.
-		CMD_ENTRY(ID_HELP_ABOUT,		&CAppCmds::OnHelpAbout,			NULL,	10)
+		CMD_ENTRY(ID_HELP_ABOUT,		&CAppCmds::OnHelpAbout,			nullptr,	10)
 	END_CMD_TABLE
 }
 

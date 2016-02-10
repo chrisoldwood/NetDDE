@@ -148,7 +148,7 @@ void CDDEConvsDlg::OnViewLinks()
 	// Find the conversation.
 	CDDESvrConv* pConv = App.m_pDDEServer->FindConversation(hConv);
 
-	if (pConv == NULL)
+	if (pConv == nullptr)
 	{
 		AlertMsg(TXT("The conversation has been terminated."));
 		return;
@@ -189,7 +189,7 @@ void CDDEConvsDlg::OnCloseConv()
 	// Find the conversation.
 	CDDESvrConv* pConv = App.m_pDDEServer->FindConversation(hConv);
 
-	if (pConv == NULL)
+	if (pConv == nullptr)
 	{
 		AlertMsg(TXT("The conversation has already been terminated."));
 		return;

@@ -80,7 +80,7 @@ void CNetDDESvrSocket::Close()
 ** Parameters:	pConv	The DDE conversation.
 **				nConvID	The conversation ID.
 **
-** Returns:		The NetDDE conversation or NULL.
+** Returns:		The NetDDE conversation or nullptr.
 **
 *******************************************************************************
 */
@@ -97,7 +97,7 @@ CNetDDEConv* CNetDDESvrSocket::FindNetConv(CDDECltConv* pConv, uint32 nConvID) c
 			return pNetConv;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /******************************************************************************

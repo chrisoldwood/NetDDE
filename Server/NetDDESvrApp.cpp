@@ -541,10 +541,10 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 
 void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 {
-	ASSERT(pData != NULL);
+	ASSERT(pData != nullptr);
 
 	// Ignore Advise, if during an Advise Start.
-	if (pLink == NULL)
+	if (pLink == nullptr)
 		return;
 
 	CDDEConv* pConv = pLink->Conversation();
@@ -554,7 +554,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	CLinkValue* pValue = m_oLinkCache.Find(pConv, pLink);
 
 	// Discard duplicate updates.
-	if ((App.m_bDiscardDups) && (pValue != NULL)
+	if ((App.m_bDiscardDups) && (pValue != nullptr)
 	 && (pValue->m_oLastValue == oData))
 	{
 		if (App.m_bTraceUpdates)
@@ -564,10 +564,10 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	}
 
 	// Create a cache entry, if a new link.
-	if (pValue == NULL)
+	if (pValue == nullptr)
 		pValue = m_oLinkCache.Create(pConv, pLink);
 
-	ASSERT(pValue != NULL);
+	ASSERT(pValue != nullptr);
 
 	// Update links' cached value.
 	pValue->m_oLastValue  = oData;
@@ -986,11 +986,11 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 	// Locate the conversation.
 	CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
-	if (pConv != NULL)
+	if (pConv != nullptr)
 	{
 		CNetDDEConv* pNetConv = oConnection.FindNetConv(pConv, nConvID);
 
-		ASSERT(pNetConv != NULL);
+		ASSERT(pNetConv != nullptr);
 
 		try
 		{
@@ -1065,7 +1065,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 		// Locate the conversation.
 		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
-		if (pConv != NULL)
+		if (pConv != nullptr)
 		{
 			// Call DDE to make the request.
 			CDDEData oData = pConv->Request(strItem, nFormat);
@@ -1118,8 +1118,8 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_START_ADVISE);
 
 	bool         bResult = false;
-	CDDECltConv* pConv = NULL;
-	CDDELink*    pLink = NULL;
+	CDDECltConv* pConv = nullptr;
+	CDDELink*    pLink = nullptr;
 
 	HCONV	 hConv;
 	uint32   nConvID;
@@ -1151,11 +1151,11 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 		// Locate the conversation.
 		pConv = m_pDDEClient->FindConversation(hConv);
 
-		if (pConv != NULL)
+		if (pConv != nullptr)
 		{
 			CNetDDEConv* pNetConv = oConnection.FindNetConv(pConv, nConvID);
 
-			ASSERT(pNetConv != NULL);
+			ASSERT(pNetConv != nullptr);
 
 			// Call DDE to create the link.
 			pLink = pConv->CreateLink(strItem, nFormat);
@@ -1218,7 +1218,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 		++m_nPktsSent;
 	}
 
-	CLinkValue* pLinkValue = NULL;
+	CLinkValue* pLinkValue = nullptr;
 
 	// Link established AND 1st link AND need to request value?
 	if ( (bResult) && (pLink->RefCount() == 1) && (bReqVal) )
@@ -1229,10 +1229,10 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 			CDDEData oData = pConv->Request(strItem, nFormat);
 
 			// Find the links' value cache.
-			if ((pLinkValue = m_oLinkCache.Find(pConv, pLink)) == NULL)
+			if ((pLinkValue = m_oLinkCache.Find(pConv, pLink)) == nullptr)
 				pLinkValue = m_oLinkCache.Create(pConv, pLink);
 
-			ASSERT(pLinkValue != NULL);
+			ASSERT(pLinkValue != nullptr);
 
 			// Update links' value cache.
 			pLinkValue->m_oLastValue  = oData.GetBuffer();;
@@ -1251,7 +1251,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	}
 
 	// Send initial advise?
-	if (pLinkValue != NULL)
+	if (pLinkValue != nullptr)
 	{
 		CBuffer    oBuffer;
 		CMemStream oStream(oBuffer);
@@ -1331,16 +1331,16 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 	// Locate the conversation.
 	CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
-	if (pConv != NULL)
+	if (pConv != nullptr)
 	{
 		// Locate the link. (May not exist, if async advised).
 		CDDELink* pLink = pConv->FindLink(strItem, nFormat);
 
-		if (pLink != NULL)
+		if (pLink != nullptr)
 		{
 			CNetDDEConv* pNetConv = oConnection.FindNetConv(pConv, nConvID);
 
-			ASSERT(pNetConv != NULL);
+			ASSERT(pNetConv != nullptr);
 
 			try
 			{
@@ -1401,7 +1401,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 		// Locate the conversation.
 		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
-		if (pConv != NULL)
+		if (pConv != nullptr)
 		{
 			// Call DDE to do the execute.
 			pConv->ExecuteString(strCmd);
@@ -1491,7 +1491,7 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 		// Locate the conversation.
 		CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
 
-		if (pConv != NULL)
+		if (pConv != nullptr)
 		{
 			// Call DDE to do the poke.
 			pConv->Poke(strItem, nFormat, oData.Buffer(), oData.Size());
