@@ -61,7 +61,7 @@ void CLinksDlg::OnInitDialog()
 	ASSERT(m_pConv != nullptr);
 
 	// Set dialog title.
-	Title(CString::Fmt(TXT("Links - %s|%s [%d]"), m_pConv->Service(), m_pConv->Topic(), m_pConv->NumLinks()));
+	Title(CString::Fmt(TXT("Links - %s|%s [%d]"), m_pConv->Service().c_str(), m_pConv->Topic().c_str(), m_pConv->NumLinks()));
 
 	// Set grid style.
 	m_lvGrid.FullRowSelect(true);

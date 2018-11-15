@@ -120,7 +120,7 @@ void CLinkCache::Purge(const CDDEConv* pConv)
 	CStrArray astrLinks;
 
 	// Format the cache entry prefix for the conversation.
-	CString strPrefix = CString::Fmt(TXT("%s|%s!"), pConv->Service(), pConv->Topic());
+	CString strPrefix = CString::Fmt(TXT("%s|%s!"), pConv->Service().c_str(), pConv->Topic().c_str());
 	size_t  nLength   = strPrefix.Length();
 
 	// Find all links for the conversation...
@@ -178,5 +178,5 @@ void CLinkCache::Purge()
 
 CString CLinkCache::FormatKey(const CDDEConv* pConv, const CDDELink* pLink)
 {
-	return CString::Fmt(TXT("%s|%s!%s%u"), pConv->Service(), pConv->Topic(), pLink->Item(), pLink->Format());
+	return CString::Fmt(TXT("%s|%s!%s%u"), pConv->Service().c_str(), pConv->Topic().c_str(), pLink->Item().c_str(), pLink->Format());
 }

@@ -497,7 +497,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 						bNotifyConn = false;
 
 						if (App.m_bTraceConvs)
-							App.Trace(TXT("DDE_DISCONNECT: %s, %s"), pConv->Service(), pConv->Topic());
+							App.Trace(TXT("DDE_DISCONNECT: %s, %s"), pConv->Service().c_str(), pConv->Topic().c_str());
 
 						// Send disconnect message.
 						pConnection->SendPacket(oPacket);
@@ -558,7 +558,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	 && (pValue->m_oLastValue == oData))
 	{
 		if (App.m_bTraceUpdates)
-			App.Trace(TXT("DDE_ADVISE: %s %s (ignored)"), pConv->Service(), pLink->Item());
+			App.Trace(TXT("DDE_ADVISE: %s %s (ignored)"), pConv->Service().c_str(), pLink->Item().c_str());
 
 		return;
 	}
@@ -616,7 +616,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 					else
 						strData = CClipboard::FormatName(nFormat);
 
-					App.Trace(TXT("DDE_ADVISE: %s %s [%s]"), pConv->Service(), pLink->Item(), strData);
+					App.Trace(TXT("DDE_ADVISE: %s %s [%s]"), pConv->Service().c_str(), pLink->Item().c_str(), strData.c_str());
 				}
 
 				// Send advise message.
@@ -656,7 +656,7 @@ void CNetDDESvrApp::OnAcceptReady(CTCPSvrSocket* pSvrSocket)
 		pSvrSocket->Accept(pCltSocket);
 
 		if (App.m_bTraceNetConns)
-			App.Trace(TXT("SOCKET_STATUS: Connection accepted from %s"), pCltSocket->PeerAddress());
+			App.Trace(TXT("SOCKET_STATUS: Connection accepted from %s"), pCltSocket->PeerAddress().c_str());
 
 		// Add to collection.
 		m_aoConnections.push_back(pCltSocket);
@@ -711,7 +711,7 @@ void CNetDDESvrApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 		CNetDDESvrSocket* pConnection = static_cast<CNetDDESvrSocket*>(pSocket);
 
 		if (App.m_bTraceNetConns)
-			App.Trace(TXT("SOCKET_STATUS: Connection closed from %s"), pConnection->Host());
+			App.Trace(TXT("SOCKET_STATUS: Connection closed from %s"), pConnection->Host().c_str());
 	}
 	// Listening socket.
 	else // (pSocket == &m_oSvrSocket)
@@ -741,7 +741,7 @@ void CNetDDESvrApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 
 void CNetDDESvrApp::OnError(CSocket* /*pSocket*/, int nEvent, int nError)
 {
-	Trace(TXT("SOCKET_ERROR: %s [%s]"), CWinSock::ErrorToSymbol(nError), CSocket::AsyncEventStr(nEvent));
+	Trace(TXT("SOCKET_ERROR: %s [%s]"), CWinSock::ErrorToSymbol(nError).c_str(), CSocket::AsyncEventStr(nEvent).c_str());
 }
 
 /******************************************************************************
@@ -804,8 +804,8 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 
 	if (App.m_bTraceNetConns)
 	{
-		App.Trace(TXT("NETDDE_CLIENT_CONNECT: %u %s %s %s"), nProtocol, strService, strComputer, strUser);
-		App.Trace(TXT("NETDDE_CLIENT_VERSION: %s %s"), strProcess, strVersion);
+		App.Trace(TXT("NETDDE_CLIENT_CONNECT: %u %s %s %s"), nProtocol, strService.c_str(), strComputer.c_str(), strUser.c_str());
+		App.Trace(TXT("NETDDE_CLIENT_VERSION: %s %s"), strProcess.c_str(), strVersion.c_str());
 	}
 
 	// Save connection details.
@@ -868,7 +868,7 @@ void CNetDDESvrApp::OnNetDDEClientDisconnect(CNetDDESvrSocket& /*oConnection*/, 
 	oStream.Close();
 
 	if (App.m_bTraceNetConns)
-		App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), strService, strComputer);
+		App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), strService.c_str(), strComputer.c_str());
 }
 
 /******************************************************************************
@@ -907,7 +907,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	oReqStream.Close();
 
 	if (App.m_bTraceConvs)
-		App.Trace(TXT("DDE_CREATE_CONVERSATION: %s %s [#%u]"), strService, strTopic, nConvID);
+		App.Trace(TXT("DDE_CREATE_CONVERSATION: %s %s [#%u]"), strService.c_str(), strTopic.c_str(), nConvID);
 
 	try
 	{
@@ -1058,7 +1058,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	oStream.Close();
 
 	if (App.m_bTraceRequests)
-		App.Trace(TXT("DDE_REQUEST: %s %s"), strItem, CClipboard::FormatName(nFormat));
+		App.Trace(TXT("DDE_REQUEST: %s %s"), strItem.c_str(), CClipboard::FormatName(nFormat).c_str());
 
 	try
 	{
@@ -1144,7 +1144,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	oStream.Close();
 
 	if (App.m_bTraceAdvises)
-		App.Trace(TXT("DDE_START_ADVISE: %s %s %s"), strItem, CClipboard::FormatName(nFormat), (bAsync) ? TXT("[ASYNC]") : TXT(""));
+		App.Trace(TXT("DDE_START_ADVISE: %s %s %s"), strItem.c_str(), CClipboard::FormatName(nFormat).c_str(), (bAsync) ? TXT("[ASYNC]") : TXT(""));
 
 	try
 	{
@@ -1285,7 +1285,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 			else
 				strData = CClipboard::FormatName(nFormat);
 
-			App.Trace(TXT("DDE_ADVISE: %s %u"), strItem, nFormat);
+			App.Trace(TXT("DDE_ADVISE: %s %u"), strItem.c_str(), nFormat);
 		}
 	}
 }
@@ -1326,7 +1326,7 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 	oStream.Close();
 
 	if (App.m_bTraceAdvises)
-		App.Trace(TXT("DDE_STOP_ADVISE: %s %s"), strItem, CClipboard::FormatName(nFormat));
+		App.Trace(TXT("DDE_STOP_ADVISE: %s %s"), strItem.c_str(), CClipboard::FormatName(nFormat).c_str());
 
 	// Locate the conversation.
 	CDDECltConv* pConv = m_pDDEClient->FindConversation(hConv);
@@ -1394,7 +1394,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	oStream.Close();
 
 	if (App.m_bTraceRequests)
-		App.Trace(TXT("DDE_EXECUTE: 0x%p [%s]"), hConv, strCmd);
+		App.Trace(TXT("DDE_EXECUTE: 0x%p [%s]"), hConv, strCmd.c_str());
 
 	try
 	{
@@ -1483,7 +1483,7 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 		else
 			strData = CClipboard::FormatName(nFormat);
 
-		App.Trace(TXT("DDE_POKE: %s %s [%s]"), strItem, CClipboard::FormatName(nFormat), strData);
+		App.Trace(TXT("DDE_POKE: %s %s [%s]"), strItem.c_str(), CClipboard::FormatName(nFormat).c_str(), strData.c_str());
 	}
 
 	try

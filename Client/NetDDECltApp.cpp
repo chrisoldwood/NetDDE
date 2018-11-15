@@ -219,14 +219,14 @@ bool CNetDDECltApp::OnOpen()
 
 		try
 		{
-			App.Trace(TXT("DDE_STATUS: Registering service: %s [%s]"), pService->m_oCfg.m_strLocName, pService->m_oCfg.m_strServer);
+			App.Trace(TXT("DDE_STATUS: Registering service: %s [%s]"), pService->m_oCfg.m_strLocName.c_str(), pService->m_oCfg.m_strServer.c_str());
 
 			// Register the DDE service name.
 			m_pDDEServer->Register(pService->m_oCfg.m_strLocName);
 		}
 		catch (const Core::Exception& e)
 		{
-			AlertMsg(TXT("Failed to register DDE service: %s\n\n%s"), pService->m_oCfg.m_strLocName, e.twhat());
+			AlertMsg(TXT("Failed to register DDE service: %s\n\n%s"), pService->m_oCfg.m_strLocName.c_str(), e.twhat());
 		}
 	}
 
@@ -817,7 +817,7 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 			CNetDDEPacket oPacket(CNetDDEPacket::DDE_DESTROY_CONVERSATION, oBuffer);
 
 			if (m_bTraceConvs)
-				App.Trace(TXT("DDE_DESTROY_CONVERSATION: %s %s"), pConv->Service(), pConv->Topic());
+				App.Trace(TXT("DDE_DESTROY_CONVERSATION: %s %s"), pConv->Service().c_str(), pConv->Topic().c_str());
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
@@ -889,7 +889,7 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFo
 			{
 				CString str = oData.GetString(ANSI_TEXT);
 
-				App.Trace(TXT("DDE_REQUEST: %s %s %s %s [%s]"), pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat), str);
+				App.Trace(TXT("DDE_REQUEST: %s %s %s %s [%s]"), pConv->Service().c_str(), pConv->Topic().c_str(), pszItem, CClipboard::FormatName(nFormat).c_str(), str.c_str());
 			}
 
 			return true;
@@ -918,7 +918,7 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFo
 			CNetDDEPacket oRspPacket;
 
 			if (m_bTraceRequests)
-				App.Trace(TXT("DDE_REQUEST: %s %s %s %s"), pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
+				App.Trace(TXT("DDE_REQUEST: %s %s %s %s"), pConv->Service().c_str(), pConv->Topic().c_str(), pszItem, CClipboard::FormatName(nFormat).c_str());
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oReqPacket);
@@ -1012,7 +1012,7 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const tchar* pszItem, uint
 			CNetDDEPacket oRspPacket;
 
 			if (App.m_bTraceAdvises)
-				App.Trace(TXT("DDE_START_ADVISE: %s %s %s %s"), pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat));
+				App.Trace(TXT("DDE_START_ADVISE: %s %s %s %s"), pConv->Service().c_str(), pConv->Topic().c_str(), pszItem, CClipboard::FormatName(nFormat).c_str());
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oReqPacket);
@@ -1166,7 +1166,7 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 			CNetDDEPacket oPacket(CNetDDEPacket::DDE_STOP_ADVISE, oBuffer);
 
 			if (App.m_bTraceAdvises)
-				App.Trace(TXT("DDE_STOP_ADVISE: %s %s %s %s"), pConv->Service(), pConv->Topic(), pLink->Item(), CClipboard::FormatName(pLink->Format()));
+				App.Trace(TXT("DDE_STOP_ADVISE: %s %s %s %s"), pConv->Service().c_str(), pConv->Topic().c_str(), pLink->Item().c_str(), CClipboard::FormatName(pLink->Format()).c_str());
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oPacket);
@@ -1230,7 +1230,7 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 			CNetDDEPacket oRspPacket;
 
 			if (App.m_bTraceRequests)
-				App.Trace(TXT("DDE_EXECUTE: %s %s [%s]"), pConv->Service(), pConv->Topic(), strCmd);
+				App.Trace(TXT("DDE_EXECUTE: %s %s [%s]"), pConv->Service().c_str(), pConv->Topic().c_str(), strCmd.c_str());
 
 			// Send it.
 			pService->m_oConnection.SendPacket(oReqPacket);
@@ -1322,7 +1322,7 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const tchar* pszItem, uint nForma
 			{
 				CString str = oData.GetString(ANSI_TEXT);
 
-				App.Trace(TXT("DDE_POKE: %s %s %s %s [%s]"), pConv->Service(), pConv->Topic(), pszItem, CClipboard::FormatName(nFormat), str);
+				App.Trace(TXT("DDE_POKE: %s %s %s %s [%s]"), pConv->Service().c_str(), pConv->Topic().c_str(), pszItem, CClipboard::FormatName(nFormat).c_str(), str.c_str());
 			}
 
 			// Send it.
@@ -1474,7 +1474,7 @@ void CNetDDECltApp::OnClosed(CSocket* pSocket, int /*nReason*/)
 
 void CNetDDECltApp::OnError(CSocket* /*pSocket*/, int nEvent, int nError)
 {
-	Trace(TXT("SOCKET_ERROR: %s [%s]"), CWinSock::ErrorToSymbol(nError), CSocket::AsyncEventStr(nEvent));
+	Trace(TXT("SOCKET_ERROR: %s [%s]"), CWinSock::ErrorToSymbol(nError).c_str(), CSocket::AsyncEventStr(nEvent).c_str());
 }
 
 /******************************************************************************
@@ -1510,7 +1510,7 @@ void CNetDDECltApp::OnTimer(uint /*nTimerID*/)
 void CNetDDECltApp::OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPacket& /*oNfyPacket*/)
 {
 	if (m_bTraceNetConns)
-		App.Trace(TXT("NETDDE_SERVER_DISCONNECT: %s"), oService.m_oCfg.m_strServer);
+		App.Trace(TXT("NETDDE_SERVER_DISCONNECT: %s"), oService.m_oCfg.m_strServer.c_str());
 
 	// Close connection to server.
 	oService.m_oConnection.Close();
@@ -1554,7 +1554,7 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 	if (pService != nullptr)
 	{
 		if (m_bTraceConvs)
-			App.Trace(TXT("DDE_DISCONNECT: %s"), pService->m_oCfg.m_strRemName);
+			App.Trace(TXT("DDE_DISCONNECT: %s"), pService->m_oCfg.m_strRemName.c_str());
 
 		// Cleanup all client conversations...
 		for (int i = static_cast<int>(pService->m_aoNetConvs.size())-1; i >= 0; --i)
@@ -1628,7 +1628,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 			else
 				strData = CClipboard::FormatName(nFormat);
 
-			App.Trace(TXT("DDE_ADVISE: %s %s [%s]"), oService.m_oCfg.m_strLocName, strItem, strData);
+			App.Trace(TXT("DDE_ADVISE: %s %s [%s]"), oService.m_oCfg.m_strLocName.c_str(), strItem.c_str(), strData.c_str());
 		}
 
 		// Find the service for the conversation handle.
@@ -1716,7 +1716,7 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 		oStream >> bEoP;
 
 		if (App.m_bTraceAdvises)
-			App.Trace(TXT("DDE_START_ADVISE_FAILED: %s %s"), oService.m_oCfg.m_strLocName, strItem);
+			App.Trace(TXT("DDE_START_ADVISE_FAILED: %s %s"), oService.m_oCfg.m_strLocName.c_str(), strItem.c_str());
 
 		// Find the service for the conversation handle.
 		CNetDDEService* pService = FindService(hSvrConv);
@@ -1859,7 +1859,7 @@ void CNetDDECltApp::OnPostInitalUpdates()
 
 				if (!pConv->PostLinkUpdate(pLink))
 				{
-					TRACE3(TXT("PostLinkUpdate('%s|%s', '%s') - Failed\n"), pConv->Service(), pConv->Topic(), pLink->Item());
+					TRACE3(TXT("PostLinkUpdate('%s|%s', '%s') - Failed\n"), pConv->Service().c_str(), pConv->Topic().c_str(), pLink->Item().c_str());
 				}
 			}
 
@@ -1893,7 +1893,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 		return;
 
 	if (m_bTraceNetConns)
-		App.Trace(TXT("SOCKET_STATUS: Connecting to %s:%u"), pService->m_oCfg.m_strServer, pService->m_oCfg.m_nServerPort);
+		App.Trace(TXT("SOCKET_STATUS: Connecting to %s:%u"), pService->m_oCfg.m_strServer.c_str(), pService->m_oCfg.m_nServerPort);
 
 	// Open the connection to the server
 	pService->m_oConnection.Connect(pService->m_oCfg.m_strServer, pService->m_oCfg.m_nServerPort);
@@ -1920,7 +1920,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	CNetDDEPacket oRspPacket;
 
 	if (m_bTraceNetConns)
-		App.Trace(TXT("NETDDE_CLIENT_CONNECT: %u %s %s %s"), NETDDE_PROTOCOL, pService->m_oCfg.m_strRemName, CSysInfo::ComputerName(), CSysInfo::UserName());
+		App.Trace(TXT("NETDDE_CLIENT_CONNECT: %u %s %s %s"), NETDDE_PROTOCOL, pService->m_oCfg.m_strRemName.c_str(), CSysInfo::ComputerName().c_str(), CSysInfo::UserName().c_str());
 
 	pService->m_oConnection.SendPacket(oReqPacket);
 
@@ -1940,7 +1940,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	oRspStream.Close();
 
 	if (m_bTraceNetConns)
-		App.Trace(TXT("NETDDE_SERVER_VERSION: %s"), strVersion);
+		App.Trace(TXT("NETDDE_SERVER_VERSION: %s"), strVersion.c_str());
 
 	if (!bAccept)
 		throw CSocketException(CSocketException::E_BAD_PROTOCOL, 0);
@@ -1984,7 +1984,7 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 		CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_CLIENT_DISCONNECT, oBuffer);
 
 		if (m_bTraceNetConns)
-			App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), pService->m_oCfg.m_strRemName, CSysInfo::ComputerName());
+			App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), pService->m_oCfg.m_strRemName.c_str(), CSysInfo::ComputerName().c_str());
 
 		pService->m_oConnection.SendPacket(oPacket);
 
