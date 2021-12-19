@@ -1,4 +1,4 @@
-NetDDE v1.1
+NetDDE v2.0
 ===========
 
 Introduction
@@ -55,7 +55,7 @@ connection is active, and if you have the setting on, you will see a system tray
 icon which shows activity. The icon will be red if there is no connection at all.
 
 Both the client and server support multiple services and topics from multiple
-machines simultaniously.
+machines simultaneously.
 
 The other "Service Configuration" dialog options are for enhancing performance
 and avoiding local DDE server conflicts:-
@@ -71,10 +71,10 @@ formats will be rejected locally thereby reducing network round-trips for failed
 requests. EXCEL in particular likes to request many other formats before
 falling back to CF_TEXT,
 
-If the DDE server does not send back an inital value when creating an advise
+If the DDE server does not send back an initial value when creating an advise
 loop (EXCEL does this) you can force this by checking "Request Initial Value".
 If this is not checked the NetDDE Client will immediately advise the client with
-the "Default Value" to show that no inital value has been sent. This should not
+the "Default Value" to show that no initial value has been sent. This should not
 be enabled for some DDE servers (TWINDDE in particular) as it can cause the real
 DDE server to lock up if a request is made straight after an advise start.
 
@@ -88,12 +88,12 @@ client will not get the usual DDE error for a failed advise.
 
 The NetDDE client caches the last value for every link so that any request for
 a linked item will be serviced locally rather than contacting the server. EXCEL
-always assumes that a DDE server will not return an inital value and so makes a
+always assumes that a DDE server will not return an initial value and so makes a
 request for the current value after establishing a link, unless the DDE server
 advises very quickly.
 
 The NetDDE server can ignore duplicate advises which some servers (e.g. BLP,
-REUTER, TWINDDE) send. This reduces uneccesary network traffic.
+REUTER, TWINDDE) send. This reduces unnecessary network traffic.
 
 Under "Options | Trace..." you can configure how much diagnostic output appears
 in the window and/or gets logged to a file. This is useful for tracking down
