@@ -1,7 +1,8 @@
 ??/??/????: v2.x
 ================
 
-- Added more properties to the Services summary dialog.
+- Added more columns to the Server Connections dialog.
+- Added more columns to the Services summary dialog.
 
 22/11/2004: v2.0
 ================

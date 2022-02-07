@@ -47,7 +47,9 @@ protected:
 	enum
 	{
 		SERVICE_NAME,
-		COMPUTER_NAME,
+		REMOTE_NAME,
+		SERVER_NAME,
+		PORT_NUMBER,
 		CONV_COUNT,
 		LINK_COUNT,
 	};
