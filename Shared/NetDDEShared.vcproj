@@ -245,15 +245,15 @@
 			>
 		</File>
 		<File
-			RelativePath=".\ReadMe.txt"
+			RelativePath="..\ReadMe.txt"
 			>
 		</File>
 		<File
-			RelativePath=".\RelNotes.txt"
+			RelativePath="..\RelNotes.txt"
 			>
 		</File>
 		<File
-			RelativePath=".\TODO.txt"
+			RelativePath="..\TODO.txt"
 			>
 		</File>
 	</Files>
