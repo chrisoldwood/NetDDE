@@ -1,0 +1,4 @@
+.\ReadMe.txt
+.\RelNotes.txt
+.\Server\Debug\NetDDEServer.exe
+.\Client\Debug\NetDDEClient.exe

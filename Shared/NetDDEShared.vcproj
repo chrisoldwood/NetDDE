@@ -228,6 +228,18 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<Filter
+			Name="Install"
+			>
+			<File
+				RelativePath="..\PkgList.Debug.txt"
+				>
+			</File>
+			<File
+				RelativePath="..\PkgList.Release.txt"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\DevNotes.txt"
 			>
@@ -238,10 +250,6 @@
 		</File>
 		<File
 			RelativePath=".\RelNotes.txt"
-			>
-		</File>
-		<File
-			RelativePath=".\Setup.ini"
 			>
 		</File>
 		<File
