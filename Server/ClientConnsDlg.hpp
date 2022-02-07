@@ -46,9 +46,9 @@ protected:
 	// Columns.
 	enum
 	{
-		COMPUTER_NAME,
-		USER_NAME,
 		SERVICE_NAME,
+		CLIENT_NAME,
+		USER_NAME,
 		CONV_COUNT,
 		LINK_COUNT,
 	};

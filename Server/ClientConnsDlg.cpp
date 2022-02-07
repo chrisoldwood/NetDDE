@@ -58,11 +58,11 @@ void CClientConnsDlg::OnInitDialog()
 	m_lvGrid.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvGrid.InsertColumn(COMPUTER_NAME, TXT("Computer"), 100, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(USER_NAME,     TXT("User"),     100, LVCFMT_LEFT );
 	m_lvGrid.InsertColumn(SERVICE_NAME,  TXT("Service"),  100, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(CONV_COUNT,    TXT("Convs"),     70, LVCFMT_RIGHT);
-	m_lvGrid.InsertColumn(LINK_COUNT,    TXT("Links"),     70, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(CLIENT_NAME,   TXT("Client"),   125, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(USER_NAME,     TXT("User"),     100, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(CONV_COUNT,    TXT("Convs"),     50, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(LINK_COUNT,    TXT("Links"),     50, LVCFMT_RIGHT);
 
 	// Populate.
 	Refresh();
@@ -102,9 +102,9 @@ void CClientConnsDlg::Refresh()
 
 		size_t n = m_lvGrid.ItemCount();
 
-		m_lvGrid.InsertItem(n,               pConnection->m_strComputer);
+		m_lvGrid.InsertItem(n,               pConnection->m_strService);
+		m_lvGrid.ItemText  (n, CLIENT_NAME,  pConnection->m_strComputer);
 		m_lvGrid.ItemText  (n, USER_NAME,    pConnection->m_strUser);
-		m_lvGrid.ItemText  (n, SERVICE_NAME, pConnection->m_strService);
 		m_lvGrid.ItemText  (n, CONV_COUNT,   Core::format(pConnection->m_aoNetConvs.size()));
 		m_lvGrid.ItemText  (n, LINK_COUNT,   Core::format(nLinks));
 		m_lvGrid.ItemPtr   (n, pConnection);
