@@ -14,6 +14,7 @@
 #include "NetDDESvcCfg.hpp"
 #include "NetDDEDefs.hpp"
 #include <Core/Algorithm.hpp>
+#include <Core/StringUtils.hpp>
 
 /******************************************************************************
 ** Method:		Default constructor.
@@ -78,17 +79,21 @@ void CServicesDlg::OnInitDialog()
 	m_lvServices.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvServices.InsertColumn(0, TXT("Service"), 100, LVCFMT_LEFT);
-	m_lvServices.InsertColumn(1, TXT("Server"),  100, LVCFMT_LEFT);
+	m_lvServices.InsertColumn(LOCAL_NAME,  TXT("Service"),     100, LVCFMT_LEFT);
+	m_lvServices.InsertColumn(REMOTE_NAME, TXT("Remote Name"), 100, LVCFMT_LEFT);
+	m_lvServices.InsertColumn(SERVER_NAME, TXT("Server"),      175, LVCFMT_LEFT);
+	m_lvServices.InsertColumn(PORT_NUMBER, TXT("Port"),         50, LVCFMT_RIGHT);
 
 	// Load current services.
 	for (size_t i = 0; i < m_aoServices.size(); ++i)
 	{
 		CNetDDESvcCfg* pService = m_aoServices[i];
 
-		m_lvServices.InsertItem(i,    pService->m_strRemName);
-		m_lvServices.ItemText  (i, 1, pService->m_strServer);
-		m_lvServices.ItemPtr   (i,    pService);
+		m_lvServices.InsertItem(i,              pService->m_strLocName);
+		m_lvServices.ItemText  (i, REMOTE_NAME, pService->m_strRemName);
+		m_lvServices.ItemText  (i, SERVER_NAME, pService->m_strServer);
+		m_lvServices.ItemText  (i, PORT_NUMBER, Core::format(pService->m_nServerPort));
+		m_lvServices.ItemPtr   (i, pService);
 	}
 
 	// Select 1st by default.
@@ -164,9 +169,11 @@ void CServicesDlg::OnAdd()
 	// Add service to view.
 	size_t i = m_lvServices.ItemCount();
 
-	m_lvServices.InsertItem(i,    pService->m_strRemName);
-	m_lvServices.ItemText  (i, 1, pService->m_strServer);
-	m_lvServices.ItemPtr   (i,    pService);
+	m_lvServices.InsertItem(i,              pService->m_strLocName);
+	m_lvServices.ItemText  (i, REMOTE_NAME, pService->m_strRemName);
+	m_lvServices.ItemText  (i, SERVER_NAME, pService->m_strServer);
+	m_lvServices.ItemText  (i, PORT_NUMBER, Core::format(pService->m_nServerPort));
+	m_lvServices.ItemPtr   (i, pService);
 
 	// Make new service selection.
 	m_lvServices.Select(i);
@@ -227,8 +234,10 @@ void CServicesDlg::OnEdit()
 	pService->m_strFailedVal  = Dlg.m_strFailedVal;
 
 	// Update UI.
-	m_lvServices.ItemText(nSel, 0, pService->m_strRemName);
-	m_lvServices.ItemText(nSel, 1, pService->m_strServer);
+	m_lvServices.ItemText(nSel, LOCAL_NAME,  pService->m_strLocName);
+	m_lvServices.ItemText(nSel, REMOTE_NAME, pService->m_strRemName);
+	m_lvServices.ItemText(nSel, SERVER_NAME, pService->m_strServer);
+	m_lvServices.ItemText(nSel, PORT_NUMBER, Core::format(pService->m_nServerPort));
 
 	UpdateButtons();
 

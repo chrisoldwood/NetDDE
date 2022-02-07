@@ -53,6 +53,15 @@ protected:
 	//
 	CListView	m_lvServices;
 	
+	// Columns.
+	enum
+	{
+		LOCAL_NAME,
+		REMOTE_NAME,
+		SERVER_NAME,
+		PORT_NUMBER,
+	};
+
 	//
 	// Message handlers.
 	//
