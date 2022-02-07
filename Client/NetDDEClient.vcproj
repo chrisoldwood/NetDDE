@@ -381,10 +381,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="NetDDEClient.ini"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

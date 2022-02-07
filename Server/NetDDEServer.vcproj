@@ -357,10 +357,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="NetDDEServer.ini"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
