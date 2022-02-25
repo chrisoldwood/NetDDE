@@ -8,8 +8,6 @@
 
 - Crash with EXCEL and PDD (advising trace).
 
-- Widen server name field in "Service dialog".
-
 - Add "Test Connection" button to "Service dialog".
 
 - Add "Query available DDE servers" from a connection.
@@ -26,10 +24,16 @@
 
 - Fix assumption that link value can be easily converted to ANSI text (i.e. ToString()/FromString()).
 
-#1 when NetDDE Client two server has the same RemoteName, it just save one server information to netddeclient.ini
+#1 when NetDDE Client two server has the same RemoteName, it just save one server information to netddeclient.ini.
 
 - Switch to registry / %APPDATA% for configuration and log files by default.
 
-- Add Chocolatey package
+- Add Chocolatey package.
 
 - Add .msi (need %APPDATA% change if installing to %ProgramFiles%).
+
+- Use "host name" instead of "server name" in UI and add "DDE" where required to avoid confusion.
+
+- Add setting to allow multiple instances to be run from different folders.
+
+- Move the ReadMe help-text to a formal manual page and add Help UI option.
