@@ -36,6 +36,7 @@
 #define IDC_DISCARD_DUPS                1088
 #define IDC_REQUESTS                    1089
 #define IDC_DDE_TIMEOUT                 1090
+#define IDC_SERVER_PORT                 1091
 #define IDC_WINDOW                      1094
 #define IDC_FILE                        1095
 #define IDC_CONNECTIONS                 1096

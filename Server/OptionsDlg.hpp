@@ -45,6 +45,7 @@ protected:
 	CCheckBox	m_ckMinToTray;
 	CDecimalBox	m_ebDDETimeOut;
 	CCheckBox	m_ckDiscard;
+	CDecimalBox	m_ebServerPort;
 
 	//
 	// Message handlers.

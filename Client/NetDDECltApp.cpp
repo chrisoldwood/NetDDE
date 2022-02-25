@@ -219,7 +219,10 @@ bool CNetDDECltApp::OnOpen()
 
 		try
 		{
-			App.Trace(TXT("DDE_STATUS: Registering service: %s [%s]"), pService->m_oCfg.m_strLocName.c_str(), pService->m_oCfg.m_strServer.c_str());
+			App.Trace(TXT("DDE_STATUS: Registering service: %s [%s:%u]"),
+				pService->m_oCfg.m_strLocName.c_str(),
+				pService->m_oCfg.m_strServer.c_str(),
+				pService->m_oCfg.m_nServerPort);
 
 			// Register the DDE service name.
 			m_pDDEServer->Register(pService->m_oCfg.m_strLocName);

@@ -1,6 +1,7 @@
 ??/??/????: v2.x
 ================
 
+- Made the server port configurable.
 - Added more columns to the Server Connections dialog.
 - Added more columns to the Services summary dialog.
 

@@ -27,12 +27,14 @@
 COptionsDlg::COptionsDlg()
 	: CDialog(IDD_OPTIONS)
 	, m_ebDDETimeOut(false, 6)
+	, m_ebServerPort(false, 5)
 {
 	DEFINE_CTRL_TABLE
 		CTRL(IDC_TRAY_ICON,		&m_ckTrayIcon)
 		CTRL(IDC_MIN_TO_TRAY,	&m_ckMinToTray)
 		CTRL(IDC_DDE_TIMEOUT,	&m_ebDDETimeOut)
 		CTRL(IDC_DISCARD_DUPS,	&m_ckDiscard)
+		CTRL(IDC_SERVER_PORT,	&m_ebServerPort)
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
@@ -59,6 +61,7 @@ void COptionsDlg::OnInitDialog()
 	m_ckMinToTray.Check(App.m_bMinToTray);
 	m_ebDDETimeOut.IntValue(App.m_nDDETimeOut);
 	m_ckDiscard.Check(App.m_bDiscardDups);
+	m_ebServerPort.IntValue(App.m_nServerPort);
 
 	// Handle control dependencies.
 	OnMinToTrayClicked();
@@ -78,11 +81,15 @@ void COptionsDlg::OnInitDialog()
 
 bool COptionsDlg::OnOk()
 {
+	if (static_cast<uint>(m_ebServerPort.IntValue()) != App.m_nServerPort)
+		NotifyMsg(TXT("Restart the application for the port change to take effect."));
+
 	// Get control values.
 	App.m_bTrayIcon    = m_ckTrayIcon.IsChecked();
 	App.m_bMinToTray   = m_ckMinToTray.IsChecked();
 	App.m_nDDETimeOut  = m_ebDDETimeOut.IntValue();
 	App.m_bDiscardDups = m_ckDiscard.IsChecked();
+	App.m_nServerPort  = m_ebServerPort.IntValue();
 
 	return true;
 }

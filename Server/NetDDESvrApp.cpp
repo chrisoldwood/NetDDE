@@ -384,7 +384,7 @@ void CNetDDESvrApp::LoadConfig()
 	// Read the file version.
 	CString strVer = m_oIniFile.ReadString(TXT("Version"), TXT("Version"), INI_FILE_VER);
 
-	// Read the server port.
+	// Read the server settings.
 	m_nServerPort = m_oIniFile.ReadInt(TXT("Server"), TXT("Port"), NETDDE_PORT_DEFAULT);
 
 	// Read the trace settings.
@@ -427,6 +427,9 @@ void CNetDDESvrApp::SaveConfig()
 {
 	// Write the file version.
 	m_oIniFile.WriteString(TXT("Version"), TXT("Version"), INI_FILE_VER);
+
+	// Write the server settings.
+	m_oIniFile.WriteInt(TXT("Server"), TXT("Port"), m_nServerPort);
 
 	// Write the trace settings.
 	m_oIniFile.WriteBool  (TXT("Trace"), TXT("Conversations"),  m_bTraceConvs   );

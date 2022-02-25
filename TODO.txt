@@ -2,8 +2,6 @@
 
 - Fix unhandled exception during OnAsyncSelect().
 
-- Can't configure the server port.
-
 - Sending #PNDG and #LINK when using CF_UNICODETEXT.
 
 - Disabling "request handled from cache" on linked item.
