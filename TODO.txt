@@ -8,8 +8,6 @@
 
 - Crash with EXCEL and PDD (advising trace).
 
-- Add "Test Connection" button to "Service dialog".
-
 - Add "Query available DDE servers" from a connection.
 
 - Remember size and position of "Links dialog".

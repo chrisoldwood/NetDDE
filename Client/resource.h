@@ -58,6 +58,7 @@
 #define IDC_REQ_VALUE                   1111
 #define IDC_DISCONNECT                  1111
 #define IDC_LOCAL_NAME                  1112
+#define IDC_TEST_CONNECTION             1113
 #define IDD_SERVICE                     2037
 #define IDD_LINKS                       2038
 #define ID_VIEW_CLEAR_TRACE             3068
@@ -77,7 +78,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        2040
 #define _APS_NEXT_COMMAND_VALUE         3073
-#define _APS_NEXT_CONTROL_VALUE         1112
+#define _APS_NEXT_CONTROL_VALUE         1114
 #define _APS_NEXT_SYMED_VALUE           104
 #endif
 #endif

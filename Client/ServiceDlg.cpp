@@ -10,6 +10,9 @@
 
 #include "Common.hpp"
 #include "ServiceDlg.hpp"
+#include <NCL/SocketException.hpp>
+#include <NCL/TCPCltSocket.hpp>
+#include <WCL/BusyCursor.hpp>
 
 /******************************************************************************
 ** Method:		Default constructor.
@@ -42,8 +45,9 @@ CServiceDlg::CServiceDlg()
 	END_CTRL_TABLE
 
 	DEFINE_CTRLMSG_TABLE
-		CMD_CTRLMSG(IDC_REQ_VALUE, BN_CLICKED, &CServiceDlg::OnClickedReqVal)
-		CMD_CTRLMSG(IDC_ASYNC,     BN_CLICKED, &CServiceDlg::OnClickedAsync )
+		CMD_CTRLMSG(IDC_REQ_VALUE,       BN_CLICKED, &CServiceDlg::OnClickedReqVal)
+		CMD_CTRLMSG(IDC_ASYNC,           BN_CLICKED, &CServiceDlg::OnClickedAsync )
+		CMD_CTRLMSG(IDC_TEST_CONNECTION, BN_CLICKED, &CServiceDlg::OnClickedTest  )
 	END_CTRLMSG_TABLE
 }
 
@@ -171,4 +175,39 @@ void CServiceDlg::OnClickedReqVal()
 	bool bReqVal = m_ckReqVal.IsChecked();
 
 	m_ebDefaultVal.Enable(!bReqVal);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Test the DDE server connection settings.
+
+void CServiceDlg::OnClickedTest()
+{
+	if (m_ebServer.TextLength() == 0)
+	{
+		AlertMsg(TXT("Please provide the NetDDE Server host name."));
+		m_ebServer.Focus();
+		return;
+	}
+
+	if (m_ebPort.TextLength() == 0)
+	{
+		AlertMsg(TXT("Please provide the NetDDE Server port number."));
+		m_ebPort.Focus();
+		return;
+	}
+
+	CBusyCursor cursor;
+
+	CString hostname = m_ebServer.Text();
+	uint    port = m_ebPort.IntValue();
+
+	try
+	{
+		CTCPCltSocket connection;
+		connection.Connect(hostname, port);
+	}
+	catch(const CSocketException& /*e*/)
+	{
+		FatalMsg(TXT("Failed to connect to NetDEE server via TCP on %s:%u"), hostname.c_str(), port);
+	}
 }

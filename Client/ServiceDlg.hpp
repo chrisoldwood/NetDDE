@@ -68,6 +68,7 @@ protected:
 
 	void OnClickedAsync();
 	void OnClickedReqVal();
+	void OnClickedTest();
 };
 
 /******************************************************************************
