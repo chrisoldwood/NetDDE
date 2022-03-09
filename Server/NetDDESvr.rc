@@ -86,6 +86,8 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
+        MENUITEM "&Contents\tF1",               ID_HELP_CONTENTS
+        MENUITEM SEPARATOR
         MENUITEM "&About NetDDE Server",        ID_HELP_ABOUT
     END
 END

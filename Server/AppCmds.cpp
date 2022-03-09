@@ -15,6 +15,8 @@
 #include "OptionsDlg.hpp"
 #include "TraceOptionsDlg.hpp"
 #include "AboutDlg.hpp"
+#include <Core/FileSystem.hpp>
+#include <WCL/BusyCursor.hpp>
 
 /******************************************************************************
 ** Method:		Constructor.
@@ -43,6 +45,7 @@ CAppCmds::CAppCmds(CAppWnd& appWnd)
 		CMD_ENTRY(ID_OPTIONS_GENERAL,	&CAppCmds::OnOptionsGeneral,	nullptr,	-1)
 		CMD_ENTRY(ID_OPTIONS_TRACE,		&CAppCmds::OnOptionsTrace,		nullptr,	-1)
 		// Help menu.
+		CMD_ENTRY(ID_HELP_CONTENTS,		&CAppCmds::OnHelpContents,		nullptr,	-1)
 		CMD_ENTRY(ID_HELP_ABOUT,		&CAppCmds::OnHelpAbout,			nullptr,	10)
 	END_CMD_TABLE
 }
@@ -180,6 +183,24 @@ void CAppCmds::OnOptionsTrace()
 	CTraceOptionsDlg Dlg;
 
 	Dlg.RunModal(App.m_rMainWnd);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Show the manual.
+
+void CAppCmds::OnHelpContents()
+{
+	CBusyCursor busyCursor;
+
+	tstring manual = CPath::ApplicationDir() / TXT("Manual.html");
+
+	if (!Core::pathExists(manual))
+	{
+		App.m_rMainWnd.FatalMsg(TXT("The manual is not installed:-\n\n%s"), manual.c_str());
+		return;
+	}
+
+	::ShellExecute(nullptr, nullptr, manual.c_str(), nullptr, nullptr, SW_SHOW);
 }
 
 /******************************************************************************

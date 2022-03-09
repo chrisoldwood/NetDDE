@@ -2,3 +2,4 @@
 .\RelNotes.txt
 .\Server\Debug\NetDDEServer.exe
 .\Client\Debug\NetDDEClient.exe
+.\Shared\HelpFile\Manual.html

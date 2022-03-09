@@ -240,6 +240,14 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="HelpFile"
+			>
+			<File
+				RelativePath=".\HelpFile\Manual.html"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\DevNotes.txt"
 			>

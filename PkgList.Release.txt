@@ -2,3 +2,4 @@
 .\RelNotes.txt
 .\Server\Release\NetDDEServer.exe
 .\Client\Release\NetDDEClient.exe
+.\Shared\HelpFile\Manual.html

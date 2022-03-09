@@ -357,6 +357,35 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="HelpFile"
+			>
+			<File
+				RelativePath="..\Shared\HelpFile\Manual.html"
+				DeploymentContent="true"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Copying manual"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Copying manual"
+						CommandLine="copy /y &quot;$(InputPath)&quot; &quot;$(OutDir)&quot;"
+						Outputs="$(OutDir)\$(InputFileName)"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

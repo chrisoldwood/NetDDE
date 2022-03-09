@@ -33,5 +33,3 @@
 - Use "host name" instead of "server name" in UI and add "DDE" where required to avoid confusion.
 
 - Add setting to allow multiple instances to be run from different folders.
-
-- Move the ReadMe help-text to a formal manual page and add Help UI option.

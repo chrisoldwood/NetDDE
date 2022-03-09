@@ -54,6 +54,7 @@ public:
 	void OnOptionsTrace();
 
 	// Help menu.
+	void OnHelpContents();
 	void OnHelpAbout();
 
 	//

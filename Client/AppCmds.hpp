@@ -55,6 +55,7 @@ public:
 	void OnOptionsServices();
 
 	// Help menu.
+	void OnHelpContents();
 	void OnHelpAbout();
 
 	//
