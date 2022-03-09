@@ -1,4 +1,4 @@
-??/??/????: v2.x
+??/??/????: v2.5
 ================
 
 - Fixed a bug where you couldn't configure multiple services with the same remote name (#1).

@@ -1,4 +1,4 @@
-NetDDE v2.0
+NetDDE v2.5
 ===========
 
 Introduction
