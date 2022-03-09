@@ -205,6 +205,8 @@ void CServiceDlg::OnClickedTest()
 	{
 		CTCPCltSocket connection;
 		connection.Connect(hostname, port);
+
+		NotifyMsg(TXT("Connection successful."));
 	}
 	catch(const CSocketException& /*e*/)
 	{
