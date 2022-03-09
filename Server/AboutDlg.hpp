@@ -17,7 +17,8 @@
 #endif
 
 #include <WCL/CommonUI.hpp>
-#include "NetDDESvrApp.hpp"
+#include "Resource.h"
+#include <WCL/VerInfoReader.hpp>
 
 /******************************************************************************
 ** 
@@ -38,7 +39,8 @@ protected:
 	//
 	// Members.
 	//
-	CLabel		m_txtVersion;
+	CLabel		m_versionLabel;			//!< The version label.
+	CLabel		m_copyrightLabel;		//!< The copyright label.
 	CURLLabel	m_txtEmail;
 	CURLLabel	m_txtWebSite;
 	
@@ -71,7 +73,8 @@ inline CAboutDlg::CAboutDlg()
 	: CDialog(IDD_ABOUT)
 {
 	DEFINE_CTRL_TABLE
-		CTRL(IDC_VERSION,	&m_txtVersion)
+		CTRL(IDC_VERSION,	&m_versionLabel)
+		CTRL(IDC_COPYRIGHT,	&m_copyrightLabel)
 		CTRL(IDC_EMAIL,		&m_txtEmail  )
 		CTRL(IDC_WEBSITE,	&m_txtWebSite)
 	END_CTRL_TABLE
@@ -95,7 +98,18 @@ inline CAboutDlg::CAboutDlg()
 
 inline void CAboutDlg::OnInitDialog()
 {
-	m_txtVersion.Text(App.VERSION);
+	// Extract details from the resources.
+	tstring filename  = CPath::Application();
+	tstring version   = WCL::VerInfoReader::GetStringValue(filename, WCL::VerInfoReader::PRODUCT_VERSION);
+	tstring copyright = WCL::VerInfoReader::GetStringValue(filename, WCL::VerInfoReader::LEGAL_COPYRIGHT);
+
+#ifdef _DEBUG
+	version += TXT(" [Debug]");
+#endif
+
+	// Update UI.
+	m_versionLabel.Text(version);
+	m_copyrightLabel.Text(copyright);
 }
 
 #endif //ABOUTDLG_HPP

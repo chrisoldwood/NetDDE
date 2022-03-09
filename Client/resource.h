@@ -30,6 +30,7 @@
 #define IDC_WEBSITE                     1083
 #define IDC_EMAIL                       1084
 #define IDC_VERSION                     1085
+#define IDC_COPYRIGHT                   1086
 #define IDC_TRACE                       1086
 #define IDC_CONVERSATIONS               1086
 #define IDC_ADVISES                     1087

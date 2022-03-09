@@ -29,6 +29,7 @@
 #include <WCL/AutoBool.hpp>
 #include <NCL/DDEException.hpp>
 #include <Core/Algorithm.hpp>
+#include <WCL/VerInfoReader.hpp>
 
 #ifdef _MSC_VER
 // declaration of 'Xxx' hides previous local declaration (MemStream).
@@ -51,12 +52,6 @@ CNetDDESvrApp App;
 **
 *******************************************************************************
 */
-
-#ifdef _DEBUG
-const tchar* CNetDDESvrApp::VERSION = TXT("v2.0 [Debug]");
-#else
-const tchar* CNetDDESvrApp::VERSION = TXT("v2.0");
-#endif
 
 const tchar* CNetDDESvrApp::INI_FILE_VER  = TXT("1.0");
 const uint  CNetDDESvrApp::BG_TIMER_FREQ =  1000;
@@ -764,6 +759,22 @@ void CNetDDESvrApp::OnTimer(uint /*nTimerID*/)
 	UpdateStats();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//! Get the application version number from the resource file.
+
+CString GetAppVersion()
+{
+	// Extract details from the resources.
+	tstring filename  = CPath::Application();
+	tstring version   = WCL::VerInfoReader::GetStringValue(filename, WCL::VerInfoReader::PRODUCT_VERSION);
+
+#ifdef _DEBUG
+	version += TXT(" [Debug]");
+#endif
+
+	return version.c_str();
+}
+
 /******************************************************************************
 ** Method:		OnNetDDEClientConnect()
 **
@@ -826,7 +837,7 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 	oRspStream.Create();
 
 	oRspStream << bResult;
-	oRspStream << CString(App.VERSION);
+	oRspStream << GetAppVersion();
 
 	oRspStream.Close();
 

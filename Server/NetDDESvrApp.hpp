@@ -101,11 +101,6 @@ public:
 
 	void CloseConnection(CNetDDESvrSocket* pConnection);
 
-	//
-	// Constants.
-	//
-	static const tchar* VERSION;
-
 protected:
 	//
 	// Startup and Shutdown template methods.

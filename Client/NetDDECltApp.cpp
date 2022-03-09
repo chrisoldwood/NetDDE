@@ -27,6 +27,7 @@
 #include <WCL/SysInfo.hpp>
 #include <Core/StringUtils.hpp>
 #include <Core/Algorithm.hpp>
+#include <WCL/VerInfoReader.hpp>
 
 /******************************************************************************
 **
@@ -44,12 +45,6 @@ CNetDDECltApp App;
 **
 *******************************************************************************
 */
-
-#ifdef _DEBUG
-const tchar* CNetDDECltApp::VERSION = TXT("v2.0 [Debug]");
-#else
-const tchar* CNetDDECltApp::VERSION = TXT("v2.0");
-#endif
 
 const tchar* CNetDDECltApp::INI_FILE_VER  = TXT("1.0");
 const uint   CNetDDECltApp::BG_TIMER_FREQ =  1000;
@@ -1875,6 +1870,22 @@ void CNetDDECltApp::OnPostInitalUpdates()
 	m_bPostedAdviseMsg = false;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//! Get the application version number from the resource file.
+
+CString GetAppVersion()
+{
+	// Extract details from the resources.
+	tstring filename  = CPath::Application();
+	tstring version   = WCL::VerInfoReader::GetStringValue(filename, WCL::VerInfoReader::PRODUCT_VERSION);
+
+#ifdef _DEBUG
+	version += TXT(" [Debug]");
+#endif
+
+	return version.c_str();
+}
+
 /******************************************************************************
 ** Method:		ServerConnect()
 **
@@ -1914,7 +1925,7 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	oReqStream << CSysInfo::ComputerName();
 	oReqStream << CSysInfo::UserName();
 	oReqStream << CPath::Application().FileName();
-	oReqStream << CString(App.VERSION);
+	oReqStream << GetAppVersion();
 
 	oReqStream.Close();
 

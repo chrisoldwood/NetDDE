@@ -101,11 +101,6 @@ public:
 	void Disconnect(CDDESvrConv* pConv);
 	void CloseConnection(CNetDDEService* pService);
 
-	//
-	// Constants.
-	//
-	static const tchar* VERSION;
-
 protected:
 	//
 	// Startup and Shutdown template methods.
