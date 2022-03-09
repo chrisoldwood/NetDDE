@@ -12,8 +12,6 @@
 
 - Remember size and position of "Links dialog".
 
-- See if its possible to find more out about the DDE Client (ala PDD).
-
 - Fix problems configuring two aliases for the same service (eg REUTER as REUTER1 & REUTER2), duplicate of #1?
 
 - No validation of local name being unique.
