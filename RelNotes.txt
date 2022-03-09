@@ -1,6 +1,7 @@
 ??/??/????: v2.x
 ================
 
+- Fixed a bug where you couldn't configure multiple services with the same remote name (#1).
 - Moved the documentation to an HTML based manual.
 - Added ability to test the connection when configuring a service.
 - Made the server port configurable.

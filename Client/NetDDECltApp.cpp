@@ -459,7 +459,7 @@ void CNetDDECltApp::SaveConfig()
 		CNetDDEService* pService = m_aoServices[i];
 
 		CString strEntry;
-		CString strSection = pService->m_oCfg.m_strRemName;
+		CString strSection = pService->m_oCfg.m_strLocName;
 
 		strEntry.Format(TXT("Service[%d]"), i);
 

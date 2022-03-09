@@ -12,15 +12,11 @@
 
 - Remember size and position of "Links dialog".
 
-- Fix problems configuring two aliases for the same service (eg REUTER as REUTER1 & REUTER2), duplicate of #1?
-
 - No validation of local name being unique.
 
 - Fix tracing request when not ANSI text.
 
 - Fix assumption that link value can be easily converted to ANSI text (i.e. ToString()/FromString()).
-
-#1 when NetDDE Client two server has the same RemoteName, it just save one server information to netddeclient.ini.
 
 - Switch to registry / %APPDATA% for configuration and log files by default.
 
