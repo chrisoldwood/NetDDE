@@ -12,6 +12,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Wcl", "..\Lib\WCL\Wcl.vcpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NCL", "..\Lib\NCL\NCL.vcproj", "{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcproj", "{DC2103DF-154E-49C0-9A0F-46232CD55DE2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{790BC113-52FB-4565-8968-79B8B011C520} = {790BC113-52FB-4565-8968-79B8B011C520}
+		{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92} = {FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}
+		{9B0335B6-93BE-4604-8497-27431874D758} = {9B0335B6-93BE-4604-8497-27431874D758}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -42,6 +49,10 @@ Global
 		{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}.Debug|Win32.Build.0 = Debug|Win32
 		{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}.Release|Win32.ActiveCfg = Release|Win32
 		{FAB8D717-85EC-4896-B5DC-FDF0A0B67C92}.Release|Win32.Build.0 = Release|Win32
+		{DC2103DF-154E-49C0-9A0F-46232CD55DE2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DC2103DF-154E-49C0-9A0F-46232CD55DE2}.Debug|Win32.Build.0 = Debug|Win32
+		{DC2103DF-154E-49C0-9A0F-46232CD55DE2}.Release|Win32.ActiveCfg = Release|Win32
+		{DC2103DF-154E-49C0-9A0F-46232CD55DE2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -33,5 +33,3 @@
 - Create some kind of automated tests (use Excel and DDECmd driven by PowerShell?)
 
 - Fix backwards compatability with the older NetDDE client (Unicode build has changed the wire format?)
-
-- Check top-level error handling to see if we can avoid the message box spam when detecting a serious problem.
