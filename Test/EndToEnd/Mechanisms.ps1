@@ -50,7 +50,7 @@ function Start-Excel([string] $workbookPath)
 
 function Stop-Excel([System.Diagnostics.Process] $process)
 {
-	Stop-Process $process.Id
+	Stop-Process -ErrorAction Continue $process.Id
 }
 
 function Write-NetDDEServerConfig([string] $config)
@@ -66,6 +66,7 @@ Port=8888
 
 [Main]
 TrayIcon=False
+DDETimeOut=1000
 "@
 
 	$config | Out-File -Encoding Ascii $iniFile
@@ -80,7 +81,7 @@ function Start-NetDDEServer([string] $config)
 
 function Stop-NetDDEServer([System.Diagnostics.Process] $process)
 {
-	Stop-Process $process.Id
+	Stop-Process -ErrorAction Continue $process.Id
 }
 
 function Write-NetDDEClientConfig([string] $config, [string] $remoteName, [string] $localName)
@@ -102,6 +103,7 @@ Server=localhost
 
 [Main]
 TrayIcon=False
+NetTimeOut=1000
 "@
 
 	$config | Out-File -Encoding Ascii $iniFile
@@ -116,7 +118,7 @@ function Start-NetDDEClient([string] $config)
 
 function Stop-NetDDEClient([System.Diagnostics.Process] $process)
 {
-	Stop-Process $process.Id
+	Stop-Process -ErrorAction Continue $process.Id
 }
 
 function Request-Value([string] $service, [string] $topic, [string] $item)
