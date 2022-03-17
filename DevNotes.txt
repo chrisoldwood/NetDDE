@@ -36,5 +36,20 @@ There is also one for upgrading to a later version of Visual C++:-
 C:\> Win32\Scripts\SetVars vc140
 C:\> Win32\Scripts\Upgrade Win32\NetDDE\NetDDE.sln
 
+Automated Tests
+---------------
+
+There is a unit test project built as part of the solution:
+
+> Test\<build>\Test.exe
+
+There are also some end-to-end tests that use Excel as the data source and my
+DDE Command tool [1] as the driver (it needs to be on the PATH).
+
+> pushd Test\EndToEnd
+> .\run
+
+[1] http://www.chrisoldwood.com/win32.htm#ddecommand
+
 Chris Oldwood 
-22nd October 2013
+17th March 2022
