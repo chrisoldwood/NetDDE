@@ -29,7 +29,7 @@ function Test-ExcelRunning([string] $filename)
 function Start-Excel([string] $workbookPath)
 {
 	$excelPath = 'C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE'
-	$process = Start-Process $excelPath -ArgumentList $workbookPath -PassThru -WindowStyle Minimized
+	$process = Start-Process $excelPath -ArgumentList $workbookPath -PassThru
 
 	$filename = Split-Path -Leaf $workbookPath
 	Start-Sleep -Seconds 1
@@ -100,6 +100,7 @@ Service[0]=${localName}
 RemoteName=${remoteName}
 LocalName=${localName}
 Server=localhost
+InitialValue=#CONNECTED
 
 [Main]
 TrayIcon=False

@@ -30,4 +30,6 @@
 
 - Fix .ini file format to allow service names which would conflict with section names, e.g Trace, Main, UI, etc.
 
-- Fix backwards compatability with the older NetDDE client (Unicode build has changed the wire format?)
+- Fix backwards compatibility with the older NetDDE client (Unicode build has changed the wire format?)
+
+- Allow sending of an initial value for a link to be disabled.
