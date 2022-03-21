@@ -227,11 +227,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EndToEnd\Formula.xls"
+				>
+			</File>
+			<File
 				RelativePath=".\EndToEnd\Mechanisms.ps1"
 				>
 			</File>
 			<File
 				RelativePath=".\EndToEnd\Run.bat"
+				>
+			</File>
+			<File
+				RelativePath=".\EndToEnd\TestAdvises.ps1"
 				>
 			</File>
 			<File
