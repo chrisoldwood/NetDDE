@@ -18,6 +18,14 @@
 
 #include <WCL/Buffer.hpp>
 
+////////////////////////////////////////////////////////////////////////////////
+//! Backdoor functions only defined in unit tests.
+
+namespace Tests
+{
+	void SetNextPktId(uint id);
+}
+
 /******************************************************************************
 ** 
 ** The data packet passed between the client and server.
@@ -35,8 +43,6 @@ public:
 	CNetDDEPacket(uint nDataType);
 	CNetDDEPacket(uint nDataType, const CBuffer& oBuffer);
 	CNetDDEPacket(uint nDataType, uint nPacketID, const CBuffer& oBuffer);
-	CNetDDEPacket(const CNetDDEPacket& oPacket);
-	virtual ~CNetDDEPacket();
 	
 	//
 	// Packet buffer methods.
@@ -100,7 +106,7 @@ public:
 	// Packet ID for async packets.
 	static const uint ASYNC_PACKET_ID = UINT_MAX;
 
-protected:
+private:
 	//
 	// Members.
 	//
@@ -120,6 +126,9 @@ protected:
 	Header*       GetHeader();
 
 	static uint GeneratePktID();
+
+	// Internal access for unit tests.
+	friend void Tests::SetNextPktId(uint id);
 };
 
 /******************************************************************************
@@ -157,15 +166,6 @@ inline CNetDDEPacket::CNetDDEPacket(uint nDataType, const CBuffer& oBuffer)
 inline CNetDDEPacket::CNetDDEPacket(uint nDataType, uint nPacketID, const CBuffer& oBuffer)
 {
 	Create(nDataType, nPacketID, oBuffer.Buffer(), oBuffer.Size());
-}
-
-inline CNetDDEPacket::CNetDDEPacket(const CNetDDEPacket& oPacket)
-	: m_oBuffer(oPacket.m_oBuffer)
-{
-}
-
-inline CNetDDEPacket::~CNetDDEPacket()
-{
 }
 
 inline const CBuffer& CNetDDEPacket::Buffer() const
@@ -218,12 +218,12 @@ inline CNetDDEPacket::Header* CNetDDEPacket::GetHeader()
 
 inline uint CNetDDEPacket::GeneratePktID()
 {
-	uint nPacketID = s_nNextPktID++;
+	if (s_nNextPktID == ASYNC_PACKET_ID)
+		s_nNextPktID = 1;
 
-	if (nPacketID == ASYNC_PACKET_ID)
-		nPacketID = s_nNextPktID++;
+	ASSERT( (s_nNextPktID != 0) && (s_nNextPktID != ASYNC_PACKET_ID) );
 
-	return nPacketID;
+	return s_nNextPktID++;
 }
 
 #endif // NETDDEPACKET_HPP

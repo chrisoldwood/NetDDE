@@ -33,3 +33,7 @@
 - Fix backwards compatibility with the older NetDDE client (Unicode build has changed the wire format?)
 
 - Allow sending of an initial value for a link to be disabled.
+
+- Pass packets around by smart pointer to make default ctor and copying redundant.
+
+- Send keep-alives to detect broken sockets.
