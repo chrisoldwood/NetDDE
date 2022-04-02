@@ -22,12 +22,15 @@
 #include <NCL/DDESvrConv.hpp>
 #include <NCL/DDEData.hpp>
 #include "LinkValue.hpp"
+#include "PacketCodec.hpp"
 #include <WCL/Clipboard.hpp>
 #include <WCL/StrCvt.hpp>
 #include <WCL/SysInfo.hpp>
 #include <Core/StringUtils.hpp>
 #include <Core/Algorithm.hpp>
 #include <WCL/VerInfoReader.hpp>
+
+using namespace NetDDE;
 
 /******************************************************************************
 **
@@ -1984,29 +1987,22 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 
 	try
 	{
-		CBuffer    oBuffer;
-		CMemStream oStream(oBuffer);
-
-		oStream.Create();
-
-		oStream << pService->m_oCfg.m_strRemName;
-		oStream << CSysInfo::ComputerName();
-
-		oStream.Close();
-
-		// Send disconnect message.
-		CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_CLIENT_DISCONNECT, oBuffer);
+		const CString computerName = CSysInfo::ComputerName();
 
 		if (m_bTraceNetConns)
-			App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), pService->m_oCfg.m_strRemName.c_str(), CSysInfo::ComputerName().c_str());
+			App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), pService->m_oCfg.m_strRemName.c_str(), computerName.c_str());
 
-		pService->m_oConnection.SendPacket(oPacket);
+		// Send disconnect message.
+		const NetDDEPacketPtr packet = EncodeClientDisconnectPacket(pService->m_oCfg.m_strRemName,
+		                                                            computerName);
+		pService->m_oConnection.SendPacket(packet.getRef());
 
 		// Update stats.
 		++m_nPktsSent;
 	}
-	catch (const Core::Exception& /*e*/)
+	catch (const Core::Exception& e)
 	{
+		App.Trace(TXT("WARNING: %s"), e.twhat());
 	}
 
 	// Close the connection.

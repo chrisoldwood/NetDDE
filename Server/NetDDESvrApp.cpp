@@ -24,6 +24,7 @@
 #include <NCL/DDELink.hpp>
 #include <NCL/DDEData.hpp>
 #include "LinkValue.hpp"
+#include "PacketCodec.hpp"
 #include <WCL/Clipboard.hpp>
 #include <Core/StringUtils.hpp>
 #include <WCL/AutoBool.hpp>
@@ -35,6 +36,8 @@
 // declaration of 'Xxx' hides previous local declaration (MemStream).
 #pragma warning(disable : 4456)
 #endif
+
+using namespace NetDDE;
 
 /******************************************************************************
 **
@@ -871,15 +874,7 @@ void CNetDDESvrApp::OnNetDDEClientDisconnect(CNetDDESvrSocket& /*oConnection*/, 
 	CString strComputer;
 
 	// Decode request message.
-	CMemStream oStream(oReqPacket.Buffer());
-
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
-
-	oStream >> strService;
-	oStream >> strComputer;
-
-	oStream.Close();
+	DecodeClientDisconnectPacket(oReqPacket, strService, strComputer);
 
 	if (App.m_bTraceNetConns)
 		App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), strService.c_str(), strComputer.c_str());

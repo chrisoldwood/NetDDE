@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PacketCodecTests.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pch.cpp"
 				>
 				<FileConfiguration

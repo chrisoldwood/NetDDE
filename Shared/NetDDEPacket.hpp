@@ -131,6 +131,9 @@ private:
 	friend void Tests::SetNextPktId(uint id);
 };
 
+//! The default CNetDDEPacket smart-pointer type.
+typedef Core::SharedPtr<CNetDDEPacket> NetDDEPacketPtr;
+
 /******************************************************************************
 **
 ** Implementation of inline functions.

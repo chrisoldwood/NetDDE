@@ -172,6 +172,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PacketCodec.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pch.cpp"
 				>
 				<FileConfiguration
@@ -219,6 +223,10 @@
 			</File>
 			<File
 				RelativePath=".\NetDDESocket.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PacketCodec.hpp"
 				>
 			</File>
 		</Filter>
