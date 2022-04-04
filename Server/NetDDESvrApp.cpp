@@ -30,7 +30,6 @@
 #include <WCL/AutoBool.hpp>
 #include <NCL/DDEException.hpp>
 #include <Core/Algorithm.hpp>
-#include <WCL/VerInfoReader.hpp>
 
 #ifdef _MSC_VER
 // declaration of 'Xxx' hides previous local declaration (MemStream).
@@ -467,15 +466,7 @@ void CNetDDESvrApp::SaveConfig()
 
 void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 {
-	HCONV      hConv = pConv->Handle();
-	CBuffer    oBuffer;
-	CMemStream oStream(oBuffer);
-
-	oStream.Create();
-	oStream.Write(&hConv, sizeof(hConv));
-	oStream.Close();
-
-	CNetDDEPacket oPacket(CNetDDEPacket::DDE_DISCONNECT, oBuffer);
+	NetDDEPacketPtr packet = EncodeConversationDisconnectPacket(pConv->Handle());
 
 	// For all NetDDEClients...
 	for (size_t i = 0; i < m_aoConnections.size(); ++i)
@@ -498,10 +489,10 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 						bNotifyConn = false;
 
 						if (App.m_bTraceConvs)
-							App.Trace(TXT("DDE_DISCONNECT: %s, %s"), pConv->Service().c_str(), pConv->Topic().c_str());
+							App.Trace(TXT("DDE_DISCONNECT: %s %s"), pConv->Service().c_str(), pConv->Topic().c_str());
 
 						// Send disconnect message.
-						pConnection->SendPacket(oPacket);
+						pConnection->SendPacket(packet.getRef());
 
 						// Update stats.
 						++m_nPktsSent;
@@ -575,21 +566,10 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 	pValue->m_tLastUpdate = CDateTime::Current();
 
 	// Create advise packet.
-	HCONV      hConv = pConv->Handle();
-	CBuffer    oBuffer;
-	CMemStream oStream(oBuffer);
-
-	oStream.Create();
-
-	oStream.Write(&hConv, sizeof(hConv));
-	oStream << pLink->Item();
-	oStream << (uint32) pLink->Format();
-	oStream << oData;
-	oStream << true;
-
-	oStream.Close();
-
-	CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
+	NetDDEPacketPtr packet = EncodeAdvisePacket(pConv->Handle(),
+	                                            pLink->Item(),
+	                                            pLink->Format(),
+	                                            oData);
 
 	// Notify all NetDDEClients...
 	for (size_t i = 0; i < m_aoConnections.size(); ++i)
@@ -621,7 +601,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 				}
 
 				// Send advise message.
-				pConnection->SendPacket(oPacket);
+				pConnection->SendPacket(packet.getRef());
 
 				// Update stats.
 				++m_nPktsSent;
@@ -762,22 +742,6 @@ void CNetDDESvrApp::OnTimer(uint /*nTimerID*/)
 	UpdateStats();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//! Get the application version number from the resource file.
-
-CString GetAppVersion()
-{
-	// Extract details from the resources.
-	tstring filename  = CPath::Application();
-	tstring version   = WCL::VerInfoReader::GetStringValue(filename, WCL::VerInfoReader::PRODUCT_VERSION);
-
-#ifdef _DEBUG
-	version += TXT(" [Debug]");
-#endif
-
-	return version.c_str();
-}
-
 /******************************************************************************
 ** Method:		OnNetDDEClientConnect()
 **
@@ -833,21 +797,10 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 	if (nProtocol == NETDDE_PROTOCOL)
 		bResult = true;
 
-	// Create response message.
-	CBuffer    oRspBuffer;
-	CMemStream oRspStream(oRspBuffer);
-
-	oRspStream.Create();
-
-	oRspStream << bResult;
-	oRspStream << GetAppVersion();
-
-	oRspStream.Close();
-
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::NETDDE_CLIENT_CONNECT, oReqPacket.PacketID(), oRspBuffer);
+	NetDDEPacketPtr replyPacket = EncodeClientConnectReplyPacket(oReqPacket.PacketID(), bResult);
 
-	oConnection.SendPacket(oRspPacket);
+	oConnection.SendPacket(replyPacket.getRef());
 
 	// Update stats.
 	++m_nPktsSent;
@@ -937,22 +890,13 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
 
-	// Create response message.
-	CBuffer    oRspBuffer;
-	CMemStream oRspStream(oRspBuffer);
-
-	oRspStream.Create();
-
-	oRspStream << bResult;
-	oRspStream.Write(&hConv, sizeof(hConv));
-	oRspStream << nConvID;
-
-	oRspStream.Close();
-
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_CREATE_CONVERSATION, oReqPacket.PacketID(), oRspBuffer);
+	NetDDEPacketPtr replyPacket = EncodeCreateConversationReplyPacket(oReqPacket.PacketID(),
+	                                                                  bResult,
+	                                                                  hConv,
+	                                                                  nConvID);
 
-	oConnection.SendPacket(oRspPacket);
+	oConnection.SendPacket(replyPacket.getRef());
 
 	// Update stats.
 	++m_nPktsSent;
@@ -1089,21 +1033,11 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
 
-	// Create response message.
-	CBuffer    oRspBuffer;
-	CMemStream oRspStream(oRspBuffer);
-
-	oRspStream.Create();
-
-	oRspStream << bResult;
-	oRspStream << oBuffer;
-
-	oRspStream.Close();
-
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_REQUEST, oReqPacket.PacketID(), oRspBuffer);
-
-	oConnection.SendPacket(oRspPacket);
+	NetDDEPacketPtr replyPacket = EncodeRequestItemReplyPacket(oReqPacket.PacketID(),
+	                                                           bResult,
+	                                                           oBuffer);
+	oConnection.SendPacket(replyPacket.getRef());
 
 	// Update stats.
 	++m_nPktsSent;
@@ -1183,20 +1117,9 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	// Sync advise start?
 	if (!bAsync)
 	{
-		// Create response message.
-		CBuffer    oRspBuffer;
-		CMemStream oRspStream(oRspBuffer);
-
-		oRspStream.Create();
-
-		oRspStream << bResult;
-
-		oRspStream.Close();
-
 		// Send response message.
-		CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_START_ADVISE, oReqPacket.PacketID(), oRspBuffer);
-
-		oConnection.SendPacket(oRspPacket);
+		NetDDEPacketPtr replyPacket = EncodeStartAdviseReplyPacket(oReqPacket.PacketID(), bResult);
+		oConnection.SendPacket(replyPacket.getRef());
 
 		// Update stats.
 		++m_nPktsSent;
@@ -1205,23 +1128,11 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	// Failed async advise start?
 	if ((bAsync) && (!bResult))
 	{
-		// Create response message.
-		CBuffer    oRspBuffer;
-		CMemStream oRspStream(oRspBuffer);
-
-		oRspStream.Create();
-
-		oRspStream.Write(&hConv, sizeof(hConv));
-		oRspStream << strItem;
-		oRspStream << nFormat;
-		oRspStream << true;
-
-		oRspStream.Close();
-
 		// Send response message.
-		CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_START_ADVISE_FAILED, oRspBuffer);
-
-		oConnection.SendPacket(oRspPacket);
+		NetDDEPacketPtr replyPacket = EncodeAdviseStartFailedPacket(hConv,
+		                                                            strItem,
+		                                                            nFormat);
+		oConnection.SendPacket(replyPacket.getRef());
 
 		// Update stats.
 		++m_nPktsSent;
@@ -1262,23 +1173,12 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	// Send initial advise?
 	if (pLinkValue != nullptr)
 	{
-		CBuffer    oBuffer;
-		CMemStream oStream(oBuffer);
-
-		oStream.Create();
-
-		oStream.Write(&hConv, sizeof(hConv));
-		oStream << strItem;
-		oStream << nFormat;
-		oStream << pLinkValue->m_oLastValue;
-		oStream << true;
-
-		oStream.Close();
-
-		CNetDDEPacket oPacket(CNetDDEPacket::DDE_ADVISE, oBuffer);
-
 		// Send links' last advise data.
-		oConnection.SendPacket(oPacket);
+		NetDDEPacketPtr packet = EncodeAdvisePacket(hConv,
+		                                            strItem,
+		                                            nFormat,
+		                                            pLinkValue->m_oLastValue);
+		oConnection.SendPacket(packet.getRef());
 
 		// Update stats.
 		++m_nPktsSent;
@@ -1423,20 +1323,9 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
 
-	// Create response message.
-	CBuffer    oRspBuffer;
-	CMemStream oRspStream(oRspBuffer);
-
-	oRspStream.Create();
-
-	oRspStream << bResult;
-
-	oRspStream.Close();
-
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_EXECUTE, oReqPacket.PacketID(), oRspBuffer);
-
-	oConnection.SendPacket(oRspPacket);
+	NetDDEPacketPtr replyPacket = EncodeExecuteCommandReplyPacket(oReqPacket.PacketID(), bResult);
+	oConnection.SendPacket(replyPacket.getRef());
 
 	// Update stats.
 	++m_nPktsSent;
@@ -1513,20 +1402,9 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 		App.Trace(TXT("DDE_ERROR: %s"), e.twhat());
 	}
 
-	// Create response message.
-	CBuffer    oRspBuffer;
-	CMemStream oRspStream(oRspBuffer);
-
-	oRspStream.Create();
-
-	oRspStream << bResult;
-
-	oRspStream.Close();
-
 	// Send response message.
-	CNetDDEPacket oRspPacket(CNetDDEPacket::DDE_POKE, oReqPacket.PacketID(), oRspBuffer);
-
-	oConnection.SendPacket(oRspPacket);
+	NetDDEPacketPtr replyPacket = EncodePokeItemReplyPacket(oReqPacket.PacketID(), bResult);
+	oConnection.SendPacket(replyPacket.getRef());
 
 	// Update stats.
 	++m_nPktsSent;

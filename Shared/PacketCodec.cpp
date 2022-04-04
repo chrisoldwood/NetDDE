@@ -50,6 +50,28 @@ NetDDEPacketPtr EncodeCreateConversationPacket(const CString& serviceName,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//! Encode a create conversation reply packet.
+
+NetDDEPacketPtr EncodeCreateConversationReplyPacket(uint packetID,
+                                                    bool result,
+                                                    HCONV conversationHandle,
+                                                    uint32 conversationID)
+{
+	CBuffer    buffer;
+	CMemStream stream(buffer);
+
+	stream.Create();
+
+	stream << result;
+	stream.Write(&conversationHandle, sizeof(HCONV));
+	stream << conversationID;
+
+	stream.Close();
+
+	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_CREATE_CONVERSATION, packetID, buffer));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 //! Encode a destroy conversation packet.
 
 NetDDEPacketPtr EncodeDestroyConversationPacket(HCONV conversationHandle,
@@ -66,6 +88,21 @@ NetDDEPacketPtr EncodeDestroyConversationPacket(HCONV conversationHandle,
 	stream.Close();
 
 	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_DESTROY_CONVERSATION, buffer));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Encode a conversation disconnect packet.
+
+NetDDEPacketPtr EncodeConversationDisconnectPacket(HCONV conversationHandle)
+{
+	CBuffer    buffer;
+	CMemStream stream(buffer);
+
+	stream.Create();
+	stream.Write(&conversationHandle, sizeof(HCONV));
+	stream.Close();
+
+	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_DISCONNECT, buffer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +126,26 @@ NetDDEPacketPtr EncodeRequestItemPacket(HCONV conversationHandle,
 	stream.Close();
 
 	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_REQUEST, buffer));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Encode an item request reply packet.
+
+NetDDEPacketPtr EncodeRequestItemReplyPacket(uint packetID,
+                                             bool result,
+                                             const CBuffer& data)
+{
+	CBuffer    buffer;
+	CMemStream stream(buffer);
+
+	stream.Create();
+
+	stream << result;
+	stream << data;
+
+	stream.Close();
+
+	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_REQUEST, packetID, buffer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -116,6 +173,70 @@ NetDDEPacketPtr EncodeStartAdvisePacket(HCONV conversationHandle,
 	stream.Close();
 
 	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_START_ADVISE, buffer));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Encode a start advise reply packet.
+
+NetDDEPacketPtr EncodeStartAdviseReplyPacket(uint packetID,
+                                             bool result)
+{
+	CBuffer    buffer;
+	CMemStream stream(buffer);
+
+	stream.Create();
+
+	stream << result;
+
+	stream.Close();
+
+	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_START_ADVISE, packetID, buffer));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Encode an advise start failed packet.
+
+NetDDEPacketPtr EncodeAdviseStartFailedPacket(HCONV conversationHandle,
+                                              const CString& item,
+                                              uint format)
+{
+	CBuffer    buffer;
+	CMemStream stream(buffer);
+
+	stream.Create();
+
+	stream.Write(&conversationHandle, sizeof(HCONV));
+	stream << item;
+	stream << (uint32) format;
+	stream << true;
+
+	stream.Close();
+
+	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_START_ADVISE_FAILED, buffer));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Encode an advise packet.
+
+NetDDEPacketPtr EncodeAdvisePacket(HCONV conversationHandle,
+                                   const CString& item,
+                                   uint format,
+                                   const CBuffer& data)
+{
+	CBuffer    buffer;
+	CMemStream stream(buffer);
+
+	stream.Create();
+
+	stream.Write(&conversationHandle, sizeof(HCONV));
+	stream << item;
+	stream << (uint32) format;
+	stream << data;
+	stream << true;
+
+	stream.Close();
+
+	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_ADVISE, buffer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -163,6 +284,24 @@ NetDDEPacketPtr EncodeExecuteCommandPacket(HCONV conversationHandle,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//! Encode an execute command reply packet.
+
+NetDDEPacketPtr EncodeExecuteCommandReplyPacket(uint packetID,
+                                                bool result)
+{
+	CBuffer    buffer;
+	CMemStream stream(buffer);
+
+	stream.Create();
+
+	stream << result;
+
+	stream.Close();
+
+	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_EXECUTE, packetID, buffer));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 //! Encode an item poke packet.
 
 NetDDEPacketPtr EncodePokeItemPacket(HCONV conversationHandle,
@@ -188,6 +327,24 @@ NetDDEPacketPtr EncodePokeItemPacket(HCONV conversationHandle,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+//! Encode an item poke reply packet.
+
+NetDDEPacketPtr EncodePokeItemReplyPacket(uint packetID,
+                                          bool result)
+{
+	CBuffer    buffer;
+	CMemStream stream(buffer);
+
+	stream.Create();
+
+	stream << result;
+
+	stream.Close();
+
+	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_POKE, packetID, buffer));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 //! Encode a client connect packet.
 
 NetDDEPacketPtr EncodeClientConnectPacket(const CString& serviceName)
@@ -207,6 +364,25 @@ NetDDEPacketPtr EncodeClientConnectPacket(const CString& serviceName)
 	stream.Close();
 
 	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::NETDDE_CLIENT_CONNECT, buffer));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//! Encode a client connect reply packet.
+
+NetDDEPacketPtr EncodeClientConnectReplyPacket(uint packetID,
+                                               bool result)
+{
+	CBuffer    buffer;
+	CMemStream stream(buffer);
+
+	stream.Create();
+
+	stream << result;
+	stream << GetAppVersion();
+
+	stream.Close();
+
+	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::NETDDE_CLIENT_CONNECT, packetID, buffer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
