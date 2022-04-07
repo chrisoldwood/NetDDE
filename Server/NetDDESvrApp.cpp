@@ -18,7 +18,6 @@
 #include "NetDDEConv.hpp"
 #include <WCL/DateTime.hpp>
 #include "NetDDEDefs.hpp"
-#include <WCL/MemStream.hpp>
 #include "NetDDEPacket.hpp"
 #include <NCL/DDECltConv.hpp>
 #include <NCL/DDELink.hpp>
@@ -769,19 +768,13 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 	CString strVersion;
 
 	// Decode request message.
-	CMemStream oReqStream(oReqPacket.Buffer());
-
-	oReqStream.Open();
-	oReqStream.Seek(sizeof(CNetDDEPacket::Header));
-
-	oReqStream >> nProtocol;
-	oReqStream >> strService;
-	oReqStream >> strComputer;
-	oReqStream >> strUser;
-	oReqStream >> strProcess;
-	oReqStream >> strVersion;
-
-	oReqStream.Close();
+	DecodeClientConnectPacket(oReqPacket,
+                              nProtocol,
+                              strService,
+                              strComputer,
+                              strUser,
+                              strProcess,
+                              strVersion);
 
 	if (App.m_bTraceNetConns)
 	{
@@ -858,15 +851,9 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	uint32  nConvID = m_nNextConvID++;
 
 	// Decode request message.
-	CMemStream oReqStream(oReqPacket.Buffer());
-
-	oReqStream.Open();
-	oReqStream.Seek(sizeof(CNetDDEPacket::Header));
-
-	oReqStream >> strService;
-	oReqStream >> strTopic;
-
-	oReqStream.Close();
+	DecodeClientConnectPacket(oReqPacket,
+	                          strService,
+	                          strTopic);
 
 	if (App.m_bTraceConvs)
 		App.Trace(TXT("DDE_CREATE_CONVERSATION: %s %s [#%u]"), strService.c_str(), strTopic.c_str(), nConvID);
@@ -923,15 +910,9 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 	uint32 nConvID;
 
 	// Decode message.
-	CMemStream oStream(oReqPacket.Buffer());
-
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
-
-	oStream.Read(&hConv, sizeof(hConv));
-	oStream >> nConvID;
-
-	oStream.Close();
+	DecodeDestroyConversationPacket(oReqPacket,
+	                                hConv,
+	                                nConvID);
 
 	if (App.m_bTraceConvs)
 		App.Trace(TXT("DDE_DESTROY_CONVERSATION: 0x%p [#%u]"), hConv, nConvID);
@@ -998,17 +979,11 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	CBuffer  oBuffer;
 
 	// Decode message.
-	CMemStream oStream(oReqPacket.Buffer());
-
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
-
-	oStream.Read(&hConv, sizeof(hConv));
-	oStream >> nConvID;
-	oStream >> strItem;
-	oStream >> nFormat;
-
-	oStream.Close();
+	DecodeRequestItemPacket(oReqPacket,
+	                        hConv,
+	                        nConvID,
+	                        strItem,
+	                        nFormat);
 
 	if (App.m_bTraceRequests)
 		App.Trace(TXT("DDE_REQUEST: %s %s"), strItem.c_str(), CClipboard::FormatName(nFormat).c_str());
@@ -1072,19 +1047,13 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	bool	 bReqVal;
 
 	// Decode message.
-	CMemStream oStream(oReqPacket.Buffer());
-
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
-
-	oStream.Read(&hConv, sizeof(hConv));
-	oStream >> nConvID;
-	oStream >> strItem;
-	oStream >> nFormat;
-	oStream >> bAsync;
-	oStream >> bReqVal;
-
-	oStream.Close();
+	DecodeStartAdvisePacket(oReqPacket,
+	                        hConv,
+	                        nConvID,
+	                        strItem,
+	                        nFormat,
+	                        bAsync,
+	                        bReqVal);
 
 	if (App.m_bTraceAdvises)
 		App.Trace(TXT("DDE_START_ADVISE: %s %s %s"), strItem.c_str(), CClipboard::FormatName(nFormat).c_str(), (bAsync) ? TXT("[ASYNC]") : TXT(""));
@@ -1222,17 +1191,11 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 	uint32   nFormat;
 
 	// Decode message.
-	CMemStream oStream(oReqPacket.Buffer());
-
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
-
-	oStream.Read(&hConv, sizeof(hConv));
-	oStream >> nConvID;
-	oStream >> strItem;
-	oStream >> nFormat;
-
-	oStream.Close();
+	DecodeStopAdvisePacket(oReqPacket,
+	                       hConv,
+	                       nConvID,
+	                       strItem,
+	                       nFormat);
 
 	if (App.m_bTraceAdvises)
 		App.Trace(TXT("DDE_STOP_ADVISE: %s %s"), strItem.c_str(), CClipboard::FormatName(nFormat).c_str());
@@ -1291,16 +1254,10 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	CString strCmd;
 
 	// Decode message.
-	CMemStream oStream(oReqPacket.Buffer());
-
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
-
-	oStream.Read(&hConv, sizeof(hConv));
-	oStream >> nConvID;
-	oStream >> strCmd;
-
-	oStream.Close();
+	DecodeExecuteCommandPacket(oReqPacket,
+	                           hConv,
+	                           nConvID,
+	                           strCmd);
 
 	if (App.m_bTraceRequests)
 		App.Trace(TXT("DDE_EXECUTE: 0x%p [%s]"), hConv, strCmd.c_str());
@@ -1357,18 +1314,12 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 	CBuffer  oData;
 
 	// Decode message.
-	CMemStream oStream(oReqPacket.Buffer());
-
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
-
-	oStream.Read(&hConv, sizeof(hConv));
-	oStream >> nConvID;
-	oStream >> strItem;
-	oStream >> nFormat;
-	oStream >> oData;
-
-	oStream.Close();
+	DecodePokeItemPacket(oReqPacket,
+	                     hConv,
+	                     nConvID,
+	                     strItem,
+	                     nFormat,
+	                     oData);
 
 	if (App.m_bTraceRequests)
 	{
