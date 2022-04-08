@@ -38,6 +38,14 @@ NetDDEPacketPtr EncodeCreateConversationReplyPacket(uint packetID,
                                                     uint32 conversationID);
 
 ////////////////////////////////////////////////////////////////////////////////
+//! Decode a create conversation reply packet.
+
+void DecodeCreateConversationReplyPacket(CNetDDEPacket& packet,
+                                         bool& result,
+                                         HCONV& conversationHandle,
+                                         uint32& conversationID);
+
+////////////////////////////////////////////////////////////////////////////////
 //! Encode a destroy conversation packet.
 
 NetDDEPacketPtr EncodeDestroyConversationPacket(HCONV conversationHandle,
@@ -54,6 +62,12 @@ void DecodeDestroyConversationPacket(CNetDDEPacket& packet,
 //! Encode a conversation disconnect packet.
 
 NetDDEPacketPtr EncodeConversationDisconnectPacket(HCONV conversationHandle);
+
+////////////////////////////////////////////////////////////////////////////////
+//! Decode a conversation disconnect packet.
+
+void DecodeConversationDisconnectPacket(CNetDDEPacket& packet,
+                                        HCONV& conversationHandle);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Encode an item request packet.
@@ -78,6 +92,13 @@ void DecodeRequestItemPacket(CNetDDEPacket& packet,
 NetDDEPacketPtr EncodeRequestItemReplyPacket(uint packetID,
                                              bool result,
                                              const CBuffer& data);
+
+////////////////////////////////////////////////////////////////////////////////
+//! Decode an item request reply packet.
+
+void DecodeRequestItemReplyPacket(CNetDDEPacket& packet,
+                                  bool& result,
+                                  CBuffer& data);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Encode a start advise packet.
@@ -107,11 +128,25 @@ NetDDEPacketPtr EncodeStartAdviseReplyPacket(uint packetID,
                                              bool result);
 
 ////////////////////////////////////////////////////////////////////////////////
+//! Decode a start advise reply packet.
+
+void DecodeStartAdviseReplyPacket(CNetDDEPacket& packet,
+                                  bool& result);
+
+////////////////////////////////////////////////////////////////////////////////
 //! Encode an advise start failed packet.
 
 NetDDEPacketPtr EncodeAdviseStartFailedPacket(HCONV conversationHandle,
                                               const CString& item,
                                               uint format);
+
+////////////////////////////////////////////////////////////////////////////////
+//! Decode an advise start failed packet.
+
+void DecodeAdviseStartFailedPacket(CNetDDEPacket& packet,
+                                   HCONV& conversationHandle,
+                                   CString& item,
+                                   uint32& format);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Encode an advise packet.
@@ -120,6 +155,15 @@ NetDDEPacketPtr EncodeAdvisePacket(HCONV conversationHandle,
                                    const CString& item,
                                    uint format,
                                    const CBuffer& data);
+
+////////////////////////////////////////////////////////////////////////////////
+//! Decode an advise packet.
+
+void DecodeAdvisePacket(CNetDDEPacket& packet,
+                        HCONV& conversationHandle,
+                        CString& item,
+                        uint32& format,
+                        CBuffer& data);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Encode a stop advise packet.
@@ -160,6 +204,12 @@ NetDDEPacketPtr EncodeExecuteCommandReplyPacket(uint packetID,
                                                 bool result);
 
 ////////////////////////////////////////////////////////////////////////////////
+//! Decode an execute command reply packet.
+
+void DecodeExecuteCommandReplyPacket(CNetDDEPacket& packet,
+                                     bool& result);
+
+////////////////////////////////////////////////////////////////////////////////
 //! Encode an item poke packet.
 
 NetDDEPacketPtr EncodePokeItemPacket(HCONV conversationHandle,
@@ -185,6 +235,12 @@ NetDDEPacketPtr EncodePokeItemReplyPacket(uint packetID,
                                           bool result);
 
 ////////////////////////////////////////////////////////////////////////////////
+//! Decode an item poke reply packet.
+
+void DecodePokeItemReplyPacket(CNetDDEPacket& packet,
+                               bool& result);
+
+////////////////////////////////////////////////////////////////////////////////
 //! Encode a client connect packet.
 
 NetDDEPacketPtr EncodeClientConnectPacket(const CString& serviceName);
@@ -205,6 +261,13 @@ void DecodeClientConnectPacket(CNetDDEPacket& packet,
 
 NetDDEPacketPtr EncodeClientConnectReplyPacket(uint packetID,
                                                bool result);
+
+////////////////////////////////////////////////////////////////////////////////
+//! Decode a client connect reply packet.
+
+void DecodeClientConnectReplyPacket(CNetDDEPacket& packet,
+                                    bool& result,
+                                    CString& version);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Encode a client disconnect packet.

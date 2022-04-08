@@ -30,11 +30,6 @@
 #include <NCL/DDEException.hpp>
 #include <Core/Algorithm.hpp>
 
-#ifdef _MSC_VER
-// declaration of 'Xxx' hides previous local declaration (MemStream).
-#pragma warning(disable : 4456)
-#endif
-
 using namespace NetDDE;
 
 /******************************************************************************

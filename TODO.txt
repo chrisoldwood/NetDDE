@@ -4,7 +4,7 @@
 
 - Sending #PNDG and #LINK when using CF_UNICODETEXT.
 
-- Disabling "request handled from cache" on linked item.
+- Disabling "request handled from cache" on linked item (e.g. stale value between advise stop / restart).
 
 - Crash with EXCEL and PDD (advising trace).
 

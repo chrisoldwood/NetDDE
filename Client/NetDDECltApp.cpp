@@ -17,7 +17,6 @@
 #include "NetDDEService.hpp"
 #include <WCL/DateTime.hpp>
 #include "NetDDEDefs.hpp"
-#include <WCL/MemStream.hpp>
 #include "NetDDEPacket.hpp"
 #include <NCL/DDESvrConv.hpp>
 #include <NCL/DDEData.hpp>
@@ -699,17 +698,11 @@ bool CNetDDECltApp::OnConnect(const tchar* pszService, const tchar* pszTopic)
 			HCONV  hSvrConv;
 			uint32 nConvID;
 
-			CMemStream oRspStream(oRspPacket.Buffer());
-
-			oRspStream.Open();
-			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
-
 			// Get result.
-			oRspStream >> bAccept;
-			oRspStream.Read(&hSvrConv, sizeof(HCONV));
-			oRspStream >> nConvID;
-
-			oRspStream.Close();
+			DecodeCreateConversationReplyPacket(oRspPacket,
+			                                    bAccept,
+			                                    hSvrConv,
+			                                    nConvID);
 
 			// If accepted, attach to service.
 			if (bAccept)
@@ -898,17 +891,12 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFo
 			CNetDDEPacket oRspPacket;
 			pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
 
-			CBuffer    oDDEData;
-			CMemStream oRspStream(oRspPacket.Buffer());
-
-			oRspStream.Open();
-			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
+			CBuffer oDDEData;
 
 			// Get result.
-			oRspStream >> bResult;
-			oRspStream >> oDDEData;
-
-			oRspStream.Close();
+			DecodeRequestItemReplyPacket(oRspPacket,
+			                             bResult,
+			                             oDDEData);
 
 			if (bResult)
 				oData.SetBuffer(oDDEData);
@@ -986,15 +974,9 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const tchar* pszItem, uint
 				CNetDDEPacket oRspPacket;
 				pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
 
-				CMemStream oRspStream(oRspPacket.Buffer());
-
-				oRspStream.Open();
-				oRspStream.Seek(sizeof(CNetDDEPacket::Header));
-
 				// Get result.
-				oRspStream >> bResult;
-
-				oRspStream.Close();
+				DecodeStartAdviseReplyPacket(oRspPacket,
+				                             bResult);
 			}
 			// Asynchronous.
 			else
@@ -1183,15 +1165,9 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 			CNetDDEPacket oRspPacket;
 			pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
 
-			CMemStream oRspStream(oRspPacket.Buffer());
-
-			oRspStream.Open();
-			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
-
 			// Get result.
-			oRspStream >> bResult;
-
-			oRspStream.Close();
+			DecodeExecuteCommandReplyPacket(oRspPacket,
+			                                bResult);
 		}
 		catch (const CSocketException& e)
 		{
@@ -1267,15 +1243,9 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const tchar* pszItem, uint nForma
 			CNetDDEPacket oRspPacket;
 			pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
 
-			CMemStream oRspStream(oRspPacket.Buffer());
-
-			oRspStream.Open();
-			oRspStream.Seek(sizeof(CNetDDEPacket::Header));
-
 			// Get result.
-			oRspStream >> bResult;
-
-			oRspStream.Close();
+			DecodePokeItemReplyPacket(oRspPacket,
+			                          bResult);
 		}
 		catch (const CSocketException& e)
 		{
@@ -1474,15 +1444,9 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 
 	HCONV hSvrConv;
 
-	CMemStream oStream(oNfyPacket.Buffer());
-
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
-
 	// Get conversation parameters.
-	oStream.Read(&hSvrConv, sizeof(HCONV));
-
-	oStream.Close();
+	DecodeConversationDisconnectPacket(oNfyPacket,
+	                                   hSvrConv);
 
 	// Find the service for the conversation handle.
 	CNetDDEService* pService = FindService(hSvrConv);
@@ -1534,25 +1498,20 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 	CString strItem;
 	uint32  nFormat;
 	CBuffer oData;
-	bool    bEoP = false;
 
-	CMemStream oStream(oNfyPacket.Buffer());
+	// Get advise parameters.
+	DecodeAdvisePacket(oNfyPacket,
+	                   hSvrConv,
+	                   strItem,
+	                   nFormat,
+	                   oData);
 
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
+	// Note: multiple advises in a single packet has never been tested.
+	// The client has never sent them and we never really expected them.
 
-	// For all updates...
-	while (!bEoP)
+	// For all updates...well, only one in practice.
+	for (bool bEoP = false; !bEoP; bEoP = true)
 	{
-		// Get advise parameters.
-		oStream.Read(&hSvrConv, sizeof(HCONV));
-		oStream >> strItem;
-		oStream >> nFormat;
-		oStream >> oData;
-		oStream >> bEoP;
-
-		ASSERT(bEoP);
-
 		if (App.m_bTraceUpdates)
 		{
 			CString strData;
@@ -1611,8 +1570,6 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 			}
 		}
 	}
-
-	oStream.Close();
 }
 
 /******************************************************************************
@@ -1635,22 +1592,19 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 	HCONV   hSvrConv;
 	CString strItem;
 	uint32  nFormat;
-	bool    bEoP = false;
 
-	CMemStream oStream(oNfyPacket.Buffer());
+	// Get advise parameters.
+	DecodeAdviseStartFailedPacket(oNfyPacket,
+	                              hSvrConv,
+	                              strItem,
+	                              nFormat);
 
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
+	// Note: multiple advises in a single packet has never been tested.
+	// The client has never sent them and we never really expected them.
 
-	// For all updates...
-	while (!bEoP)
+	// For all updates...well, only one in practice.
+	for (bool bEoP = false; !bEoP; bEoP = true)
 	{
-		// Get advise parameters.
-		oStream.Read(&hSvrConv, sizeof(HCONV));
-		oStream >> strItem;
-		oStream >> nFormat;
-		oStream >> bEoP;
-
 		if (App.m_bTraceAdvises)
 			App.Trace(TXT("DDE_START_ADVISE_FAILED: %s %s"), oService.m_oCfg.m_strLocName.c_str(), strItem.c_str());
 
@@ -1698,8 +1652,6 @@ void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oN
 			}
 		}
 	}
-
-	oStream.Close();
 }
 
 /******************************************************************************
@@ -1849,17 +1801,12 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 	CNetDDEPacket oRspPacket;
 	pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
 
-	CString    strVersion;
-	CMemStream oRspStream(oRspPacket.Buffer());
-
-	oRspStream.Open();
-	oRspStream.Seek(sizeof(CNetDDEPacket::Header));
+	CString strVersion;
 
 	// Get result.
-	oRspStream >> bAccept;
-	oRspStream >> strVersion;
-
-	oRspStream.Close();
+	DecodeClientConnectReplyPacket(oRspPacket,
+	                               bAccept,
+	                               strVersion);
 
 	if (m_bTraceNetConns)
 		App.Trace(TXT("NETDDE_SERVER_VERSION: %s"), strVersion.c_str());
