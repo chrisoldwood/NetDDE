@@ -851,9 +851,9 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	uint32  nConvID = m_nNextConvID++;
 
 	// Decode request message.
-	DecodeClientConnectPacket(oReqPacket,
-	                          strService,
-	                          strTopic);
+	DecodeCreateConversationPacket(oReqPacket,
+	                               strService,
+	                               strTopic);
 
 	if (App.m_bTraceConvs)
 		App.Trace(TXT("DDE_CREATE_CONVERSATION: %s %s [#%u]"), strService.c_str(), strTopic.c_str(), nConvID);

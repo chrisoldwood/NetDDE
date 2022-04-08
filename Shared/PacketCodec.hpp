@@ -25,9 +25,9 @@ NetDDEPacketPtr EncodeCreateConversationPacket(const CString& serviceName,
 ////////////////////////////////////////////////////////////////////////////////
 //! Decode a create conversation packet.
 
-void DecodeClientConnectPacket(CNetDDEPacket& packet,
-                               CString& service,
-                               CString& topic);
+void DecodeCreateConversationPacket(CNetDDEPacket& packet,
+                                    CString& service,
+                                    CString& topic);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Encode a create conversation reply packet.
