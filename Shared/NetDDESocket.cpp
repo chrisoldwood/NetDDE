@@ -58,13 +58,13 @@ CNetDDESocket::~CNetDDESocket()
 *******************************************************************************
 */
 
-void CNetDDESocket::SendPacket(const CNetDDEPacket& oPacket)
+void CNetDDESocket::SendPacket(const NetDDEPacketPtr packet)
 {
-	m_oSocket.Send(oPacket.Buffer());
+	m_oSocket.Send(packet->Buffer());
 }
 
 /******************************************************************************
-** Method:		RecvPacket()
+** Method:		TryRecvPacket()
 **
 ** Description:	Try and read an entire packet.
 **
@@ -75,34 +75,36 @@ void CNetDDESocket::SendPacket(const CNetDDEPacket& oPacket)
 *******************************************************************************
 */
 
-bool CNetDDESocket::RecvPacket(CNetDDEPacket& oPacket)
+bool CNetDDESocket::TryRecvPacket(NetDDEPacketPtr& packet)
 {
 	size_t nAvail = m_oSocket.Available();
 
 	// Enough data to read packet header?
 	if (nAvail >= sizeof(CNetDDEPacket::Header))
 	{
+		packet = NetDDEPacketPtr(new CNetDDEPacket);
+
 		// Set buffer size to header only.
-		oPacket.Buffer().Size(sizeof(CNetDDEPacket::Header));
+		packet->Buffer().Size(sizeof(CNetDDEPacket::Header));
 
 		// Peek at packet header.
-		size_t nRead = m_oSocket.Peek(oPacket.Buffer(), oPacket.Buffer().Size());
+		size_t nRead = m_oSocket.Peek(packet->Buffer(), packet->Buffer().Size());
 
 		// Peeked entire header?
 		if (nRead == sizeof(CNetDDEPacket::Header))
 		{
 			// Calculate full packet size.
-			uint nPktSize = oPacket.DataSize() + sizeof(CNetDDEPacket::Header);
+			uint nPktSize = packet->DataSize() + sizeof(CNetDDEPacket::Header);
 
 			// Entire packet buffered?
 			if (nAvail >= nPktSize)
 			{
-				oPacket.Buffer().Size(nPktSize);
+				packet->Buffer().Size(nPktSize);
 
 				// Read entire packet.
-				nRead = m_oSocket.Recv(oPacket.Buffer());
+				nRead = m_oSocket.Recv(packet->Buffer());
 
-				ASSERT(nRead == oPacket.Buffer().Size());
+				ASSERT(nRead == packet->Buffer().Size());
 
 				return true;
 			}

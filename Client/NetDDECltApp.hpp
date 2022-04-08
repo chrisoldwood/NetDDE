@@ -24,12 +24,12 @@
 #include "AppWnd.hpp"
 #include "AppCmds.hpp"
 #include "LinkCache.hpp"
+#include "NetDDEPacket.hpp"
 #include <NCL/DDEServer.hpp>
 #include <vector>
 
 // Forward declarations.
 class CNetDDEService;
-class CNetDDEPacket;
 
 /******************************************************************************
 ** 
@@ -180,10 +180,10 @@ protected:
 	//
 	// Packet handlers.
 	//
-	void OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
-	void OnDDEDisconnect(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
-	void OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
-	void OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oNfyPacket);
+	void OnNetDDEServerDisconnect(CNetDDEService& oService, NetDDEPacketPtr packet);
+	void OnDDEDisconnect(CNetDDEService& oService, NetDDEPacketPtr packet);
+	void OnDDEAdvise(CNetDDEService& oService, NetDDEPacketPtr packet);
+	void OnDDEStartFailed(CNetDDEService& oService, NetDDEPacketPtr packet);
 };
 
 /******************************************************************************

@@ -34,6 +34,4 @@
 
 - Allow sending of an initial value for a link to be disabled.
 
-- Pass packets around by smart pointer to make default ctor and copying redundant.
-
 - Send keep-alives to detect broken sockets.

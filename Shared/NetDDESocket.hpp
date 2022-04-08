@@ -16,9 +16,10 @@
 #pragma once
 #endif
 
+#include "NetDDEPacket.hpp"
+
 // Forward declarations.
 class CSocket;
-class CNetDDEPacket;
 
 /******************************************************************************
 ** 
@@ -39,8 +40,8 @@ public:
 	//
 	// Methods.
 	//
-	void SendPacket(const CNetDDEPacket& oPacket);
-	bool RecvPacket(CNetDDEPacket& oPacket);
+	void SendPacket(const NetDDEPacketPtr packet);
+	bool TryRecvPacket(NetDDEPacketPtr& packet);
 
 protected:
 	//

@@ -65,35 +65,5 @@ TEST_CASE("The packet sequence number wraps, skipping ASYNC_PACKET_ID and 0")
 }
 TEST_CASE_END
 
-TEST_CASE("A packet can be copied")
-{
-	const uint packetID = 0x12341234; 
-	const uint value = 0x42424242;
-	CBuffer buffer(&value, sizeof(value));
-
-	{
-	CNetDDEPacket original(CNetDDEPacket::DDE_EXECUTE, packetID, buffer);
-
-	CNetDDEPacket copy(original);
-
-	TEST_TRUE(copy.DataType() == original.DataType());
-	TEST_TRUE(copy.PacketID() == original.PacketID());
-	TEST_TRUE(copy.DataSize() == original.DataSize());
-	TEST_TRUE(memcmp(copy.DataBuffer(), original.DataBuffer(), sizeof(value)) == 0);
-	}
-
-	{
-	CNetDDEPacket original(CNetDDEPacket::DDE_EXECUTE, packetID, buffer);
-
-	CNetDDEPacket copy; copy = original;
-
-	TEST_TRUE(copy.DataType() == original.DataType());
-	TEST_TRUE(copy.PacketID() == original.PacketID());
-	TEST_TRUE(copy.DataSize() == original.DataSize());
-	TEST_TRUE(memcmp(copy.DataBuffer(), original.DataBuffer(), sizeof(value)) == 0);
-	}
-}
-TEST_CASE_END
-
 }
 TEST_SET_END

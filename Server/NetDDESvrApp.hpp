@@ -25,13 +25,13 @@
 #include "AppWnd.hpp"
 #include "AppCmds.hpp"
 #include "LinkCache.hpp"
+#include "NetDDEPacket.hpp"
 #include <NCL/TCPSvrSocket.hpp>
 #include <NCL/DDEClient.hpp>
 #include <vector>
 
 // Forward declarations.
 class CNetDDEService;
-class CNetDDEPacket;
 class CNetDDESvrSocket;
 
 /******************************************************************************
@@ -165,15 +165,15 @@ protected:
 	//
 	// Packet handlers.
 	//
-	void OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
-	void OnNetDDEClientDisconnect(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
-	void OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket);
+	void OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet);
+	void OnNetDDEClientDisconnect(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet);
+	void OnDDECreateConversation(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet);
+	void OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet);
+	void OnDDERequest(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet);
+	void OnDDEStartAdvise(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet);
+	void OnDDEStopAdvise(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet);
+	void OnDDEExecute(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet);
+	void OnDDEPoke(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet);
 };
 
 /******************************************************************************

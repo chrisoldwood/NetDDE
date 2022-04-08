@@ -51,13 +51,13 @@ public:
 	//
 	virtual void Close();
 
-	void ReadResponsePacket(CNetDDEPacket& oPacket, uint nPacketID);
+	NetDDEPacketPtr ReadResponsePacket(uint nPacketID);
 
-	void QueueResponsePacket(CNetDDEPacket* pPacket);
+	void QueueResponsePacket(NetDDEPacketPtr packet);
 
 protected:
 	// Template shorthands.
-	typedef std::vector<CNetDDEPacket*> CPackets;
+	typedef std::vector<NetDDEPacketPtr> CPackets;
 
 	//
 	// Members.
@@ -84,9 +84,9 @@ inline void CNetDDECltSocket::SetTimeOut(uint nTimeOut)
 	m_nTimeOut = nTimeOut;
 }
 
-inline void CNetDDECltSocket::QueueResponsePacket(CNetDDEPacket* pPacket)
+inline void CNetDDECltSocket::QueueResponsePacket(NetDDEPacketPtr packet)
 {
-	m_aoPackets.push_back(pPacket);
+	m_aoPackets.push_back(packet);
 }
 
 #endif // NETDDECLTSOCKET_HPP

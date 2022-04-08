@@ -72,7 +72,7 @@ void CNetDDECltSocket::Close()
 	CTCPCltSocket::Close();
 
 	// Cleanup packet queue.
-	Core::deleteAll(m_aoPackets);
+	m_aoPackets.clear();
 }
 
 /******************************************************************************
@@ -81,15 +81,14 @@ void CNetDDECltSocket::Close()
 ** Description:	Read the response packet, waiting if required.
 **				NB: All other packets types are appended to a queue.
 **
-** Parameters:	oPacket		The packet received.
-**				nPacketID	The packet ID expected.
+** Parameters:	nPacketID	The packet ID expected.
 **
-** Returns:		Nothing.
+** Returns:		The packet received.
 **
 *******************************************************************************
 */
 
-void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nPacketID)
+NetDDEPacketPtr CNetDDECltSocket::ReadResponsePacket(uint nPacketID)
 {
 	DWORD dwStartTime = ::GetTickCount();
 
@@ -102,18 +101,16 @@ void CNetDDECltSocket::ReadResponsePacket(CNetDDEPacket& oPacket, uint nPacketID
 			// Find our response.
 			for (size_t i = 0; i < m_aoPackets.size(); ++i)
 			{
-				CNetDDEPacket* pPacket = m_aoPackets[i];
+				NetDDEPacketPtr packet = m_aoPackets[i];
 
-				ASSERT(pPacket->PacketID() != CNetDDEPacket::ASYNC_PACKET_ID);
+				ASSERT(packet->PacketID() != CNetDDEPacket::ASYNC_PACKET_ID);
 
 				// Packet ID we're after?
-				if (pPacket->PacketID() == nPacketID)
+				if (packet->PacketID() == nPacketID)
 				{
-					oPacket = *pPacket;
+					Core::eraseAt(m_aoPackets, i);
 
-					Core::deleteAt(m_aoPackets, i);
-
-					return;
+					return packet;
 				}
 			}
 		}

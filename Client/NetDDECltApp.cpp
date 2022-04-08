@@ -689,11 +689,10 @@ bool CNetDDECltApp::OnConnect(const tchar* pszService, const tchar* pszTopic)
 				App.Trace(TXT("DDE_CREATE_CONVERSATION: %s %s"), pszService, pszTopic);
 
 			// Send it.
-			pService->m_oConnection.SendPacket(requestPacket.getRef());
+			pService->m_oConnection.SendPacket(requestPacket);
 
 			// Wait for response.
-			CNetDDEPacket oRspPacket;
-			pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
+			NetDDEPacketPtr oRspPacket = pService->m_oConnection.ReadResponsePacket(requestPacket->PacketID());
 
 			HCONV  hSvrConv;
 			uint32 nConvID;
@@ -794,7 +793,7 @@ void CNetDDECltApp::OnDisconnect(CDDESvrConv* pConv)
 				App.Trace(TXT("DDE_DESTROY_CONVERSATION: %s %s"), pConv->Service().c_str(), pConv->Topic().c_str());
 
 			// Send it.
-			pService->m_oConnection.SendPacket(packet.getRef());
+			pService->m_oConnection.SendPacket(packet);
 		}
 		catch (const CSocketException& e)
 		{
@@ -885,11 +884,10 @@ bool CNetDDECltApp::OnRequest(CDDESvrConv* pConv, const tchar* pszItem, uint nFo
 				App.Trace(TXT("DDE_REQUEST: %s %s %s %s"), pConv->Service().c_str(), pConv->Topic().c_str(), pszItem, CClipboard::FormatName(nFormat).c_str());
 
 			// Send it.
-			pService->m_oConnection.SendPacket(requestPacket.getRef());
+			pService->m_oConnection.SendPacket(requestPacket);
 
 			// Wait for response.
-			CNetDDEPacket oRspPacket;
-			pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
+			NetDDEPacketPtr oRspPacket = pService->m_oConnection.ReadResponsePacket(requestPacket->PacketID());
 
 			CBuffer oDDEData;
 
@@ -965,14 +963,13 @@ bool CNetDDECltApp::OnAdviseStart(CDDESvrConv* pConv, const tchar* pszItem, uint
 				App.Trace(TXT("DDE_START_ADVISE: %s %s %s %s"), pConv->Service().c_str(), pConv->Topic().c_str(), pszItem, CClipboard::FormatName(nFormat).c_str());
 
 			// Send it.
-			pService->m_oConnection.SendPacket(requestPacket.getRef());
+			pService->m_oConnection.SendPacket(requestPacket);
 
 			// Expecting response?
 			if (!pService->m_oCfg.m_bAsyncAdvises)
 			{
 				// Wait for response.
-				CNetDDEPacket oRspPacket;
-				pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
+				NetDDEPacketPtr oRspPacket = pService->m_oConnection.ReadResponsePacket(requestPacket->PacketID());
 
 				// Get result.
 				DecodeStartAdviseReplyPacket(oRspPacket,
@@ -1105,7 +1102,7 @@ void CNetDDECltApp::OnAdviseStop(CDDESvrConv* pConv, CDDELink* pLink)
 				App.Trace(TXT("DDE_STOP_ADVISE: %s %s %s %s"), pConv->Service().c_str(), pConv->Topic().c_str(), pLink->Item().c_str(), CClipboard::FormatName(pLink->Format()).c_str());
 
 			// Send it.
-			pService->m_oConnection.SendPacket(packet.getRef());
+			pService->m_oConnection.SendPacket(packet);
 		}
 		catch (const CSocketException& e)
 		{
@@ -1159,11 +1156,10 @@ bool CNetDDECltApp::OnExecute(CDDESvrConv* pConv, const CString& strCmd)
 				App.Trace(TXT("DDE_EXECUTE: %s %s [%s]"), pConv->Service().c_str(), pConv->Topic().c_str(), strCmd.c_str());
 
 			// Send it.
-			pService->m_oConnection.SendPacket(requestPacket.getRef());
+			pService->m_oConnection.SendPacket(requestPacket);
 
 			// Wait for response.
-			CNetDDEPacket oRspPacket;
-			pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
+			NetDDEPacketPtr oRspPacket = pService->m_oConnection.ReadResponsePacket(requestPacket->PacketID());
 
 			// Get result.
 			DecodeExecuteCommandReplyPacket(oRspPacket,
@@ -1237,11 +1233,10 @@ bool CNetDDECltApp::OnPoke(CDDESvrConv* pConv, const tchar* pszItem, uint nForma
 			}
 
 			// Send it.
-			pService->m_oConnection.SendPacket(requestPacket.getRef());
+			pService->m_oConnection.SendPacket(requestPacket);
 
 			// Wait for response.
-			CNetDDEPacket oRspPacket;
-			pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
+			NetDDEPacketPtr oRspPacket = pService->m_oConnection.ReadResponsePacket(requestPacket->PacketID());
 
 			// Get result.
 			DecodePokeItemReplyPacket(oRspPacket,
@@ -1281,23 +1276,25 @@ void CNetDDECltApp::OnReadReady(CSocket* pSocket)
 
 	try
 	{
-		CNetDDEPacket oPacket; 
+		NetDDEPacketPtr packet; 
 
 		// For all packets...
-		while (pService->m_oConnection.RecvPacket(oPacket))
+		while (pService->m_oConnection.TryRecvPacket(packet))
 		{
+			ASSERT(!packet.empty());
+
 			// Notification packet?
-			if ((oPacket.DataType() & CNetDDEPacket::PACKET_SYNC_MASK) == CNetDDEPacket::ASYNC_PACKET)
+			if ((packet->DataType() & CNetDDEPacket::PACKET_SYNC_MASK) == CNetDDEPacket::ASYNC_PACKET)
 			{
-				ASSERT(oPacket.PacketID() == CNetDDEPacket::ASYNC_PACKET_ID);
+				ASSERT(packet->PacketID() == CNetDDEPacket::ASYNC_PACKET_ID);
 
 				// Decode packet type.
-				switch (oPacket.DataType())
+				switch (packet->DataType())
 				{
-					case CNetDDEPacket::NETDDE_SERVER_DISCONNECT:	OnNetDDEServerDisconnect(*pService, oPacket);	break;
-					case CNetDDEPacket::DDE_DISCONNECT:				OnDDEDisconnect(*pService, oPacket);			break;
-					case CNetDDEPacket::DDE_ADVISE:					OnDDEAdvise(*pService, oPacket);				break;
-					case CNetDDEPacket::DDE_START_ADVISE_FAILED:	OnDDEStartFailed(*pService, oPacket);			break;
+					case CNetDDEPacket::NETDDE_SERVER_DISCONNECT:	OnNetDDEServerDisconnect(*pService, packet);	break;
+					case CNetDDEPacket::DDE_DISCONNECT:				OnDDEDisconnect(*pService, packet);				break;
+					case CNetDDEPacket::DDE_ADVISE:					OnDDEAdvise(*pService, packet);					break;
+					case CNetDDEPacket::DDE_START_ADVISE_FAILED:	OnDDEStartFailed(*pService, packet);			break;
 					default:										ASSERT_FALSE();									break;
 				}
 
@@ -1311,10 +1308,10 @@ void CNetDDECltApp::OnReadReady(CSocket* pSocket)
 			// Response packet.
 			else
 			{
-				ASSERT(oPacket.PacketID() != CNetDDEPacket::ASYNC_PACKET_ID);
+				ASSERT(packet->PacketID() != CNetDDEPacket::ASYNC_PACKET_ID);
 
 				// Append to response queue.
-				pService->m_oConnection.QueueResponsePacket(new CNetDDEPacket(oPacket));
+				pService->m_oConnection.QueueResponsePacket(packet);
 			}
 		}
 	}
@@ -1413,7 +1410,7 @@ void CNetDDECltApp::OnTimer(uint /*nTimerID*/)
 *******************************************************************************
 */
 
-void CNetDDECltApp::OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPacket& /*oNfyPacket*/)
+void CNetDDECltApp::OnNetDDEServerDisconnect(CNetDDEService& oService, NetDDEPacketPtr /*packet*/)
 {
 	if (m_bTraceNetConns)
 		App.Trace(TXT("NETDDE_SERVER_DISCONNECT: %s"), oService.m_oCfg.m_strServer.c_str());
@@ -1438,14 +1435,14 @@ void CNetDDECltApp::OnNetDDEServerDisconnect(CNetDDEService& oService, CNetDDEPa
 *******************************************************************************
 */
 
-void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket& oNfyPacket)
+void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, NetDDEPacketPtr packet)
 {
-	ASSERT(oNfyPacket.DataType() == CNetDDEPacket::DDE_DISCONNECT);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_DISCONNECT);
 
 	HCONV hSvrConv;
 
 	// Get conversation parameters.
-	DecodeConversationDisconnectPacket(oNfyPacket,
+	DecodeConversationDisconnectPacket(packet,
 	                                   hSvrConv);
 
 	// Find the service for the conversation handle.
@@ -1490,9 +1487,9 @@ void CNetDDECltApp::OnDDEDisconnect(CNetDDEService& /*oService*/, CNetDDEPacket&
 *******************************************************************************
 */
 
-void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPacket)
+void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, NetDDEPacketPtr packet)
 {
-	ASSERT(oNfyPacket.DataType() == CNetDDEPacket::DDE_ADVISE);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_ADVISE);
 
 	HCONV   hSvrConv;
 	CString strItem;
@@ -1500,7 +1497,7 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 	CBuffer oData;
 
 	// Get advise parameters.
-	DecodeAdvisePacket(oNfyPacket,
+	DecodeAdvisePacket(packet,
 	                   hSvrConv,
 	                   strItem,
 	                   nFormat,
@@ -1585,16 +1582,16 @@ void CNetDDECltApp::OnDDEAdvise(CNetDDEService& oService, CNetDDEPacket& oNfyPac
 *******************************************************************************
 */
 
-void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, CNetDDEPacket& oNfyPacket)
+void CNetDDECltApp::OnDDEStartFailed(CNetDDEService& oService, NetDDEPacketPtr packet)
 {
-	ASSERT(oNfyPacket.DataType() == CNetDDEPacket::DDE_START_ADVISE_FAILED);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_START_ADVISE_FAILED);
 
 	HCONV   hSvrConv;
 	CString strItem;
 	uint32  nFormat;
 
 	// Get advise parameters.
-	DecodeAdviseStartFailedPacket(oNfyPacket,
+	DecodeAdviseStartFailedPacket(packet,
 	                              hSvrConv,
 	                              strItem,
 	                              nFormat);
@@ -1795,11 +1792,10 @@ void CNetDDECltApp::ServerConnect(CNetDDEService* pService)
 		App.Trace(TXT("NETDDE_CLIENT_CONNECT: %u %s %s %s"), NETDDE_PROTOCOL, pService->m_oCfg.m_strRemName.c_str(), CSysInfo::ComputerName().c_str(), CSysInfo::UserName().c_str());
 
 	// Send client connect message.
-	pService->m_oConnection.SendPacket(requestPacket.getRef());
+	pService->m_oConnection.SendPacket(requestPacket);
 
 	// Wait for response.
-	CNetDDEPacket oRspPacket;
-	pService->m_oConnection.ReadResponsePacket(oRspPacket, requestPacket->PacketID());
+	NetDDEPacketPtr oRspPacket = pService->m_oConnection.ReadResponsePacket(requestPacket->PacketID());
 
 	CString strVersion;
 
@@ -1847,7 +1843,7 @@ void CNetDDECltApp::ServerDisconnect(CNetDDEService* pService)
 		// Send disconnect message.
 		const NetDDEPacketPtr packet = EncodeClientDisconnectPacket(pService->m_oCfg.m_strRemName,
 		                                                            computerName);
-		pService->m_oConnection.SendPacket(packet.getRef());
+		pService->m_oConnection.SendPacket(packet);
 
 		// Update stats.
 		++m_nPktsSent;

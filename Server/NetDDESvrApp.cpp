@@ -261,9 +261,9 @@ bool CNetDDESvrApp::OnClose()
 					App.Trace(TXT("NETDDE_SERVER_DISCONNECT:"));
 
 				// Send disconnect message.
-				CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT);
+				NetDDEPacketPtr packet(new CNetDDEPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT));
 
-				pConnection->SendPacket(oPacket);
+				pConnection->SendPacket(packet);
 
 				// Update stats.
 				++m_nPktsSent;
@@ -486,7 +486,7 @@ void CNetDDESvrApp::OnDisconnect(CDDECltConv* pConv)
 							App.Trace(TXT("DDE_DISCONNECT: %s %s"), pConv->Service().c_str(), pConv->Topic().c_str());
 
 						// Send disconnect message.
-						pConnection->SendPacket(packet.getRef());
+						pConnection->SendPacket(packet);
 
 						// Update stats.
 						++m_nPktsSent;
@@ -595,7 +595,7 @@ void CNetDDESvrApp::OnAdvise(CDDELink* pLink, const CDDEData* pData)
 				}
 
 				// Send advise message.
-				pConnection->SendPacket(packet.getRef());
+				pConnection->SendPacket(packet);
 
 				// Update stats.
 				++m_nPktsSent;
@@ -749,9 +749,9 @@ void CNetDDESvrApp::OnTimer(uint /*nTimerID*/)
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket)
+void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet)
 {
-	ASSERT(oReqPacket.DataType() == CNetDDEPacket::NETDDE_CLIENT_CONNECT);
+	ASSERT(packet->DataType() == CNetDDEPacket::NETDDE_CLIENT_CONNECT);
 
 	bool bResult = false;
 
@@ -763,7 +763,7 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 	CString strVersion;
 
 	// Decode request message.
-	DecodeClientConnectPacket(oReqPacket,
+	DecodeClientConnectPacket(packet,
                               nProtocol,
                               strService,
                               strComputer,
@@ -786,9 +786,9 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 		bResult = true;
 
 	// Send response message.
-	NetDDEPacketPtr replyPacket = EncodeClientConnectReplyPacket(oReqPacket.PacketID(), bResult);
+	NetDDEPacketPtr replyPacket = EncodeClientConnectReplyPacket(packet->PacketID(), bResult);
 
-	oConnection.SendPacket(replyPacket.getRef());
+	oConnection.SendPacket(replyPacket);
 
 	// Update stats.
 	++m_nPktsSent;
@@ -807,15 +807,15 @@ void CNetDDESvrApp::OnNetDDEClientConnect(CNetDDESvrSocket& oConnection, CNetDDE
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnNetDDEClientDisconnect(CNetDDESvrSocket& /*oConnection*/, CNetDDEPacket& oReqPacket)
+void CNetDDESvrApp::OnNetDDEClientDisconnect(CNetDDESvrSocket& /*oConnection*/, NetDDEPacketPtr packet)
 {
-	ASSERT(oReqPacket.DataType() == CNetDDEPacket::NETDDE_CLIENT_DISCONNECT);
+	ASSERT(packet->DataType() == CNetDDEPacket::NETDDE_CLIENT_DISCONNECT);
 
 	CString strService;
 	CString strComputer;
 
 	// Decode request message.
-	DecodeClientDisconnectPacket(oReqPacket, strService, strComputer);
+	DecodeClientDisconnectPacket(packet, strService, strComputer);
 
 	if (App.m_bTraceNetConns)
 		App.Trace(TXT("NETDDE_CLIENT_DISCONNECT: %s %s"), strService.c_str(), strComputer.c_str());
@@ -834,9 +834,9 @@ void CNetDDESvrApp::OnNetDDEClientDisconnect(CNetDDESvrSocket& /*oConnection*/, 
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket)
+void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet)
 {
-	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_CREATE_CONVERSATION);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_CREATE_CONVERSATION);
 
 	bool bResult = false;
 
@@ -846,7 +846,7 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	uint32  nConvID = m_nNextConvID++;
 
 	// Decode request message.
-	DecodeCreateConversationPacket(oReqPacket,
+	DecodeCreateConversationPacket(packet,
 	                               strService,
 	                               strTopic);
 
@@ -873,12 +873,12 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 	}
 
 	// Send response message.
-	NetDDEPacketPtr replyPacket = EncodeCreateConversationReplyPacket(oReqPacket.PacketID(),
+	NetDDEPacketPtr replyPacket = EncodeCreateConversationReplyPacket(packet->PacketID(),
 	                                                                  bResult,
 	                                                                  hConv,
 	                                                                  nConvID);
 
-	oConnection.SendPacket(replyPacket.getRef());
+	oConnection.SendPacket(replyPacket);
 
 	// Update stats.
 	++m_nPktsSent;
@@ -897,15 +897,15 @@ void CNetDDESvrApp::OnDDECreateConversation(CNetDDESvrSocket& oConnection, CNetD
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket)
+void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet)
 {
-	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_DESTROY_CONVERSATION);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_DESTROY_CONVERSATION);
 
 	HCONV  hConv;
 	uint32 nConvID;
 
 	// Decode message.
-	DecodeDestroyConversationPacket(oReqPacket,
+	DecodeDestroyConversationPacket(packet,
 	                                hConv,
 	                                nConvID);
 
@@ -961,9 +961,9 @@ void CNetDDESvrApp::OnDDEDestroyConversation(CNetDDESvrSocket& oConnection, CNet
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket)
+void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet)
 {
-	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_REQUEST);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_REQUEST);
 
 	bool     bResult = false;
 
@@ -974,7 +974,7 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	CBuffer  oBuffer;
 
 	// Decode message.
-	DecodeRequestItemPacket(oReqPacket,
+	DecodeRequestItemPacket(packet,
 	                        hConv,
 	                        nConvID,
 	                        strItem,
@@ -1004,10 +1004,10 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 
 	// Send response message.
-	NetDDEPacketPtr replyPacket = EncodeRequestItemReplyPacket(oReqPacket.PacketID(),
+	NetDDEPacketPtr replyPacket = EncodeRequestItemReplyPacket(packet->PacketID(),
 	                                                           bResult,
 	                                                           oBuffer);
-	oConnection.SendPacket(replyPacket.getRef());
+	oConnection.SendPacket(replyPacket);
 
 	// Update stats.
 	++m_nPktsSent;
@@ -1026,9 +1026,9 @@ void CNetDDESvrApp::OnDDERequest(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket)
+void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet)
 {
-	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_START_ADVISE);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_START_ADVISE);
 
 	bool         bResult = false;
 	CDDECltConv* pConv = nullptr;
@@ -1042,7 +1042,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	bool	 bReqVal;
 
 	// Decode message.
-	DecodeStartAdvisePacket(oReqPacket,
+	DecodeStartAdvisePacket(packet,
 	                        hConv,
 	                        nConvID,
 	                        strItem,
@@ -1082,8 +1082,8 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 	if (!bAsync)
 	{
 		// Send response message.
-		NetDDEPacketPtr replyPacket = EncodeStartAdviseReplyPacket(oReqPacket.PacketID(), bResult);
-		oConnection.SendPacket(replyPacket.getRef());
+		NetDDEPacketPtr replyPacket = EncodeStartAdviseReplyPacket(packet->PacketID(), bResult);
+		oConnection.SendPacket(replyPacket);
 
 		// Update stats.
 		++m_nPktsSent;
@@ -1096,7 +1096,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 		NetDDEPacketPtr replyPacket = EncodeAdviseStartFailedPacket(hConv,
 		                                                            strItem,
 		                                                            nFormat);
-		oConnection.SendPacket(replyPacket.getRef());
+		oConnection.SendPacket(replyPacket);
 
 		// Update stats.
 		++m_nPktsSent;
@@ -1142,7 +1142,7 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 		                                            strItem,
 		                                            nFormat,
 		                                            pLinkValue->m_oLastValue);
-		oConnection.SendPacket(packet.getRef());
+		oConnection.SendPacket(packet);
 
 		// Update stats.
 		++m_nPktsSent;
@@ -1176,9 +1176,9 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacke
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket)
+void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet)
 {
-	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_STOP_ADVISE);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_STOP_ADVISE);
 
 	HCONV	 hConv;
 	uint32   nConvID;
@@ -1186,7 +1186,7 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 	uint32   nFormat;
 
 	// Decode message.
-	DecodeStopAdvisePacket(oReqPacket,
+	DecodeStopAdvisePacket(packet,
 	                       hConv,
 	                       nConvID,
 	                       strItem,
@@ -1238,9 +1238,9 @@ void CNetDDESvrApp::OnDDEStopAdvise(CNetDDESvrSocket& oConnection, CNetDDEPacket
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket)
+void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet)
 {
-	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_EXECUTE);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_EXECUTE);
 
 	bool     bResult = false;
 
@@ -1249,7 +1249,7 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	CString strCmd;
 
 	// Decode message.
-	DecodeExecuteCommandPacket(oReqPacket,
+	DecodeExecuteCommandPacket(packet,
 	                           hConv,
 	                           nConvID,
 	                           strCmd);
@@ -1276,8 +1276,8 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 	}
 
 	// Send response message.
-	NetDDEPacketPtr replyPacket = EncodeExecuteCommandReplyPacket(oReqPacket.PacketID(), bResult);
-	oConnection.SendPacket(replyPacket.getRef());
+	NetDDEPacketPtr replyPacket = EncodeExecuteCommandReplyPacket(packet->PacketID(), bResult);
+	oConnection.SendPacket(replyPacket);
 
 	// Update stats.
 	++m_nPktsSent;
@@ -1296,9 +1296,9 @@ void CNetDDESvrApp::OnDDEExecute(CNetDDESvrSocket& oConnection, CNetDDEPacket& o
 *******************************************************************************
 */
 
-void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReqPacket)
+void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, NetDDEPacketPtr packet)
 {
-	ASSERT(oReqPacket.DataType() == CNetDDEPacket::DDE_POKE);
+	ASSERT(packet->DataType() == CNetDDEPacket::DDE_POKE);
 
 	bool     bResult = false;
 
@@ -1309,7 +1309,7 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 	CBuffer  oData;
 
 	// Decode message.
-	DecodePokeItemPacket(oReqPacket,
+	DecodePokeItemPacket(packet,
 	                     hConv,
 	                     nConvID,
 	                     strItem,
@@ -1349,8 +1349,8 @@ void CNetDDESvrApp::OnDDEPoke(CNetDDESvrSocket& oConnection, CNetDDEPacket& oReq
 	}
 
 	// Send response message.
-	NetDDEPacketPtr replyPacket = EncodePokeItemReplyPacket(oReqPacket.PacketID(), bResult);
-	oConnection.SendPacket(replyPacket.getRef());
+	NetDDEPacketPtr replyPacket = EncodePokeItemReplyPacket(packet->PacketID(), bResult);
+	oConnection.SendPacket(replyPacket);
 
 	// Update stats.
 	++m_nPktsSent;
@@ -1417,9 +1417,9 @@ void CNetDDESvrApp::CloseConnection(CNetDDESvrSocket* pConnection)
 	try
 	{
 		// Send disconnect message.
-		CNetDDEPacket oPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT);
+		NetDDEPacketPtr packet(new CNetDDEPacket(CNetDDEPacket::NETDDE_SERVER_DISCONNECT));
 
-		pConnection->SendPacket(oPacket);
+		pConnection->SendPacket(packet);
 
 		// Update stats.
 		++App.m_nPktsSent;
@@ -1491,26 +1491,27 @@ void CNetDDESvrApp::OnPollSockets()
 
 				try
 				{
-					CNetDDEPacket oPacket;
+					NetDDEPacketPtr packet;
 
 					// No packet waiting?
-					if (!pConnection->RecvPacket(oPacket))
+					if (!pConnection->TryRecvPacket(packet))
 						continue;
 
+					ASSERT(!packet.empty());
 					bRecvPacket = true;
 
 					// Dispatch packet to handler.
-					switch (oPacket.DataType())
+					switch (packet->DataType())
 					{
-						case CNetDDEPacket::NETDDE_CLIENT_CONNECT:		OnNetDDEClientConnect(*pConnection, oPacket);		break;
-						case CNetDDEPacket::NETDDE_CLIENT_DISCONNECT:	OnNetDDEClientDisconnect(*pConnection, oPacket);	break;
-						case CNetDDEPacket::DDE_CREATE_CONVERSATION:	OnDDECreateConversation(*pConnection, oPacket);		break;
-						case CNetDDEPacket::DDE_DESTROY_CONVERSATION:	OnDDEDestroyConversation(*pConnection, oPacket);	break;
-						case CNetDDEPacket::DDE_REQUEST:				OnDDERequest(*pConnection, oPacket);				break;
-						case CNetDDEPacket::DDE_START_ADVISE:			OnDDEStartAdvise(*pConnection, oPacket);			break;
-						case CNetDDEPacket::DDE_STOP_ADVISE:			OnDDEStopAdvise(*pConnection, oPacket);				break;
-						case CNetDDEPacket::DDE_EXECUTE:				OnDDEExecute(*pConnection, oPacket);				break;
-						case CNetDDEPacket::DDE_POKE:					OnDDEPoke(*pConnection, oPacket);					break;
+						case CNetDDEPacket::NETDDE_CLIENT_CONNECT:		OnNetDDEClientConnect(*pConnection, packet);		break;
+						case CNetDDEPacket::NETDDE_CLIENT_DISCONNECT:	OnNetDDEClientDisconnect(*pConnection, packet);		break;
+						case CNetDDEPacket::DDE_CREATE_CONVERSATION:	OnDDECreateConversation(*pConnection, packet);		break;
+						case CNetDDEPacket::DDE_DESTROY_CONVERSATION:	OnDDEDestroyConversation(*pConnection, packet);		break;
+						case CNetDDEPacket::DDE_REQUEST:				OnDDERequest(*pConnection, packet);					break;
+						case CNetDDEPacket::DDE_START_ADVISE:			OnDDEStartAdvise(*pConnection, packet);				break;
+						case CNetDDEPacket::DDE_STOP_ADVISE:			OnDDEStopAdvise(*pConnection, packet);				break;
+						case CNetDDEPacket::DDE_EXECUTE:				OnDDEExecute(*pConnection, packet);					break;
+						case CNetDDEPacket::DDE_POKE:					OnDDEPoke(*pConnection, packet);					break;
 						default:										ASSERT_FALSE();										break;
 					}
 

@@ -33,7 +33,7 @@ namespace Tests
 *******************************************************************************
 */
 
-class CNetDDEPacket
+class CNetDDEPacket /*: private NotCopyable*/
 {
 public:
 	//
@@ -129,6 +129,11 @@ private:
 
 	// Internal access for unit tests.
 	friend void Tests::SetNextPktId(uint id);
+
+private:
+	// NotCopyable.
+	CNetDDEPacket(const CNetDDEPacket&);
+	CNetDDEPacket& operator=(const CNetDDEPacket&);
 };
 
 //! The default CNetDDEPacket smart-pointer type.

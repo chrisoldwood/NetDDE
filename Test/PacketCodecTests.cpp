@@ -98,7 +98,7 @@ TEST_CASE("The client disconnect packet can be decoded")
 	CString serviceNameReceived;
 	CString computerNameReceived;
 
-	DecodeClientDisconnectPacket(packet.getRef(), serviceNameReceived, computerNameReceived);
+	DecodeClientDisconnectPacket(packet, serviceNameReceived, computerNameReceived);
 
 	TEST_TRUE(serviceNameReceived == serviceNameSent);
 	TEST_TRUE(computerNameReceived == computerNameSent);
@@ -115,7 +115,7 @@ TEST_CASE("A client disconnect packet can be round-tripped")
 	CString serviceNameReceived;
 	CString computerNameReceived;
 
-	DecodeClientDisconnectPacket(packet.getRef(), serviceNameReceived, computerNameReceived);
+	DecodeClientDisconnectPacket(packet, serviceNameReceived, computerNameReceived);
 
 	TEST_TRUE(serviceNameReceived == serviceNameSent);
 	TEST_TRUE(computerNameReceived == computerNameSent);
