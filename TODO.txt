@@ -33,5 +33,3 @@
 - Allow sending of an initial value for a link to be disabled.
 
 - Send keep-alives to detect broken sockets.
-
-- Add some simple tests that use this Node based client: https://github.com/st-one-io/netdde.
