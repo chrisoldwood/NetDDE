@@ -6,6 +6,7 @@
 #include "Common.hpp"
 #include <Core/UnitTest.hpp>
 #include "PacketCodec.hpp"
+#include <Core/AnsiWide.hpp>
 #include <WCL/MemStream.hpp>
 
 using namespace NetDDE;
@@ -15,7 +16,7 @@ namespace
 
 size_t calcStringDataSizeInBytes(const tchar* string)
 {
-	return Core::numBytes<tchar>(tstrlen(string)+1);
+	return Core::numBytes<char>(tstrlen(string)+1);
 }
 
 size_t calcStringFieldLengthInBytes(const tchar* string)
@@ -25,7 +26,7 @@ size_t calcStringFieldLengthInBytes(const tchar* string)
 
 size_t calcStringDataSizeInBytes(const CString& string)
 {
-	return Core::numBytes<tchar>(string.Capacity());
+	return Core::numBytes<char>(string.Capacity());
 }
 
 size_t calcStringFieldLengthInBytes(const CString& string)
@@ -63,12 +64,12 @@ TEST_CASE("The client disconnect packet can be encoded")
 	stream >> capacity;
 	TEST_TRUE(capacity == serviceName.Capacity());
 	stream.Read(buffer.Buffer(), calcStringDataSizeInBytes(serviceName));
-	TEST_TRUE(serviceName == reinterpret_cast<const tchar*>(buffer.Buffer()));	
+	TEST_TRUE(strcmp(T2A(serviceName), reinterpret_cast<const char*>(buffer.Buffer())) == 0);	
 
 	stream >> capacity;
 	TEST_TRUE(capacity == computerName.Capacity());
 	stream.Read(buffer.Buffer(), calcStringDataSizeInBytes(computerName));
-	TEST_TRUE(computerName == reinterpret_cast<const tchar*>(buffer.Buffer()));	
+	TEST_TRUE(strcmp(T2A(computerName), reinterpret_cast<const char*>(buffer.Buffer())) == 0);	
 
 	TEST_TRUE(stream.IsEOF());
 	stream.Close();
@@ -77,20 +78,20 @@ TEST_CASE_END
 
 TEST_CASE("The client disconnect packet can be decoded")
 {
-	const tchar* serviceNameSent = TXT("ServiceName");
-	const tchar* computerNameSent = TXT("ComputerName");
+	const char* serviceNameSent = "ServiceName";
+	const char* computerNameSent = "ComputerName";
 
 	CBuffer buffer;
 	CMemStream stream(buffer);
 	stream.Create();
 
-	uint32 capacity = tstrlen(serviceNameSent)+1;
+	uint32 capacity = strlen(serviceNameSent)+1;
 	stream << capacity;
-	stream.Write(serviceNameSent, Core::numBytes<tchar>(capacity));
+	stream.Write(serviceNameSent, Core::numBytes<char>(capacity));
 	
-	capacity = tstrlen(computerNameSent)+1;
+	capacity = strlen(computerNameSent)+1;
 	stream << capacity;
-	stream.Write(computerNameSent, Core::numBytes<tchar>(capacity));
+	stream.Write(computerNameSent, Core::numBytes<char>(capacity));
 
 	stream.Close();
 	NetDDEPacketPtr packet = NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::NETDDE_CLIENT_DISCONNECT, buffer));
@@ -100,8 +101,8 @@ TEST_CASE("The client disconnect packet can be decoded")
 
 	DecodeClientDisconnectPacket(packet, serviceNameReceived, computerNameReceived);
 
-	TEST_TRUE(serviceNameReceived == serviceNameSent);
-	TEST_TRUE(computerNameReceived == computerNameSent);
+	TEST_TRUE(strcmp(T2A(serviceNameReceived), serviceNameSent) == 0);
+	TEST_TRUE(strcmp(T2A(computerNameReceived), computerNameSent) == 0);
 }
 TEST_CASE_END
 

@@ -20,7 +20,7 @@ namespace NetDDE
 //! Encode a create conversation packet.
 
 NetDDEPacketPtr EncodeCreateConversationPacket(const CString& serviceName,
-                                               const tchar* topic);
+                                               const CString& topic);
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Decode a create conversation packet.
@@ -74,7 +74,7 @@ void DecodeConversationDisconnectPacket(NetDDEPacketPtr packet,
 
 NetDDEPacketPtr EncodeRequestItemPacket(HCONV conversationHandle,
                                         uint32 conversationID,
-                                        const tchar* item,
+                                        const CString& item,
                                         uint format);
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ void DecodeRequestItemReplyPacket(NetDDEPacketPtr packet,
 
 NetDDEPacketPtr EncodeStartAdvisePacket(HCONV conversationHandle,
                                         uint32 conversationID,
-                                        const tchar* item,
+                                        const CString& item,
                                         uint format,
                                         bool asynchronous,
                                         bool requestInitialValue);
@@ -214,7 +214,7 @@ void DecodeExecuteCommandReplyPacket(NetDDEPacketPtr packet,
 
 NetDDEPacketPtr EncodePokeItemPacket(HCONV conversationHandle,
                                      uint32 conversationID,
-                                     const tchar* item,
+                                     const CString& item,
                                      uint format,
                                      const CBuffer& data);
 

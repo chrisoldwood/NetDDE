@@ -34,15 +34,15 @@ CString GetAppVersion()
 //! Encode a create conversation packet.
 
 NetDDEPacketPtr EncodeCreateConversationPacket(const CString& serviceName,
-                                               const tchar* topic)
+                                               const CString& topic)
 {
 	CBuffer    buffer;
 	CMemStream stream(buffer);
 
 	stream.Create();
 
-	stream << serviceName;
-	stream << topic;
+	serviceName.WriteString<char>(stream);
+	topic.WriteString<char>(stream);
 
 	stream.Close();
 
@@ -61,8 +61,8 @@ void DecodeCreateConversationPacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream >> service;
-	stream >> topic;
+	service.ReadString<char>(stream);
+	topic.ReadString<char>(stream);
 
 	stream.Close();
 }
@@ -183,7 +183,7 @@ void DecodeConversationDisconnectPacket(NetDDEPacketPtr packet,
 
 NetDDEPacketPtr EncodeRequestItemPacket(HCONV conversationHandle,
                                         uint32 conversationID,
-                                        const tchar* item,
+                                        const CString& item,
                                         uint format)
 {
 	CBuffer    buffer;
@@ -193,7 +193,7 @@ NetDDEPacketPtr EncodeRequestItemPacket(HCONV conversationHandle,
 
 	stream.Write(&conversationHandle, sizeof(HCONV));
 	stream << conversationID;
-	stream << item;
+	item.WriteString<char>(stream);
 	stream << (uint32) format;
 
 	stream.Close();
@@ -217,7 +217,7 @@ void DecodeRequestItemPacket(NetDDEPacketPtr packet,
 
 	stream.Read(&conversationHandle, sizeof(HCONV));
 	stream >> conversationID;
-	stream >> item;
+	item.ReadString<char>(stream);
 	stream >> format;
 
 	stream.Close();
@@ -266,7 +266,7 @@ void DecodeRequestItemReplyPacket(NetDDEPacketPtr packet,
 
 NetDDEPacketPtr EncodeStartAdvisePacket(HCONV conversationHandle,
                                         uint32 conversationID,
-                                        const tchar* item,
+                                        const CString& item,
                                         uint format,
                                         bool asynchronous,
                                         bool requestInitialValue)
@@ -278,7 +278,7 @@ NetDDEPacketPtr EncodeStartAdvisePacket(HCONV conversationHandle,
 
 	stream.Write(&conversationHandle, sizeof(HCONV));
 	stream << conversationID;
-	stream << item;
+	item.WriteString<char>(stream);
 	stream << (uint32) format;
 	stream << asynchronous;
 	stream << requestInitialValue;
@@ -306,7 +306,7 @@ void DecodeStartAdvisePacket(NetDDEPacketPtr packet,
 
 	stream.Read(&conversationHandle, sizeof(HCONV));
 	stream >> conversationID;
-	stream >> item;
+	item.ReadString<char>(stream);
 	stream >> format;
 	stream >> async;
 	stream >> requestValue;
@@ -361,7 +361,7 @@ NetDDEPacketPtr EncodeAdviseStartFailedPacket(HCONV conversationHandle,
 	stream.Create();
 
 	stream.Write(&conversationHandle, sizeof(HCONV));
-	stream << item;
+	item.WriteString<char>(stream);
 	stream << (uint32) format;
 	stream << true;
 
@@ -379,20 +379,20 @@ void DecodeAdviseStartFailedPacket(NetDDEPacketPtr packet,
                                    uint32& format)
 {
 	bool endOfPacket = false;
-	CMemStream oStream(packet->Buffer());
+	CMemStream stream(packet->Buffer());
 
-	oStream.Open();
-	oStream.Seek(sizeof(CNetDDEPacket::Header));
+	stream.Open();
+	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	oStream.Read(&conversationHandle, sizeof(HCONV));
-	oStream >> item;
-	oStream >> format;
-	oStream >> endOfPacket;
+	stream.Read(&conversationHandle, sizeof(HCONV));
+	item.ReadString<char>(stream);
+	stream >> format;
+	stream >> endOfPacket;
 
 	// Multiple advises per packet not implemented.
 	ASSERT(endOfPacket);
 
-	oStream.Close();
+	stream.Close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -409,7 +409,7 @@ NetDDEPacketPtr EncodeAdvisePacket(HCONV conversationHandle,
 	stream.Create();
 
 	stream.Write(&conversationHandle, sizeof(HCONV));
-	stream << item;
+	item.WriteString<char>(stream);
 	stream << (uint32) format;
 	stream << data;
 	stream << true;
@@ -435,7 +435,7 @@ void DecodeAdvisePacket(NetDDEPacketPtr packet,
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
 	stream.Read(&conversationHandle, sizeof(HCONV));
-	stream >> item;
+	item.ReadString<char>(stream);
 	stream >> format;
 	stream >> data;
 	stream >> endOfPacket;
@@ -461,7 +461,7 @@ NetDDEPacketPtr EncodeStopAdvisePacket(HCONV conversationHandle,
 
 	stream.Write(&conversationHandle, sizeof(HCONV));
 	stream << conversationID;
-	stream << item;
+	item.WriteString<char>(stream);
 	stream << (uint32) format;
 
 	stream.Close();
@@ -485,7 +485,7 @@ void DecodeStopAdvisePacket(NetDDEPacketPtr packet,
 
 	stream.Read(&conversationHandle, sizeof(HCONV));
 	stream >> conversationID;
-	stream >> item;
+	item.ReadString<char>(stream);
 	stream >> format;
 
 	stream.Close();
@@ -505,7 +505,7 @@ NetDDEPacketPtr EncodeExecuteCommandPacket(HCONV conversationHandle,
 
 	stream.Write(&conversationHandle, sizeof(HCONV));
 	stream << conversationID;
-	stream << command;
+	command.WriteString<char>(stream);
 
 	stream.Close();
 
@@ -527,7 +527,7 @@ void DecodeExecuteCommandPacket(NetDDEPacketPtr packet,
 
 	stream.Read(&conversationHandle, sizeof(HCONV));
 	stream >> conversationID;
-	stream >> command;
+	command.ReadString<char>(stream);
 
 	stream.Close();
 }
@@ -571,7 +571,7 @@ void DecodeExecuteCommandReplyPacket(NetDDEPacketPtr packet,
 
 NetDDEPacketPtr EncodePokeItemPacket(HCONV conversationHandle,
                                      uint32 conversationID,
-                                     const tchar* item,
+                                     const CString& item,
                                      uint format,
                                      const CBuffer& data)
 {
@@ -582,7 +582,7 @@ NetDDEPacketPtr EncodePokeItemPacket(HCONV conversationHandle,
 
 	stream.Write(&conversationHandle, sizeof(HCONV));
 	stream << conversationID;
-	stream << item;
+	item.WriteString<char>(stream);
 	stream << (uint32) format;
 	stream << data;
 
@@ -608,7 +608,7 @@ void DecodePokeItemPacket(NetDDEPacketPtr packet,
 
 	stream.Read(&conversationHandle, sizeof(HCONV));
 	stream >> conversationID;
-	stream >> item;
+	item.ReadString<char>(stream);
 	stream >> format;
 	stream >> data;
 
@@ -660,11 +660,11 @@ NetDDEPacketPtr EncodeClientConnectPacket(const CString& serviceName)
 	stream.Create();
 
 	stream << NETDDE_PROTOCOL;
-	stream << serviceName;
-	stream << CSysInfo::ComputerName();
-	stream << CSysInfo::UserName();
-	stream << CPath::Application().FileName();
-	stream << GetAppVersion();
+	serviceName.WriteString<char>(stream);
+	CSysInfo::ComputerName().WriteString<char>(stream);
+	CSysInfo::UserName().WriteString<char>(stream);
+	CPath::Application().FileName().WriteString<char>(stream);
+	GetAppVersion().WriteString<char>(stream);
 
 	stream.Close();
 
@@ -688,11 +688,11 @@ void DecodeClientConnectPacket(NetDDEPacketPtr packet,
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
 	stream >> protocol;
-	stream >> service;
-	stream >> computer;
-	stream >> user;
-	stream >> process;
-	stream >> version;
+	service.ReadString<char>(stream);
+	computer.ReadString<char>(stream);
+	user.ReadString<char>(stream);
+	process.ReadString<char>(stream);
+	version.ReadString<char>(stream);
 
 	stream.Close();
 }
@@ -729,7 +729,7 @@ void DecodeClientConnectReplyPacket(NetDDEPacketPtr packet,
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
 	stream >> result;
-	stream >> version;
+	version.ReadString<char>(stream);
 
 	stream.Close();
 }
@@ -745,8 +745,8 @@ NetDDEPacketPtr EncodeClientDisconnectPacket(const CString& serviceName,
 
 	stream.Create();
 
-	stream << serviceName;
-	stream << computerName;
+	serviceName.WriteString<char>(stream);
+	computerName.WriteString<char>(stream);
 
 	stream.Close();
 
@@ -767,8 +767,8 @@ void DecodeClientDisconnectPacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream >> serviceName;
-	stream >> computerName;
+	serviceName.ReadString<char>(stream);
+	computerName.ReadString<char>(stream);
 
 	ASSERT(stream.IsEOF());
 	stream.Close();
