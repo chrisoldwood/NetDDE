@@ -709,7 +709,7 @@ NetDDEPacketPtr EncodeClientConnectReplyPacket(uint packetID,
 	stream.Create();
 
 	stream << result;
-	stream << GetAppVersion();
+	GetAppVersion().WriteString<char>(stream);
 
 	stream.Close();
 
