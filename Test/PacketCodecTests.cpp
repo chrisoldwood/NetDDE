@@ -85,11 +85,11 @@ TEST_CASE("The client disconnect packet can be decoded")
 	CMemStream stream(buffer);
 	stream.Create();
 
-	uint32 capacity = strlen(serviceNameSent)+1;
+	uint32 capacity = static_cast<uint32>(strlen(serviceNameSent)+1);
 	stream << capacity;
 	stream.Write(serviceNameSent, Core::numBytes<char>(capacity));
 	
-	capacity = strlen(computerNameSent)+1;
+	capacity = static_cast<uint32>(strlen(computerNameSent)+1);
 	stream << capacity;
 	stream.Write(computerNameSent, Core::numBytes<char>(capacity));
 
