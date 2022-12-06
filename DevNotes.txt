@@ -51,5 +51,15 @@ DDE Command tool [1] as the driver (it needs to be on the PATH).
 
 [1] http://www.chrisoldwood.com/win32.htm#ddecommand
 
+Release Checklist
+-----------------
+
+- Update version number (App.rcv x 2).
+- Update documentation (ReadMe.txt, RelNotes.txt, and Manual.html).
+- Build and run tests.
+- Build packages (zip).
+- Tag repository.
+- Upload packages.
+
 Chris Oldwood 
-17th March 2022
+6th December 2022

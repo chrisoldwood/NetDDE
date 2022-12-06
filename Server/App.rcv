@@ -35,12 +35,12 @@ BEGIN
 		BLOCK "080904E4"
 		BEGIN
 			VALUE "FileDescription",  "Net DDE Server\0"
-			VALUE "FileVersion",      "2.5 ALPHA 2\0"
+			VALUE "FileVersion",      "2.5\0"
 			VALUE "InternalName",     "NetDDEServer.exe\0"
 			VALUE "LegalCopyright",   "(C) Chris Oldwood 2002-2022\0"
 			VALUE "OriginalFilename", "NetDDEServer.exe\0"
 			VALUE "ProductName",      "Net DDE Bridge\0"
-			VALUE "ProductVersion",   "2.5 ALPHA 2\0"
+			VALUE "ProductVersion",   "2.5\0"
 #ifdef _DEBUG
 			VALUE "Comments",         "Debug Build\0"
 #endif

@@ -1,11 +1,20 @@
-NetDDE v2.5
-===========
+NetDDE Bridge v2.5
+==================
 
 Introduction
 ------------
 
 This DDE client and server can be used to allow a DDE conversation to span a
-network.
+network. Unlike Microsoft's Network DDE protocol* (which they later removed in
+Windows Vista) this bridge does not require any changes to existing links. It
+can also cache data client side and tries to minimise the number of round trips
+when setting up a large number of links.
+
+This bridge was originally designed for passing simple financial (numerical)
+data around using the CF_TEXT format so that's its sweet-spot.
+
+*The protocol used here bears no relation to the one used by Microsoft so you
+cannot mix-and-match the two.
 
 Releases
 --------
@@ -19,11 +28,9 @@ https://github.com/chrisoldwood/NetDDE
 Installation
 ------------
 
-Run Setup.exe or
-Copy the file NetDDEClient.exe to a folder on the DDE client machine.
-Copy the file NetDDEServer.exe to a folder on the DDE server machine.
-
-Configure the NetDDEClient to point to the NetDDEServer machine.
+- Copy NetDDEClient.exe to a folder on the various DDE client's machines.
+- Copy NetDDEServer.exe to a folder on the DDE server's machine.
+- Configure the NetDDEClient to point to the NetDDEServer machine.
 
 Uninstallation
 --------------
@@ -47,4 +54,4 @@ Email: gort@cix.co.uk
 Web:   http://www.chrisoldwood.com
 
 Chris Oldwood
-22nd November 2004
+6th December 2022

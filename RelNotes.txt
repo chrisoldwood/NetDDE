@@ -1,4 +1,4 @@
-??/??/????: v2.5
+06/12/2022: v2.5
 ================
 
 - Fixed a bug where you couldn't configure multiple services with the same remote name (#1).
@@ -41,4 +41,4 @@
 - First public release.
 
 Chris Oldwood 
-22nd November 2004
+6th December 2022
