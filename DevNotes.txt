@@ -41,15 +41,27 @@ Automated Tests
 
 There is a unit test project built as part of the solution:
 
-> Test\<build>\Test.exe
+> Test\Debug\%VC_PLATFORM%\Test.exe
 
 There are also some end-to-end tests that use Excel as the data source and my
 DDE Command tool [1] as the driver (it needs to be on the PATH).
 
 > pushd Test\EndToEnd
-> .\run
+> run
 
 [1] http://www.chrisoldwood.com/win32.htm#ddecommand
+
+There is a simple test to check backwards compatibility with the JavaScript
+netdde package [2]. It also uses Excel as the source and assumes the same NetDDE
+configuration used above but requires all three processes to be started
+manually:
+
+> start "C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" Test\EndToEnd\Empty.xls
+> Server\Debug\%VC_PLATFORM%\NetDDEServer.exe
+> pushd Test\EndToEnd\netdde-js 
+> run
+
+[2] https://github.com/st-one-io/netdde
 
 Release Checklist
 -----------------
