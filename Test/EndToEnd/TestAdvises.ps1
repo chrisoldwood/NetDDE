@@ -6,14 +6,15 @@ $ErrorActionPreference = 'stop'
 try
 {
     $build = 'Debug'
+    $platform = $env:VC_PLATFORM
     $testService = 'Test'
     $testTopic = '[Formula.xls]Sheet'
 
-    Write-NetDDEServerConfig $build
-    $server = Start-NetDDEServer $build
+    Write-NetDDEServerConfig $build $platform
+    $server = Start-NetDDEServer $build $platform
 
-    Write-NetDDEClientConfig $build Excel $testService
-    $client = Start-NetDDEClient $build
+    Write-NetDDEClientConfig $build $platform Excel $testService
+    $client = Start-NetDDEClient $build $platform
 
     $workbookPath = (Resolve-Path 'Formula.xls').Path
     $excel = Start-Excel $workbookPath

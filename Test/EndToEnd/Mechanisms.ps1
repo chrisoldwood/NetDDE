@@ -1,6 +1,22 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'stop'
 
+function Validate-Build([string] $value)
+{
+	if ( ($value -notlike 'debug') -and ($value -notlike 'release') )
+	{
+		throw "ERROR: Invalid build type '${value}'"
+	}
+}
+
+function Validate-Platform([string] $value)
+{
+	if ( ($value -notlike 'win32') -and ($value -notlike 'x64') )
+	{
+		throw "ERROR: Invalid platform type '${value}'"
+	}
+}
+
 function Exec([scriptblock] $command)
 {
 	& $command
@@ -53,9 +69,12 @@ function Stop-Excel([System.Diagnostics.Process] $process)
 	Stop-Process -ErrorAction Continue $process.Id
 }
 
-function Write-NetDDEServerConfig([string] $config)
+function Write-NetDDEServerConfig([string] $build, [string] $platform)
 {
-	$iniFile = "..\..\Server\$config\NetDDEServer.ini"
+	Validate-Build $build
+	Validate-Platform $platform
+
+	$iniFile = "..\..\Server\${build}\${platform}\NetDDEServer.ini"
 	$config =
 @"
 [Version]
@@ -72,9 +91,12 @@ DDETimeOut=1000
 	$config | Out-File -Encoding Ascii $iniFile
 }
 
-function Start-NetDDEServer([string] $config)
+function Start-NetDDEServer([string] $build, [string] $platform)
 {
-	$path = "..\..\Server\$config\NetDDEServer.exe"
+	Validate-Build $build
+	Validate-Platform $platform
+
+	$path = "..\..\Server\${build}\${platform}\NetDDEServer.exe"
 	$process = Start-Process $path -PassThru -WindowStyle Minimized
 	return $process
 }
@@ -84,9 +106,12 @@ function Stop-NetDDEServer([System.Diagnostics.Process] $process)
 	Stop-Process -ErrorAction Continue $process.Id
 }
 
-function Write-NetDDEClientConfig([string] $config, [string] $remoteName, [string] $localName)
+function Write-NetDDEClientConfig([string] $build, [string] $platform, [string] $remoteName, [string] $localName)
 {
-	$iniFile = "..\..\Client\$config\NetDDEClient.ini"
+	Validate-Build $build
+	Validate-Platform $platform
+
+	$iniFile = "..\..\Client\${build}\${platform}\NetDDEClient.ini"
 	$config =
 @"
 [Version]
@@ -110,9 +135,12 @@ NetTimeOut=1000
 	$config | Out-File -Encoding Ascii $iniFile
 }
 
-function Start-NetDDEClient([string] $config)
+function Start-NetDDEClient([string] $build, [string] $platform)
 {
-	$path = "..\..\Client\$config\NetDDEClient.exe"
+	Validate-Build $build
+	Validate-Platform $platform
+
+	$path = "..\..\Client\${build}\${platform}\NetDDEClient.exe"
 	$process = Start-Process $path -PassThru -WindowStyle Minimized
 	return $process
 }
