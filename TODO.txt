@@ -33,3 +33,11 @@
 - Allow sending of an initial value for a link to be disabled.
 
 - Send keep-alives to detect broken sockets.
+
+- Fix 64-bit compatibility with the JS netdde package (offset out of range error).
+
+- Add tests for 32-bit / 64-bit mixed client / server configurations (HCONV mapping?).
+
+- Add manual test for protocol backwards compatibility with v2.0.
+
+- Add setting to control binding to localhost only when running on a single host (e.g. tests).
