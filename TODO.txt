@@ -41,3 +41,9 @@
 - Add manual test for protocol backwards compatibility with v2.0.
 
 - Add setting to control binding to localhost only when running on a single host (e.g. tests).
+
+- Update packaging config and scripts for the 64-bit build.
+
+- Include bitness in the version string and About box.
+
+- Investigate occasional missing initial advise (i.e. TestAdvises.ps1) for Win32 server + x64 client.
