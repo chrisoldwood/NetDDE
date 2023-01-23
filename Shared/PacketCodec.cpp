@@ -10,9 +10,36 @@
 #include <WCL/Path.hpp>
 #include <WCL/SysInfo.hpp>
 #include <WCL/VerInfoReader.hpp>
+#include <limits>
+#include <Core/InvalidArgException.hpp>
 
 namespace NetDDE
 {
+
+////////////////////////////////////////////////////////////////////////////////
+//! Temporary workaround to allow the 64-bit client & server to communicate with
+//! the older 32-bit client & server using the original protocol. Basically we
+//! just assume a 64-bit conversation handle will still fit into 32-bits.
+
+void WriteHandle(WCL::IOutputStream& stream, HCONV handle)
+{
+#ifdef _WIN64
+	uint64 handle64 = reinterpret_cast<uint64>(handle);
+	if (handle64 > std::numeric_limits<uint32>::max())
+		throw Core::InvalidArgException(TXT("DDE conversation handle exceeded the 32-bit limit."));
+
+	stream << static_cast<uint32>(handle64);
+#else
+	stream << reinterpret_cast<uint32>(handle);
+#endif
+}
+
+void ReadHandle(WCL::IInputStream& stream, HCONV& handle)
+{
+	uint32 buffer;
+	stream.Read(&buffer, sizeof(buffer));
+	handle = reinterpret_cast<HCONV>(buffer);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Get the application version number from the resource file.
@@ -81,7 +108,7 @@ NetDDEPacketPtr EncodeCreateConversationReplyPacket(uint packetID,
 	stream.Create();
 
 	stream << result;
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	stream << conversationID;
 
 	stream.Close();
@@ -104,7 +131,7 @@ void DecodeCreateConversationReplyPacket(NetDDEPacketPtr packet,
 
 	// Get result.
 	stream >> result;
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 	stream >> conversationID;
 
 	stream.Close();
@@ -121,7 +148,7 @@ NetDDEPacketPtr EncodeDestroyConversationPacket(HCONV conversationHandle,
 
 	stream.Create();
 
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	stream << conversationID;
 
 	stream.Close();
@@ -141,7 +168,7 @@ void DecodeDestroyConversationPacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 	stream >> conversationID;
 
 	stream.Close();
@@ -156,7 +183,7 @@ NetDDEPacketPtr EncodeConversationDisconnectPacket(HCONV conversationHandle)
 	CMemStream stream(buffer);
 
 	stream.Create();
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	stream.Close();
 
 	return NetDDEPacketPtr(new CNetDDEPacket(CNetDDEPacket::DDE_DISCONNECT, buffer));
@@ -173,7 +200,7 @@ void DecodeConversationDisconnectPacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 
 	stream.Close();
 }
@@ -191,7 +218,7 @@ NetDDEPacketPtr EncodeRequestItemPacket(HCONV conversationHandle,
 
 	stream.Create();
 
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	stream << conversationID;
 	item.WriteString<char>(stream);
 	stream << (uint32) format;
@@ -215,7 +242,7 @@ void DecodeRequestItemPacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 	stream >> conversationID;
 	item.ReadString<char>(stream);
 	stream >> format;
@@ -276,7 +303,7 @@ NetDDEPacketPtr EncodeStartAdvisePacket(HCONV conversationHandle,
 
 	stream.Create();
 
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	stream << conversationID;
 	item.WriteString<char>(stream);
 	stream << (uint32) format;
@@ -304,7 +331,7 @@ void DecodeStartAdvisePacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 	stream >> conversationID;
 	item.ReadString<char>(stream);
 	stream >> format;
@@ -360,7 +387,7 @@ NetDDEPacketPtr EncodeAdviseStartFailedPacket(HCONV conversationHandle,
 
 	stream.Create();
 
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	item.WriteString<char>(stream);
 	stream << (uint32) format;
 	stream << true;
@@ -384,7 +411,7 @@ void DecodeAdviseStartFailedPacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 	item.ReadString<char>(stream);
 	stream >> format;
 	stream >> endOfPacket;
@@ -408,7 +435,7 @@ NetDDEPacketPtr EncodeAdvisePacket(HCONV conversationHandle,
 
 	stream.Create();
 
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	item.WriteString<char>(stream);
 	stream << (uint32) format;
 	stream << data;
@@ -434,7 +461,7 @@ void DecodeAdvisePacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 	item.ReadString<char>(stream);
 	stream >> format;
 	stream >> data;
@@ -459,7 +486,7 @@ NetDDEPacketPtr EncodeStopAdvisePacket(HCONV conversationHandle,
 
 	stream.Create();
 
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	stream << conversationID;
 	item.WriteString<char>(stream);
 	stream << (uint32) format;
@@ -483,7 +510,7 @@ void DecodeStopAdvisePacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 	stream >> conversationID;
 	item.ReadString<char>(stream);
 	stream >> format;
@@ -503,7 +530,7 @@ NetDDEPacketPtr EncodeExecuteCommandPacket(HCONV conversationHandle,
 
 	stream.Create();
 
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	stream << conversationID;
 	command.WriteString<char>(stream);
 
@@ -525,7 +552,7 @@ void DecodeExecuteCommandPacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 	stream >> conversationID;
 	command.ReadString<char>(stream);
 
@@ -580,7 +607,7 @@ NetDDEPacketPtr EncodePokeItemPacket(HCONV conversationHandle,
 
 	stream.Create();
 
-	stream.Write(&conversationHandle, sizeof(HCONV));
+	WriteHandle(stream, conversationHandle);
 	stream << conversationID;
 	item.WriteString<char>(stream);
 	stream << (uint32) format;
@@ -606,7 +633,7 @@ void DecodePokeItemPacket(NetDDEPacketPtr packet,
 	stream.Open();
 	stream.Seek(sizeof(CNetDDEPacket::Header));
 
-	stream.Read(&conversationHandle, sizeof(HCONV));
+	ReadHandle(stream, conversationHandle);
 	stream >> conversationID;
 	item.ReadString<char>(stream);
 	stream >> format;
