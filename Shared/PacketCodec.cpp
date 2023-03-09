@@ -38,7 +38,7 @@ void ReadHandle(WCL::IInputStream& stream, HCONV& handle)
 {
 	uint32 buffer;
 	stream.Read(&buffer, sizeof(buffer));
-	handle = reinterpret_cast<HCONV>(buffer);
+	handle = reinterpret_cast<HCONV>(static_cast<INT_PTR>(buffer));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

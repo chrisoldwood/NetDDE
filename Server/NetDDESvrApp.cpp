@@ -84,6 +84,7 @@ CNetDDESvrApp::CNetDDESvrApp()
 	: CApp(m_AppWnd, m_AppCmds)
 	, m_AppWnd()
 	, m_AppCmds(m_AppWnd)
+	, m_nServerPort(NETDDE_PORT_DEFAULT)
 	, m_oSvrSocket(CSocket::ASYNC)
 	, m_nNextConvID(1)
 	, m_nTimerID(0)
@@ -1138,11 +1139,11 @@ void CNetDDESvrApp::OnDDEStartAdvise(CNetDDESvrSocket& oConnection, NetDDEPacket
 	if (pLinkValue != nullptr)
 	{
 		// Send links' last advise data.
-		NetDDEPacketPtr packet = EncodeAdvisePacket(hConv,
-		                                            strItem,
-		                                            nFormat,
-		                                            pLinkValue->m_oLastValue);
-		oConnection.SendPacket(packet);
+		NetDDEPacketPtr advisePacket = EncodeAdvisePacket(hConv,
+		                                                  strItem,
+		                                                  nFormat,
+		                                                  pLinkValue->m_oLastValue);
+		oConnection.SendPacket(advisePacket);
 
 		// Update stats.
 		++m_nPktsSent;
