@@ -1,5 +1,5 @@
 .\ReadMe.txt
 .\RelNotes.txt
-.\Server\Debug\NetDDEServer.exe
-.\Client\Debug\NetDDEClient.exe
+.\Server\Debug\Win32\NetDDEServer.exe
+.\Client\Debug\Win32\NetDDEClient.exe
 .\Shared\HelpFile\Manual.html
