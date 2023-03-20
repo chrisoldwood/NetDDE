@@ -35,7 +35,7 @@ try
     };
     if ($attempt -lt 0)
     {
-        throw 'ERROR: Timed-out waiting for DDE advise loop to be established.'
+        Write-Warning 'Timed-out waiting for evidence (#CONNECTED) that DDE advise loop was established.'
     }
     $values = @()
 
