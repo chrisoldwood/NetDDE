@@ -34,8 +34,6 @@
 
 - Send keep-alives to detect broken sockets.
 
-- Add manual test for protocol backwards compatibility with v2.0 binaries.
-
 - Add setting to control binding to localhost only when running on a single host (e.g. tests).
 
 - Update packaging config and scripts for the 64-bit build.

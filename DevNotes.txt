@@ -63,6 +63,26 @@ manually:
 
 [2] https://github.com/st-one-io/netdde
 
+To check backwards compatibility with the v2.0 (32-bit) client and server:
+
+> pushd Client\Debug\Win32
+> powershell -c "iwr 'http://www.chrisoldwood.com/win32/netdde/netdde20r.zip' -o netdde20r.zip"
+> 7z e -aoa netdde20r.zip NetDDEClient.exe
+> popd && pushd Test\EndToEnd
+> powershell -File TestPrimitives.ps1 x64 Win32
+> powershell -File TestAdvises.ps1 x64 Win32
+> popd
+> del Client\Debug\Win32\NetDDEClient.exe
+
+> pushd Server\Debug\Win32
+> powershell -c "iwr 'http://www.chrisoldwood.com/win32/netdde/netdde20r.zip' -o netdde20r.zip"
+> 7z e -aoa netdde20r.zip NetDDEServer.exe
+> popd && pushd Test\EndToEnd
+> powershell -File TestPrimitives.ps1 Win32 x64
+> powershell -File TestAdvises.ps1 Win32 x64
+> popd
+> del Server\Debug\Win32\NetDDEServer.exe
+
 Release Checklist
 -----------------
 
