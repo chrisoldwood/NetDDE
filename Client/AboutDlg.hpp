@@ -103,6 +103,12 @@ inline void CAboutDlg::OnInitDialog()
 	tstring version   = WCL::VerInfoReader::GetStringValue(filename, WCL::VerInfoReader::PRODUCT_VERSION);
 	tstring copyright = WCL::VerInfoReader::GetStringValue(filename, WCL::VerInfoReader::LEGAL_COPYRIGHT);
 
+#ifdef _WIN64
+	version += TXT(" x64");
+#else
+	version += TXT(" x86");
+#endif
+
 #ifdef _DEBUG
 	version += TXT(" [Debug]");
 #endif

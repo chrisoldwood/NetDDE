@@ -50,6 +50,12 @@ CString GetAppVersion()
 	tstring filename  = CPath::Application();
 	tstring version   = WCL::VerInfoReader::GetStringValue(filename, WCL::VerInfoReader::PRODUCT_VERSION);
 
+#ifdef _WIN64
+	version += TXT(" [x64]");
+#else
+	version += TXT(" [x86]");
+#endif
+
 #ifdef _DEBUG
 	version += TXT(" [Debug]");
 #endif

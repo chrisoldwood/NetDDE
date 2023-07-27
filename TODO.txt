@@ -38,6 +38,4 @@
 
 - Update packaging config and scripts for the 64-bit build.
 
-- Include bitness in the version string and About box.
-
 - Investigate occasional missing initial advise with both x86 & x64 client (mostly x64).
