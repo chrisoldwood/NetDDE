@@ -58,11 +58,11 @@ void CClientConnsDlg::OnInitDialog()
 	m_lvGrid.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvGrid.InsertColumn(SERVICE_NAME,  TXT("Service"),  100, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(CLIENT_NAME,   TXT("Client"),   125, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(USER_NAME,     TXT("User"),     100, LVCFMT_LEFT );
-	m_lvGrid.InsertColumn(CONV_COUNT,    TXT("Convs"),     50, LVCFMT_RIGHT);
-	m_lvGrid.InsertColumn(LINK_COUNT,    TXT("Links"),     50, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(SERVICE_NAME,  TXT("DDE Service"), 100, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(CLIENT_NAME,   TXT("Client Host"), 125, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(USER_NAME,     TXT("Client User"), 100, LVCFMT_LEFT );
+	m_lvGrid.InsertColumn(CONV_COUNT,    TXT("Convs"),        50, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(LINK_COUNT,    TXT("Links"),        50, LVCFMT_RIGHT);
 
 	// Populate.
 	Refresh();

@@ -79,10 +79,10 @@ void CServicesDlg::OnInitDialog()
 	m_lvServices.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvServices.InsertColumn(LOCAL_NAME,  TXT("Service"),     100, LVCFMT_LEFT);
-	m_lvServices.InsertColumn(REMOTE_NAME, TXT("Remote Name"), 100, LVCFMT_LEFT);
-	m_lvServices.InsertColumn(SERVER_NAME, TXT("Server"),      175, LVCFMT_LEFT);
-	m_lvServices.InsertColumn(PORT_NUMBER, TXT("Port"),         50, LVCFMT_RIGHT);
+	m_lvServices.InsertColumn(LOCAL_NAME,  TXT("Local Service"),  100, LVCFMT_LEFT);
+	m_lvServices.InsertColumn(REMOTE_NAME, TXT("Remote Service"), 100, LVCFMT_LEFT);
+	m_lvServices.InsertColumn(SERVER_NAME, TXT("Bridge Host"),    175, LVCFMT_LEFT);
+	m_lvServices.InsertColumn(PORT_NUMBER, TXT("Port"),            50, LVCFMT_RIGHT);
 
 	// Load current services.
 	for (size_t i = 0; i < m_aoServices.size(); ++i)

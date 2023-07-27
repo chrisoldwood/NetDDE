@@ -24,8 +24,6 @@
 
 - Add .msi (need %APPDATA% change if installing to %ProgramFiles%).
 
-- Use "host name" instead of "server name" in UI and add "DDE" where required to avoid confusion.
-
 - Add setting to allow multiple instances to be run from different folders.
 
 - Fix .ini file format to allow service names which would conflict with section names, e.g Trace, Main, UI, etc.

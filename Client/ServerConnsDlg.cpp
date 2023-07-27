@@ -57,12 +57,12 @@ void CServerConnsDlg::OnInitDialog()
 	m_lvGrid.FullRowSelect(true);
 
 	// Create grid columns.
-	m_lvGrid.InsertColumn(SERVICE_NAME,  TXT("Service"),  100, LVCFMT_LEFT);
-	m_lvGrid.InsertColumn(REMOTE_NAME,   TXT("Remote"),   100, LVCFMT_LEFT);
-	m_lvGrid.InsertColumn(SERVER_NAME,   TXT("Server"),   175, LVCFMT_LEFT);
-	m_lvGrid.InsertColumn(PORT_NUMBER,   TXT("Port"),      50, LVCFMT_RIGHT);
-	m_lvGrid.InsertColumn(CONV_COUNT,    TXT("Convs"),     50, LVCFMT_RIGHT);
-	m_lvGrid.InsertColumn(LINK_COUNT,    TXT("Links"),     50, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(SERVICE_NAME,  TXT("Local Service"),  100, LVCFMT_LEFT);
+	m_lvGrid.InsertColumn(REMOTE_NAME,   TXT("Remote Service"), 100, LVCFMT_LEFT);
+	m_lvGrid.InsertColumn(SERVER_NAME,   TXT("Bridge Host"),    175, LVCFMT_LEFT);
+	m_lvGrid.InsertColumn(PORT_NUMBER,   TXT("Port"),            50, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(CONV_COUNT,    TXT("Convs"),           50, LVCFMT_RIGHT);
+	m_lvGrid.InsertColumn(LINK_COUNT,    TXT("Links"),           50, LVCFMT_RIGHT);
 
 	// Load grid data.
 	for (size_t i = 0; i < App.m_aoServices.size(); ++i)
