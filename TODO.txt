@@ -34,6 +34,4 @@
 
 - Add setting to control binding to localhost only when running on a single host (e.g. tests).
 
-- Update packaging config and scripts for the 64-bit build.
-
 - Investigate occasional missing initial advise with both x86 & x64 client (mostly x64).

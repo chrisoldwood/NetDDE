@@ -1,0 +1,5 @@
+.\ReadMe.txt
+.\RelNotes.txt
+.\Server\${BUILD}\${PLATFORM}\NetDDEServer.exe
+.\Client\${BUILD}\${PLATFORM}\NetDDEClient.exe
+.\Shared\HelpFile\Manual.html
