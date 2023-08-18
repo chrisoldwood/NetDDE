@@ -22,8 +22,6 @@
 
 - Add Chocolatey package.
 
-- Add .msi (need %APPDATA% change if installing to %ProgramFiles%).
-
 - Add setting to allow multiple instances to be run from different folders.
 
 - Fix .ini file format to allow service names which would conflict with section names, e.g Trace, Main, UI, etc.

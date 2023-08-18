@@ -86,10 +86,10 @@ To check backwards compatibility with the v2.0 (32-bit) client and server:
 Release Checklist
 -----------------
 
-- Update version number (App.rcv x 2).
+- Update version number (App.rcv x 2, NetDDE.wxs).
 - Update documentation (ReadMe.txt, RelNotes.txt, and Manual.html).
 - Build and run tests.
-- Build packages (zip).
+- Build packages (zip, msi).
 - Tag repository.
 - Upload packages.
 
