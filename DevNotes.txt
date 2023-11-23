@@ -50,7 +50,8 @@ There are also some end-to-end tests that use Excel as the data source and my
 DDE Command tool [1] as the driver (it needs to be on the PATH).
 
 > pushd Test\EndToEnd
-> run
+> .\run
+> popd
 
 [1] http://www.chrisoldwood.com/win32.htm#ddecommand
 
@@ -62,7 +63,10 @@ manually:
 > start "C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" Test\EndToEnd\Empty.xls
 > Server\Debug\%VC_PLATFORM%\NetDDEServer.exe
 > pushd Test\EndToEnd\netdde-js 
-> run
+> .\run
+> taskkill /im NetDDEServer.exe
+> taskkill /im excel.exe
+> popd
 
 [2] https://github.com/st-one-io/netdde
 
