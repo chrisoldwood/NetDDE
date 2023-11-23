@@ -86,6 +86,16 @@ To check backwards compatibility with the v2.0 (32-bit) client and server:
 > popd
 > del Server\Debug\Win32\NetDDEServer.exe
 
+Source package
+--------------
+
+PS> pushd $env:TEMP
+PS> rm -r -fo CloneProject.bat,Win32
+PS> curl -fsSL https://raw.githubusercontent.com/chrisoldwood/NetDDE/master/CloneProject.bat -o CloneProject.bat && .\CloneProject.bat
+PS> pushd Win32
+PS> ls -r -attr Hidden .git | rm -r -fo
+PS> 7z a -tzip netdde.zip NetDDE Lib
+
 Release Checklist
 -----------------
 
