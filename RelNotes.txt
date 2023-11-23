@@ -1,4 +1,4 @@
-06/12/2022: v2.5
+23/11/2023: v2.5
 ================
 
 - Fixed a bug where you couldn't configure multiple services with the same remote name (#1).
@@ -42,4 +42,4 @@
 - First public release.
 
 Chris Oldwood 
-6th December 2022
+23rd November 2023
